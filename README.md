@@ -5,11 +5,13 @@ Here we host the lecture notes and problem sets for the "Projektkurs Quantitativ
 
 We have quite a heterogeneous composition in the class, however basically non of our students has a deep understanding of R, most of them have never used R before. Hence we start very basic and aim at providing students with enough knowledge to do an entire project in R. 
 
-To achive this we do weekly assignments where students have to solve problem sets on their own. If you like R programming, take a look at the folder Problem-Sets that contains RTutor problemsets.
-
 ## Problem Sets
 
-The topics include the following.
+To achive this we do weekly assignments where students have to solve problem sets on their own. If you like R programming, take a look at the folder Problem-Sets that contains RTutor problemsets.
+
+We provide these problem sets in this repo as well as in RStudio Cloud. If you want to test the problem sets you can **create a free account** on RStudio Cloud and follow the links provided for each problem set below.
+
+The topics include the following:
 
 - Problem Set 1: Basic introduction to R and a short introduction to ggplot as well as a small introduction to data frames. [Here is the link to the RStudio Cloud to test this problem set](https://rstudio.cloud/project/1067600)
 - Problem Set 2: Basic introduction how to get data into R, join different datasets and manipulate datasets. Here we introduce the basic dyplr syntax. [Here is the link to the RStudio Cloud to test this problem set](https://rstudio.cloud/project/1067683)
