@@ -29,4 +29,4 @@ See https://github.com/skranz/RTutor for more details about RTutor and links to 
 
 # Sources & Attributions
 
-- The problem sets have been created by Julius Düker (@juduke), Sebastian Kranz (@skranz) an me (@AlexRieber).
+- The problem sets have been created by [Julius Düker](https://github.com/juduke/), [Sebastian Kranz](https://github.com/skranz) an [me](https://github.com/AlexRieber).
