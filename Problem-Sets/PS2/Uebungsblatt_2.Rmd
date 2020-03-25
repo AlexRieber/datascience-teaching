@@ -1,0 +1,563 @@
+
+```{r 'check_ps', include=FALSE}
+
+user.name = 'ENTER A USER NAME HERE' # set to your user name
+
+# To check your problem set, run the 
+# RStudio Addin 'Check Problemset'
+
+# Alternatively run the following lines
+library(RTutor)
+ps.dir = getwd() # directory of this file
+ps.file = 'Uebungsblatt_2.Rmd' # name of this file
+check.problem.set('Uebungsblatt_2', ps.dir, ps.file, user.name=user.name, reset=FALSE)
+```
+
+# RTutor Übungsblatt 2 - Projektkurs
+
+In diesem Übungsblatt arbeiten wir erstmals mit der lokalen Version von RStudio. RSudio ist eine Entwicklungsumgebung, die den Umgang mit R erleichtert. Im ersten Übungsblatt haben Sie bereits die Cloudversion von RStudio kurz kennengelernt. Sie können wie gewohnt die Fragen beantworten und Code ausführen. Zusätzlich steht Ihnen die Möglichkeit offen in der Konsole (bei den meisten befindet sie sich unter diesem Fenster) Code einzugeben und zu testen. Dieser Code kann nicht gesichert werden. Das Fenster rechts-unten können Sie insbesondere dazu nutzen sich Hilfe zu einzelnen Funktionen sowie Grafiken anzeigen zu lassen. Rechts-oben sehen Sie ein Fenster mit der Übersicht Ihrer Variablen und Datensätze. Wenn Sie auf einen dieser Datensätze klicken wird er in einem neuen Fenster and dieser Stelle angezeigt (der sogenannte View-Modus).
+
+Dieses Dokument ist in RMarkdown geschrieben. Wenn Sie hier Code ausführen möchten, dann markieren Sie diesen und drücken dann auf "Strg + Enter" oder auf "Run" oben rechts. Alternativ können Sie auch auf den grünen Play Button in jedem Chunk drücken. Sie sollten den Code einer Teilaufgabe ausführen und zusätzlich mit dem Addin 'Check Problemset' überprüfen, bevor Sie fortfahren! Um die Anworten zu überprüfen speichern Sie diese Datei (Strg + s) und führen Sie das Addin 'Check Problemset' aus. Sie finden die Addins in der Kopfzeile von RStudio oder unter Tools/Addins.
+
+Sie müssen alle Teilaufgaben abschließen, die _nicht_ "optional=TRUE" im Chunk header stehen haben, bevor Sie mit der darauffolgenden Teilaufgabe weitermachen können.  
+
+Sollten Ihnen Umlaute nicht richtig angezeigt werden speichern Sie diese Datei mit "Save with Encoding" und wählen Sie dann "UTF-8".
+
+Sie können jederzeit das Übungsblatt abspeichern und zu einem späteren Zeitpunkt fortfahren. Wenn Sie wissen möchten wie weit Sie fortgeschritten sind können sie in die Konsole `stats()` eingeben.
+
+Wenn Sie mit dem Übungsblatt fertig Sind geben Sie in die Konsole den Befehl 'make.submission()' ein und drücken Sie "Enter". Dieser Befehl erstellt in Ihrem Arbeitsordner eine Abgabe Datei mit der Endung '.sub'. Laden Sie diese Datei vor dem Abgabedatum auf der Kursseite in Moodle hoch.
+
+Wenn Sie bei einer Aufgabe nicht weiter wissen, so können Sie jederzeit in die Konsole `hint()` eingeben um einen Hinweis zu dieser Aufgabe zu erhalten. 
+
+**Beginnen Sie, indem Sie ihren Namen eintragen, wo nach "Username" gefragt wird.**
+
+Sie sollten alle Aufgaben des Problem Sets bearbeiten, jedoch mindestens 80% um das Problem Set zu bestehen!
+
+
+## Exercise 1 -- RStudio-Einführung
+
+a) Wenn Sie die lokale Version von RStudio verwenden ist es wichtig zu wissen, wo sich ihr Arbeitsverzeichnis befindet. Ihre Analyse in R beginnt immer vom Arbeitsverzeichnis aus und Sie sollten ihren Pfad zu anderen Ordnern immer _relativ_ zum Arbeitsverzeichnis setzen (**KEINE** absoluten Pfade mit setwd()!). Hier speichern Sie Dateien und importieren neue Datensätze.
+
+Folgendermaßen können Sie sich ihr gegenwärtiges Arbeitsverzeichnis anzeigen lassen. Führen Sie diesen Code aus, um zu sehen wo Ihr Arbeitsverzeichnis ist:
+```{r "1_a",optional=TRUE}
+getwd()
+```
+
+In ihrem aktuellen Arbeitsverzeichnis wurde ein neuer Ordner _Daten_ erstellt, welcher alle Daten, die wir in diesem Problem Set verwenden, enthält. 
+Sie sollten für ihre Rohdaten immer einen eigenen Ordner erstellen und in ihrem R-Skript den Pfad zu diesem Ordner immer relativ zu ihrem aktuellen Arbeitsverzeichnis setzen.
+
+b) Um zu sehen, welche Ordner und Dateien sich im aktuellen Arbeitsverzeichnis befinden können Sie den Befehl `list.files()` verwenden. Ordner können Sie erkennen, da diese keine Dateiendung vorweisen. Versuchen Sie es einmal:
+```{r "1_b",optional=TRUE}
+
+# enter your code here ...
+
+```
+c)  Um den Umgang mit R zu erleichtern wurden über die Jahre zahlreiche sogenannte packages (Pakete) entwickelt. Diese enthalten zusätzliche Funktionen für R. Die wichtigsten werden auf der Plattform "CRAN" gehostet. Um ein Paket zu verwenden müssen Sie es einmal installieren. Bspw. wird das Paket `tidyverse` mittels `install.packages("tidyverse")` installiert. 
+In der Installationsanleitung für R auf Moodle finden Sie näheres zur Installation von R und ein Installationsskript für alle benötigten Pakete.
+
+d)  Jedes mal wenn Sie eines der Pakete benötigen müssen Sie nun nur noch die Pakete laden. Dies geschieht mit dem Befehl `library("Paketname")` bspw. `library("tidyverse")`. Führen Sie folgenden Code aus um tidyverse, lubridate und readxl zu laden.
+```{r "1_d"}
+library("tidyverse")
+library("lubridate")
+library("readxl")
+```
+Sie müssen bei jedem Neustart von RStudio die Pakete neu laden, d.h. den Befehl `library("Paketname")` erneut ausführen, wenn Sie eines der Pakete verwenden möchten. Ob ein Befehl ein bestimmtes Paket benötigt können Sie in der Dokumentation unten rechts sehen. Geben Sie z.B. in Ihre Konsole help(bind) ein, so sehen Sie, dass alle Funktionen mit bind das Paket `dplyr` benötigen. Dokumentationen zu den Paketen können Sie entweder bei den _help_ Seiten im rechten unteren Fenster, oder im Internet finden.
+
+Sollten Sie noch weitere Pakete von CRAN verwenden wollen, können Sie analog vorgehen.
+
+
+## Exercise 2 -- Datenaufbereitung Teil 1
+
+Die EU geriet nach 2010 in den Fokus, da sich verschiedene Länder der EU stark verschuldet hatten, was von den internationalen Finanzmärkten kritisch gesehen wurde.
+Im vorherigen Problem Set hatten wir uns Daten von EU-Ländern aus dem Jahr 2017 angeschaut. In diesem und den folgenden Problem-Sets schauen wir uns genauer an, wie sich verschiedene Kenngrößen, wie bspw. die Schuldenquote, oder auch die Arbeitslosigkeit in der EU zwischen 1991 und 2018 entwickelt haben. So verschaffen wir uns ein besseres Bild über die makroökonomischen Zusammenhänge innerhalb der EU.
+
+In der zip Datei zu diesem Problem Set sind die Datensätze EU_Makro1.csv, EU_Makro2.xlsx und EU_Makro3.csv enthalten und im Ordner _Daten_ gespeichert. 
+
+Zu Beginn ist es wichtig einen Überblick über den Aufbau der Datensätze zu gewinnen:
+
+Die Spaltennamen der einzelnen Dateien sind wie folgt:
+
+  - `cntry` Ein 3 stelliger Ländercode
+  - `country` Name des Landes
+  - `year` Beobachtungsjahr
+  - `pop` Bevölkerung in Millionen
+  - `unempl` Arbeitslosigkeit in Prozent
+  - `gdp` Bruttoinlandsprodukt in Mrd Euro ("gdp" steht für "Gross Domestic Product")
+  - `gov_debt` Staatschulden (alle öffentlichen Haushalte) in Mrd Euro
+  - `date` 1. Januar eines jeden Jahres
+  - `exports` Exporte in Mrd Euro
+  - `imports` Importe in Mrd Euro
+  
+a) Betrachten Sie die drei Datensätze mit den Editor von RStudio (für die .csv Datensätze) bzw. Excel. Welche Datensätze verfügen über keine Kopfzeile?
+
+1) 1 und 2
+2) 1 und 3
+3) Nur 1
+4) Nur 2
+5) Nur 3
+6) 1, 2 und 3
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "2_a",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+b) Betrachten Sie die drei Datensätze. In welchem Datensatz findet die Trennung der Dezimalstellen durch Komma statt.
+
+1) 1 und 2
+2) 1 und 3
+3) 2 und 3
+4) Nur 1
+5) Nur 2
+6) Nur 3
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "2_b",optional=TRUE}
+
+# enter your code here ...
+
+```
+c) Betrachten Sie die EU_Makro1.csv und EU_Makro3.csv mit einem Texteditor wie bspw. Notepad. Sie können die Textdatei auch mit RStudio öffnen und betrachten. In welcher Form werden die Eintragungen in den jeweiligen Datensätzen voneinander getrennt?
+
+1) in beiden mit Kommas
+2) in EU_Makro1 mit Semikolons und in EU_Makro3 mit Kommas
+3) in EU_Makro1 mit Kommas und in EU_Makro3 mit Semikolons
+4) in beiden mit Semikolons
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "2_c",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+d) Sie finden unten den Code um `eu_makro1` und `eu_makro2` zu importieren. Importieren Sie außerdem `eu_makro3`. Wie lautet hierfür der Code?
+```{r "2_d"}
+eu_makro1 <- read_csv("./data/EU_Makro1.csv", col_names = FALSE)
+eu_makro2 <- read_xlsx("./data/EU_Makro2.xlsx")
+
+# enter your code here ...
+
+```
+e) Lassen Sie sich die ersten 3 Zeilen jedes Datensatzes anzeigen.
+```{r "2_e",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+f)  Wie Sie sehen hat `eu_makro1` sehr unspezifische Spaltennamen. Beschriften Sie die Spalten in `eu_makro1` mit "cntry", "country", "year", "pop", "unempl", "gdp", "gov_debt", "date". Um zu überprüfen ob es funktioniert hat, können Sie in die Konsole `colnames(eu_makro1)` oder einfach `head()` eingeben.
+```{r "2_f"}
+
+# enter your code here ...
+
+```
+g) Lassen Sie sich den Datentyp der Variable date in `eu_makro1` anzeigen.
+```{r "2_g",optional=TRUE}
+
+# enter your code here ...
+
+```
+h)  Wenn ein Datum nicht im Datumsformat abgespeichert ist, so können Sie später keine datumsbezogenen Funktionen darauf angewendet werden. Der folgende Code formatiert die Variable date in `eu_makro1` und `eu_makro2` in ein Datumsformat um. Führen Sie diesen Code aus:
+```{r "2_h"}
+eu_makro1$date <- dmy(eu_makro1$date)
+eu_makro2$date <- dmy(eu_makro2$date)
+```
+Die Funktion `dmy` liest aus der Zeichenkette die jeweiligen Werte für den _Tag/Monat/Jahr_ aus und kodiert diese entsprechend um. Falls ihr Datum eine andere Reihenfolge in der Zeichenkette hat, bspw. _Jahr/Monat/Tag_, so könne Sie die Funktion entsprechend umstellen, für dieses Beispiel wäre es `ymd`.
+
+i) Lassen Sie sich nun erneut den Datentyp der Variable Datum in `eu_makro1` anzeigen.
+```{r "2_i",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+
+## Exercise 3 -- Datenaufbereitung Teil 2
+
+Für diese Aufgabe laden wir die Daten erneut. Führen Sie hierzu einfach den folgenden Chunk aus:
+```{r "3"}
+eu_makro1 <- read_csv("./data/EU_Makro1.csv", col_names = FALSE)
+eu_makro2 <- read_xlsx("./data/EU_Makro2.xlsx")
+eu_makro3 <- read_csv2("./data/EU_Makro3.csv")
+colnames(eu_makro1) <- c("cntry", "country", "year", "pop", "unempl", "gdp", "gov_debt", "date")
+eu_makro1$date <- dmy(eu_makro1$date)
+eu_makro2$date <- dmy(eu_makro2$date)
+```
+
+a)  `eu_makro1` und `eu_makro2` beinhalten Informationen zur Bevölkerungsdichte, der Arbeitslosigkeit, dem Bruttoinlandsprodukt sowie den Schulden des jeweiligen EU-Landes. `eu_makro3` beinhaltet Informationen über deren Importe und Exporte für unterschiedliche Zeiträume. Fügen Sie die Datensätze `eu_makro1` und `eu_makro2` zusammen und speichern Sie das Resultat in `eu_makro_dup`. Verwenden Sie hierfür `bind_rows()`.
+```{r "3_a"}
+
+# enter your code here ...
+
+```
+
+b)  Der folgende Befehl löscht doppelte Beobachtungen und speichert Sie in der Variable `eu_makro`. Durch den Zusatz `.keep_all = TRUE` behalten Sie alle Variablen. Führen Sie diesen Code aus:
+```{r "3_b"}
+eu_makro <- distinct(eu_makro_dup, year, country, .keep_all = TRUE)
+```
+c)  Fügen Sie nun in `eu_makro` zu jedem Datum noch die Exporte und Importe hinzu. Diese ist in `eu_makro3` gespeichert. Dafür verbinden Sie die zuvor eingelesenen Datensätze `eu_makro` und `eu_makro3` mittels `country` und `year`. Führen Sie hierzu den folgenden Code aus:
+
+```{r "3_c"}
+eu_makro <- left_join(eu_makro, eu_makro3, by=c("country", "year"))
+head(eu_makro)
+```
+Hinweis: Die join-Funktionen sind Teil das Paket dplyr, welches wiederum in tidyverse enthalten ist. D.h. Sie müssen dplyr nicht mehr extra installieren und laden.
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+d) `eu_makro3` enthält im Gegensatz zu `eu_makro` zusätzlich Informationen aus dem Jahr 1990 über Importe und Exporte. Diese sind jedoch durch den left_join nicht in ihrem `eu_makro` Datensatz enthalten. Wenn Sie nun in der Aufgabe 3d) einen right_join ausgeführt hätten, was hätte dies bewirkt?
+
+1)  Nichts, es handelt sich um die gleiche Funktion
+2)  R gibt eine Warnung aus, da in diesem Fall ein right_join nicht zulässig ist
+3)  Die Variablen aus `eu_makro`, welche nicht in `eu_makro3` enthalten sind werden mit NA aufgefüllt
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+
+```{r "3_d"}
+
+# enter your code here ...
+
+```
+
+e) Das Paket tidyverse bietet die Möglichkeit sogenannte "Pipes" zu verwenden. Pipes erleichtern den Umgang mit R und machen den Code kürzer und übersichtlicher. Ein Pipe wir durch den Operator `%>%` dargestellt. Sie können mit Hilfe von Pipes die Teilaufgaben a), b) und c) zusammengefasst lösen, wie im folgenden Chunk gezeigt wird.
+_Hinweis:_ Sie müssen folgenden Code nicht mehr ausführen.
+
+```{r "3_e"}
+eu_makro <- bind_rows(eu_makro1,eu_makro2) %>%
+  distinct(year, country, .keep_all = TRUE) %>% 
+  left_join(eu_makro3, by=c("country", "year"))
+```
+`%>%` ist dabei als eine Art Folgepfeil zu verstehen und kann als "und dann" gelesen werden. Der Output einer Funktion dient dabei als Input auf die darauffolgende.
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+
+## Exercise 4 -- Datenaufbereitung Teil 3
+
+Für diese Aufgabe laden wir die Daten erneut. Führen Sie hierzu einfach den folgenden Chunk aus:
+```{r "4"}
+eu_makro1 <- read_csv("./data/EU_Makro1.csv", col_names = FALSE)
+eu_makro2 <- read_xlsx("./data/EU_Makro2.xlsx")
+eu_makro3 <- read_csv2("./data/EU_Makro3.csv")
+colnames(eu_makro1) <- c("cntry", "country", "year", "pop", "unempl", "gdp", "gov_debt", "date")
+eu_makro1$date <- dmy(eu_makro1$date)
+eu_makro2$date <- dmy(eu_makro2$date)
+
+eu_makro <- bind_rows(eu_makro1,eu_makro2) %>%
+  distinct(year, country, .keep_all = TRUE) %>% 
+  left_join(eu_makro3, by=c("country", "year"))
+```
+
+a) Manchmal möchten Sie ihre Daten nach einer Variable sortieren. Dies können Sie mittels `arrange()` erreichen. Sortieren Sie den Datensatz `eu_makro` nach `pop` und lassen Sie sich die ersten _3_ Zeilen anzeigen. Verwenden Sie die Pipe.
+```{r "4_a",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+b) Sortieren Sie  den Datensatz `eu_makro` _absteigend_ nach `gov_debt` und lassen Sie sich die ersten _5_ Zeilen anzeigen.
+
+```{r "4_b",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+c) In welchem Land ist die Nettoverschuldung am höchsten und in welchem Jahr war dies?
+
+1) Vereinigtes Königreich im Jahr 2015
+2) Italien im Jahr 2017
+3) Griechenland im Jahr 2011
+4) Deutschland im Jahr 2012
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "4_c",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hätten Sie das erwartet? Es gibt mehr hoch verschuldete Länder in der EU als gedacht ...
+
+d) Wenden wir uns einem der Länder in den Top 5 bzgl. Schuldenlast zu: Italien. Wie hoch war die Schuldenlast über die Jahre im Durchschnitt für Italien? Gehen Sie hierfür wie folgt vor:
+
+- Verwenden Sie den Datensatz `eu_makro`
+
+- filtern Sie diesen, so dass nur noch Beobachtungen für Italien übrig bleiben. Verwenden Sie hierfür die Funktion 'filter()'. Für mehr Informationen zur Funktion `filter()` und Beispielen zur Funktion rufen Sie `help(filter)` in der Konsole auf.
+
+- Geben Sie den gefilterten Datensatz mit Hilfe einer Pipe direkt in `summarise()` und berechnen Sie hier die durchschnittliche Schuldenlast über den kompletten Zeitraum.
+
+```{r "4_d",optional=TRUE}
+
+# enter your code here ...
+
+```
+Der Befehl `summarise` wird immer benötigt, wenn Sie Daten aggregieren wollen, d.h. insbesondere bei der Berechnung von Minimum oder Maximum, Durchschnitten, Median etc. 
+
+e) Erstellen Sie mit Hilfe von 'group_by' einen Datensatz 'eu_makro_grup', welcher ihren bisherigen Datensatz 'eu_makro' nach den Ländern gruppiert. Nutzen Sie für hierfür die Pipe.
+
+```{r "4_e"}
+
+# enter your code here ...
+
+```
+Nun haben Sie zwei verschiedene Datensätze `eu_makro` und `eu_makro_grup`.
+
+f) Führen Sie folgenden Code aus und betrachten Sie jeweils den Output:
+Code 1:
+```{r "4_f"}
+eu_makro %>% 
+  summarise(mean(gov_debt, na.rm = TRUE))
+```
+Code 2:
+```{r "4_f_2"}
+eu_makro_grup %>% 
+  summarise(mean(gov_debt, na.rm = TRUE))
+```
+Was berechnen "Code 1" und "Code 2"?
+
+1) durchschnittliche Schuldlast; durchschnittliche Schuldlast pro Monat
+2) durchschnittliche Schuldlast; durchschnittliche Schuldlast pro Tag
+3) durchschnittliche Schuldlast; durchschnittliche Schuldlast
+4) durchschnittliche Schuldlast; durchschnittliche Schuldlast pro Land
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "4_f_3",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+Sie können die Gruppierung in `eu_makro_grup` auch einfach wieder mit 'ungroup()' aufheben.
+```{r "4_f_4"}
+eu_makro_grup  <- eu_makro_grup %>% 
+  ungroup()
+```
+`eu_makro_grup` ist jetzt mit `eu_makro` identisch. Bitte bedenken Sie, dass sich eine Gruppierung immer auf die darauffolgenden Funktionen auswirkt, d.h. es ist sinnvoll eine Gruppierung wieder aufzuheben, nachdem Sie ihre Analyse getätigt haben. 
+
+g) Fügen Sie dem Datensatz `eu_makro` eine neue Variable `debt_share_country` hinzu, die die Verschuldungsquote des jeweiligen Landes beinhaltet, hierzu sollten Sie die Funktion `mutate` nutzen. Nachdem Sie dem Datensatz `eu_makro` diese Variable hinzugefügt haben lassen Sie sich die ersten acht Zeilen des erneuerten Datensatzes `eu_makro` anzeigen. Nutzen Sie für ihre Analyse eine Pipe.
+
+```{r "4_g"}
+
+# enter your code here ...
+
+```
+
+h) Sie möchten nun eine Vergleichsgröße erhalten wie hoch die Verschuldungsquote relativ zum BIP durchschnittlich für alle Ländern _pro Jahr_ war. Fügen Sie dem Datensatz `eu_makro` eine neue Variable `debt_share_year` hinzu, welche die durchschnittliche Verschuldungsquote aller EU-Länder in jedem Jahr enthält. Hierzu sollten Sie die Funktion `mutate()` verwenden. Nutzen Sie für ihre Analyse eine Pipe.
+
+```{r "4_h"}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+i) Sie interessieren sich nun nur für die `debt_share_year` und die `debt_share_country` für jedes Land und Jahr. In diesem Fall können Sie mittels `select` ihren Datensatz auf `country`, `year` und die `debt_share_year` und die `debt_share_country` in den jeweiligen einschränken (bitte in dieser Reihenfolge). Tun Sie dies im folgenden Chunk und speichern Sie ihr Ergebnis im Datensatz `debt_countrys` ab.
+
+```{r "4_i"}
+
+# enter your code here ...
+
+```
+
+j) Die in Teilaufgabe g) berechnete Schuldenquote als relative Kennzahl ist besser geeignet um die Wettbewerbsfähigkeit eines Landes zu beurteilen als die reine Nettoverschuldung. Nach den Maastricht Kriterien darf ein Land keine Gesamtverschuldung aufweisen die größer ist als 60% des Bruttoinlandsprodukt. Nutzen Sie ihren neu erstellten `debt_countrys` Datensatz um zu zeigen wie oft jedes Land in ihrem Beobachtungszeitraum gegen die Maastricht Kriterien verstoßen hat. Gruppieren Sie hierfür ihre Daten nach Land und nutzen Sie `summarise()` um zu zählen, wie oft die Verschuldungsquote pro Land größer als 0,6 war. Weisen Sie innerhalb der `summarise()`-Funktion ihr Ergebnis der Variablen "Anzahl" zu und speichern Sie ihre Ergebnisse in einen extra Datensatz `maastricht`. Zur besseren Übersicht sortieren Sie den Datensatz absteigend nach "Anzahl".
+
+```{r "4_j"}
+
+# enter your code here ...
+
+```
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+Wer hat am häufigsten gegen die Maastricht-Kriterien verstoßen?
+
+1) Griechenland
+2) Italien
+3) Großbritannien
+4) Malta
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "4_j_2",optional=TRUE}
+
+# enter your code here ...
+
+```
+Wir betrachten Daten von 1991 - 2017, d.h. 27 Jahre ... Bei den Zahlen sollte man eventuell mal über die Durchsetzung der Maastricht-Kriterien nachdenken, was meinen Sie?
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+
+In den nächsten Problem Sets greifen wir immer wieder auf die gerade eingeführten EU-Daten zurück und beschäftigen uns noch tiefer mit ihnen. 
+
+Zum Abschluss dieses Problem Sets wollen wir uns jedoch von den EU-Daten lösen und auf Probleme in der Datenstruktur eingehen, auf welche Sie in ihren Projekten stoßen könnten. In Projekten kann es öfter erforderlich sein Daten in ein bestimmtes Format zu bringen um innerhalb des `tidyverse` damit effizient arbeiten zu können. 
+
+## Exercise 5 -- Daten umformatieren
+
+Markieren Sie diesen Code und führen Sie ihn aus um die für diese Aufgabe notwendigen Datensätze zu importieren. Die Datensätze `GDP_EU`, `Einkommen`, `GewichtGroesse` und `Supermarkt` sollten Sie bei sich im _Daten_ Ordner in ihrem aktuellen Arbreitsverzeichnis sehen.
+```{r "5"}
+gdp <- read_csv2("./data/GDP_EU.csv") %>%
+  arrange(country)
+einkommen <- read_csv2("./data/Einkommen.csv")
+colnames(einkommen) <- c("Pers.ID","2017","2018")
+gewicht_groesse <- read_csv2("./data/GewichtGroesse.csv")
+supermarkt <- read_csv2("./data/Supermarkt.csv") %>%
+  arrange(Sparte)
+```
+Bei manchen Datensätzen sind schon alle Daten in einer Datei und trotzdem scheint irgendetwas nicht zu stimmen:
+
+Betrachten Sie die ersten 6 Zeilen von `gdp`:
+```{r "5__2"}
+head(gdp,6)
+```
+a) Es fällt auf, dass der Datensatz nicht die übliche Form hat. Ein ordentlicher Datensatz ("tidy data") weißt folgende Merkmale auf:
+
+1. Jede Variable hat eine eigene Spalte
+
+2. Jede Beobachtung hat eine eigene Reihe
+
+3. Jeder Wert hat eine eigene Zelle
+
+
+Welcher Grundsatz ist hier verletzt?
+
+1) Grundsatz 1
+2) Grundsatz 2
+3) Grundsatz 3
+
+Geben Sie hier die Ziffer Ihrer Antwort (ohne Klammer-Zu) ein und führen Sie die Codezeile aus:
+```{r "5_a",optional=TRUE}
+
+# enter your code here ...
+
+```
+Die Verletzung eines dieser Grundsätze kann zu Problemen bei der Datenverarbeitung führen. Bspw. würde sich beim Datensatz `gdp`nur sehr umständlich die Bevölkerungsgröße der EU bestimmen lassen.
+
+Die Funktion `pivot_wider()` kann Datensätze in der Form wie Sie `gdp` hat in eine ordentliche Form bringen. Führen Sie hierfür folgenden Code aus:
+```{r "5_a_2"}
+gdp_tidy <- gdp %>%
+            pivot_wider(names_from = "variable", values_from = "value")
+head(gdp_tidy,6)
+```
+die Option `names_from` gibt an welche die identifizierende Variable ist - in unserem Fall `variable`. `values_from` gibt an in welcher Spalte der Wert hinterlegt ist - bei uns passenderweise in der Spalte mit dem Namen `value`.
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+Betrachten Sie nun die ersten 6 Zeilen von `einkommen`:
+```{r "5_a_3"}
+head(einkommen,6)
+```
+b) Es fällt auf, dass der Datensatz nicht die übliche Form hat. Ein ordentlicher Datensatz ("tidy data") weißt folgende Merkmale auf:
+
+1. Jede Variable hat eine eigene Spalte
+
+2. Jede Beobachtung hat eine eigene Reihe
+
+3. Jeder Wert hat eine eigene Zelle
+
+Welcher Grundsatz ist hier verletzt?
+
+1) Grundsatz 1
+2) Grundsatz 2
+3) Grundsatz 3
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "5_b",optional=TRUE}
+
+# enter your code here ...
+
+```
+Dieser Datensatz gibt für eine ID mehrere Beobachtungen wieder, unterteilt in Jahre. Häufig werden Paneldaten auf diese Art und Weise dargestellt. 
+
+Die Funktion `pivot_longer()` kann Datensätze in der Form wie Sie `einkommen` hat in eine Form bringen, mit der wir im `tidyverse` einfacher arbeiten können. Führen Sie hierfür folgenden Code aus:
+```{r "5_b_2"}
+einkommen_tidy <- einkommen %>% 
+  pivot_longer(names_to = "Jahr", values_to = "Nettoeinkommen", cols = c("2017","2018"))
+head(einkommen_tidy,6)
+```
+die Option `names_to` gibt an welche Variable neu geschaffen werden soll - in unserem Fall `Jahr`. `values_to` gibt den Namen der Spalte an, welche die eigentlichen Werte enhält. Der Vektor `cols = c("2018", "2018")` bezeichnet die Spalten des Datensatzes, die von der Transformation betroffen sind. Bei uns die Spalten `2017` und `2018`.
+
+Häufig spricht man bei dem Datenformat, welches wir in Aufgabe a) und b) erzeugt haben, auch vom long-Format.
+
+Hier wäre ein guter Zeitpunkt das Addin 'Check Problemset' auszuführen!
+
+Betrachten Sie nun die ersten 6 Zeilen von `gewicht_groesse`:
+```{r "5_b_3"}
+head(gewicht_groesse,6)
+```
+c) Es fällt auf, dass der Datensatz nicht die übliche Form hat. Ein ordentlicher Datensatz ("tidy data") weißt folgende Merkmale auf:
+
+1. Jede Variable hat eine eigene Spalte
+
+2. Jede Beobachtung hat eine eigene Reihe
+
+3. Jeder Wert hat eine eigene Zelle
+
+Welcher Grundsatz ist hier verletzt?
+
+1) Grundsatz 1
+2) Grundsatz 2
+3) Grundsatz 3
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und führen Sie die Codezeile aus:
+```{r "5_c",optional=TRUE}
+
+# enter your code here ...
+
+```
+Auch hier ist es nur umständlich möglich mit den Daten zu arbeiten. Stellen Sie sich vor wie Sie das Durchschnittsgewicht berechnen könnten!
+
+Die Funktion `seperate()` kann Variablen die als eine im Datensatz abgespeichert sind trennen. Führen Sie hierfür folgenden Code aus:
+```{r "5_c_2"}
+gewicht_groesse_tidy <- gewicht_groesse %>%
+  separate(GG, into=c("Gewicht","Groesse"), sep = "/")
+head(gewicht_groesse_tidy,6)
+```
+die Option `into` gibt an welche Variablen die genannte Variable zerlegt werden soll. `sep` definiert das Trennzeichen zwischen den Werten der genannten Variable im vorliegenden Datensatz.
+
+d) Betrachten Sie die ersten 6 Zeilen von `supermarkt`:
+```{r "5_d"}
+head(supermarkt,6)
+```
+Es fällt auf, dass der Datensatz nicht die übliche Form hat. Bringen Sie den Datensatz in eine ordentliche Form, speichern Sie Ihn unter `supermarkt_tidy` und lassen Sie sich anschließend die ersten acht Zeilen anzeigen.
+```{r "5_d_2",optional=TRUE}
+
+# enter your code here ...
+
+
+# enter your code here ...
+
+```
+
+
+
+## Lösung einreichen
+
+Um Ihre Lösung zu diesem Übungsblatt abzugeben klicken Sie auf "Check Problemset". Hierzu können Sie zu `Tools -> Addins -> Browse Addins ... -> Check Problemset` gehen. Danach geben Sie dann in die Konsole (Fenster unten) folgendes ein: 
+
+    make.submission()
+
+Der Befehl kontrolliert ihr Übungsblatt und erstellt eine Datei mit dem Namen  `problemsetname__username.sub` in Ihrem Arbeitsverzeichnis, die Ihre Lösung und die Log Dateien enthält.
+Laden Sie diese Datei (mit der Endung .sub) dann auf Moodle hoch. 
+Ändern Sie nicht den Namen der Datei!
+
+
+
+
+
+

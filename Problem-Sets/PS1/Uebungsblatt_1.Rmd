@@ -1,0 +1,440 @@
+
+```{r 'check_ps', include=FALSE}
+
+user.name = 'TRUE' # set to your user name
+
+# To check your problem set, run the 
+# RStudio Addin 'Check Problemset'
+
+# Alternatively run the following lines
+library(RTutor)
+ps.dir = getwd() # directory of this file
+ps.file = 'Uebungsblatt_1.Rmd' # name of this file
+check.problem.set('Uebungsblatt_1', ps.dir, ps.file, user.name=user.name, reset=FALSE)
+```
+
+# RTutor Übungsblatt 1 - Projektkurs
+
+Dies ist das erste interaktive RTutor Übungsblatt für den WiWi Projektkurs an der Uni Ulm. Um eine Aufgabe zu bearbeiten klicken Sie auf `edit`. Klicken Sie nun um die Eingabe auf Ihre Richtigkeit zu überprüfen auf `check`. Wenn Sie auf `hint` klicken wird Ihnen ein Hinweis zur Aufgabe gegeben. Sollte Ihnen kein Hinweis angezeigt werden, löschen Sie nochmal alle Eingaben aus dem entsprechenden Eingabefeld und klicken sie dann auf `hint`. 
+Mit `P` gekennzeichnete Teilaufgaben müssen Sie abschließen bevor Sie mit der darauffolgenden weitermachen können.
+
+## Exercise 1 -- R als Taschenrechner
+
+a) Sie können R als einfachen Taschenrechner nutzen. Geben Sie unten in das Textfeld `365*24` ein, um zu berechnen wie viele Stunden ein Jahr hat. Drücken Sie hiernach auf `check`.
+
+```{r "1_a",optional=TRUE}
+# Enter your code here.
+```
+
+Bei der richtigen Lösung erhalten Sie Punkte. Sie können nach oben Scrollen und auf den Knopf mit den Balken <i class="fa fa-tasks fa-fw"></i> oben rechts drücken, um zu sehen, wie viele Punkte Sie bereits haben. Sie können eine Aufgabe ohne Punktabzug beliebig oft versuchen.
+
+b) `P` In R arbeitet man mit Variablen. Der Beispielcode unten weist der Variablen `a` den Wert 11 mal 13 zu und zeigt danach `a`. Drücken Sie einfach auf `edit` und dann `check`.
+```{r "1_b"}
+a <- 11*13
+a
+```
+Nutzen sie nun das Rechenzeichen für Potenzen `^` um der Variablen `b` den Wert  2^10 zuzuweisen und zeigen Sie dann `b` an.
+```{r "1_b_2",optional=FALSE}
+# Enter your code here.
+
+```
+
+c) Speichern Sie in der Variable `x` die Summe von `a` und `b` und lassen Sie dann `x` anzeigen.
+
+```{r "1_c",optional=TRUE}
+# Enter your code here.
+```
+
+
+d) Suchen Sie auf Google mit dem Suchbegriff "r compute square root", mit welcher Funktion man in R eine Quadratwurzel berechnet. Berechnen Sie dann die Quadratwurzel aus 123456789 und weisen den Wert der Variable `w` zu. Zeigen Sie dann `w` an.
+
+```{r "1_d",optional=TRUE}
+# Enter your code here.
+```
+
+e) Suchen Sie auf Google mit dem Suchbegriff "r compute absolute values", mit welcher Funktion man in R den Betrag berechnet. Berechnen Sie dann den Betrag aus (-13^3).
+
+```{r "1_e",optional=TRUE}
+# Enter your code here.
+```
+
+
+
+Zum Schluss dieser Aufgabe, was halten Sie von folgendem Angebot:
+
+> Sie erhalten 10 Euro, und geben mir das Ergebnis von folgender Rechenoperation in Euro:<br><br>(0.1 + 0.2 - 0.3)*10000000000000000000<br><br>
+> Um nicht so viel Kopfrechnen zu müssen, lassen wir R berechnen, wieviel Sie zahlen müssen...
+
+Drücken Sie einfach auf `edit` und dann `check`.
+```{r "1_e_2"}
+(0.1 + 0.2 - 0.3)*10000000000000000000
+```
+Da sollte doch 0 herauskommen... tut es aber auf den meisten Computern nicht!
+
+Bei Rechenoperationen mit Kommazahlen kommt es bei fast allen Programmiersprachen regelmäßig zu kleineren Rundungsfehlern. Diese machen meist aber nichts aus, zumindest <a href="http://ta.twi.tudelft.nl/users/vuik/wi211/disasters.html" target="_blank"> solange wir keine Raketen bauen...</a>
+
+
+## Exercise 2 -- Rechnen mit Vektoren
+
+In R kann man sehr bequem mit Vektoren arbeiten. Der folgende Code erstellt zwei Vektoren in R:
+```{r "2"}
+v <- c(45,-6,0,2)
+v
+u <- 2:8
+u
+```
+Die Funktion `c(...)` kann genutzt werden um beliebige Zahlen zu einem Vektor zusammenzubinden. Der Befehl `a:b` erstellt einen Vektor mit allen ganzen Zahlen zwischen `a` und `b`.
+
+a) `P` Speichern sie in der Variablen `x` alle ganzen Zahlen zwischen 0 und 10 und zeigen Sie `x` an.
+
+```{r "2_a"}
+# Enter your code here.
+```
+
+b) `P` Lassen Sie einfach folgenden Code laufen, der zwei Rechnungen mit Vektoren illustriert, indem Sie `edit` und dann `check` klicken.
+```{r "2_b"}
+10+x
+x*x
+```
+
+Schauen Sie auf das zweite Rechenergebnis und versuchen Sie bitte folgendes Quiz zu beantworten.
+
+#! addon__quiz__x_x
+
+c) `P` Speichern Sie nun in der Variable `y` einen neuen Vektor, der die Werte von `x` hoch `3` nimmt. Zeigen Sie `y` an.
+
+```{r "2_c"}
+# Enter your code here.
+```
+
+d) `P` Suchen Sie auf Google mit dem Suchbegriff "r replicate elements", mit welcher Funktion man in R einen Vektor mit einer Reihe identischer Elemente erstellt. Erzeugen Sie dann einen Vektor der 11 mal 3.14 enthält und speichern sie diesen als `r` ab. Zeigen Sie dann `r` an.
+
+```{r "2_d"}
+# Enter your code here.
+```
+
+
+Lassen Sie einfach folgenden Code laufen um einen Plot von `x` und den zugehörigen `y` Werten sowie `r` und den zugehörigen `y`  zu erstellen. Klicken Sie hierfür auf `edit` und dann `check`. 
+```{r "2_d_2",dev='svg'}
+library(ggplot2)
+qplot(x,y)
+qplot(x,r)
+```
+Wir haben hier die Funktion `qplot` aus den R Paket `ggplot2` genutzt, um den Plot zu erstellen. Das Paket `ggplot2` ist ein sehr gut durchdachtes Paket mit dem man schnell sehr ansehnliche Grafiken erstellen kann. Sie werden später noch genauer lernen was Pakete sind und wie man sie verwendet.
+
+e) `P` Wie sie sehen sind jeweils die Abstände zwwischen den x-Werten sehr gross. Erstellen Sie einen Vektor x der im Abstand von 0.1 Einheiten alle Zahlen zwischen -1 und 1 enthält. Googlen Sie "r seq" für eine genaue Hilfe zur Funktion  
+```{r "2_e"}
+# Enter your code here.
+```
+
+Um zu sehen wie der Plot jetzt aussieht klicken Sie auf `edit` und dann `check`:
+```{r "2_e_2"}
+
+# Berechnen von y
+y <- x^3
+
+# Plotten von x und y mit dem Befehl qplot
+qplot(x,y)
+```
+
+f) `P` Vektoren können statt Zahlen auch Text enthalten, dies sind dann sog. `character vectors`. Hier ist ein Beispiel ("check" drücken):
+```{r "2_f"}
+namen <- c("Anna","Bob","Clara","Dora","Emil")
+namen
+```
+
+Manchmal sind aber auch Zahlen als sog. `character vectors` gespeichert. z.B. in folgendem Vektor. Klicken Sie auf `edit` und dann `check` um fortzufahren:
+```{r "2_f_2"}
+text <- c("3","1","0","0","34","-2","0","17")
+text
+```
+
+Um zu sehen welchen Datentyp eine Variable oder ein Vektor beinhaltet können Sie die Funktion `class()` verwenden. Lassen Sie sich den Datentyp von `text` ausgeben.
+```{r "2_f_3"}
+# Enter your code here.
+```
+
+g) Wenn Sie versuchen numerische Operationen mit dem Vektor `text` durchzuführen wird Ihnen R schnell eine Fehlermeldung ausgeben.
+
+Sie können einen Vektor oder eine Variable in einen der drei gängigsten Datentyp mit folgenden Befehlen umwandeln.
+```{r "2_g"}
+as.character()
+as.numeric()
+as.logical()
+```
+
+Wandeln Sie `text` in einen numerischen Vekor um, speichern Sie diesen als `text_num` und lassen Sie sich diesen anschließend anzeigen.
+```{r "2_g_2",optional=TRUE}
+# Enter your code here.
+
+```
+
+h) Suchen Sie auf Google mit dem Suchbegriff "r length", mit welcher Funktion man in R die Länge eines Objektes (z.B. eines Vektors) bestimmen kann. Bestimmen Sie anschließend die Länge von `names`.
+```{r "2_h",optional=TRUE}
+# Enter your code here.
+```
+
+i) Manchmal möchte man bestimmte Elemente eines Vektors selektieren. Hier sind ein paar Beispiele, wie man auf bestimmte Elemente zugreifen kann.
+```{r "2_i"}
+namen[3] # Selektiere 3. Element
+namen[2:4] # Selektiere Elemente 2,3 und 4
+namen[c(5,1)] # Selektiere Element 5 und 1 in dieser Reihenfolge
+```
+Selektieren Sie bitte nun die Elemente 2, 4 und 5 des Vektors `namen`:
+```{r "2_i_2",optional=TRUE}
+# Enter your code here.
+```
+Sie können mit einem ähnlichen Syntax auch einzelne Werte eines Vektors ändern oder hinzufügen. Hier sind ein paar Beispiele:
+```{r "2_i_3"}
+namen[6] = "Felix"
+namen
+namen[1:2] = c("Alex","Ben")
+namen
+```
+
+Zum Schluss dieser Aufgabe betrachten wir noch drei Codebeispiele. überlegen Sie sich welche Werte `x` jeweils am Ende enthält.
+
+
+```s
+# 1. Beispiel
+x <- seq(1,2,by=0.5)
+x[1] <- 3
+```
+
+#! addon__quiz__x1
+
+
+```s
+# 2. Beispiel
+x <- seq(1,2,by=0.5)
+x[c(3,1)] <- c(1,3)
+```
+
+#! addon__quiz__x2
+
+
+
+```r
+# 3. Beispiel
+x <- c("Anna","Bob","Clara","Dora")
+x[2:3] <- x[c(4,1)]
+```
+
+#! addon__quiz__x3
+
+
+## Exercise 3 -- Data Frames Teil 1
+
+Man nennt in R eine Variable mit tabellarischen Daten einen "Data Frame". Ein Data Frame besteht aus aneinander gereihten Vektoren.
+
+Der folgende Code enthält ein Beispiel für einen Data Frame.
+
+```{r "3"}
+dataframe <- data.frame(Variable1=c(22,27,20,28,26), Variable2=seq(0,8,2), Variable3 = "Uni")
+```
+
+a) `P` Erzeugen Sie einen Dataframe z, der die fünf Spalten Land, Kontinent, Jahr, BIP und ID enthält.
+
+Die Länder sind: Brasilien, Deutschland, Frankreich, Mexiko und Suedkorea. 
+
+Die Kontinente sind: Am, Eur, Eur, Am, As.
+
+Das Jahr für alle 2018.
+
+Das BIP: 2.14, 4.21, 2.93, 1.21, 1.69.
+
+Die ID eine aufsteigende Sequenz.
+
+Lassen Sie sich anschließend z anzeigen.
+
+```{r "3_a"}
+# Enter your code here.
+```
+
+Außerdem kann man bestehende Datensätze in R einlesen. Sie finden unten ein Beispiel:
+
+```{r "3_a_2"}
+elec <- read.csv("data/Electricity.csv", header = TRUE, dec = ".", sep = ",", stringsAsFactors = FALSE)
+```
+
+Die Spezifizierung `.csv` gibt dabei an, dass der Datensatz als Datei im CSV-Format vorliegt. Genauso denkbar ist bspw. die Endung `.dta`. Je nach Dateityp. An erster Stelle steht der Pfad an dem die Datei gespeichert ist. In diesem Fall liegt Sie in unsererm Arbeitsverzeichnis und der Dateipfad ist dementsprechend nur der Dateiname. 
+
+`header = TRUE` übergibt die Information, dass der Datensatz eine Kopfzeile hat, in der die sich die Variablennamen befinden.
+`dec = "."`, dass im Datensatz Dezimalstellen durch Punkte getrennt werden und
+`sep = ","`, dass im Datensatz einzelne Datenpunkte durch Kommas abgetrennt werden.
+Werden die Optionen `dec`und `sep` weggelassen, dann geht der Befehl immer davon aus, dass der Datensatz eine Überschrift hat, Dezimalstellen durch Punkte getrennt werden und einzelne Datenpunkte durch Kommas. D.h. im vorliegenden Beispiel hätte man die Optionen `header`, `dec`und `sep` weggelassen können.
+Außerdem empfielt es sich die Option `stringsAsFactors` auf False zu setzen.
+
+Wenn Sie genauer wissen wollen, was das Argument `stringsAsFactors = FALSE` im Aufruf von `read.csv` bedeutet, öffnen Sie einfach folgenden Infoblock.
+
+info("Hintergrund zu stringsAsFactors = FALSE") # Run this line (Strg-Enter) to show info
+
+Mit der Basisversion von R würde uns nur `read.csv` zur Verfügung stehen. Da wir jedoch in Zukunft immer das Paket `tidyverse` laden wollen und dessen Vorteile nutzen, können wir das dort enthaltene Paket `redr` nutzen und die Funktion `read_csv` verwenden.
+
+b) `P` Lesen Sie nun den Datensatz eu_macro_2017.csv ein uns speichern Sie diesen unter `dat`. Der Datensatz hat eine Kopfzeile, Datenpunkte werden mit Kommas voneinander getrennt und Dezimalstellen mit Punkten gekennzeichnet. Nutzen Sie `read_csv` für das Einlesen.
+Lassen Sie sich anschließend die ersten 8 Zeilen anzeigen.
+
+```{r "3_b"}
+# Enter your code here.
+```
+
+Dies sind für das Jahr 2017 ausgewählte makroökonomische Daten der damaligen EU Mitglieder. (Quelle: <a href="https://ec.europa.eu/info/business-economy-euro/indicators-statistics/economic-databases/macro-economic-database-ameco_en">AMECO Datenbank der EU Kommission</a>)
+
+Die Spalten von `dat` enthalten folgende Werte:
+
+  - `cntry` Ein 3 stelliger Ländercode
+  - `country` Name des Landes
+  - `pop` Bevölkerung in Millionen
+  - `gdp` Bruttoinlandsprodukt in Mrd Euro ("gdp" steht für "Gross Domestic Product")
+  - `gov_debt` Staatschulden (alle öffentlichen Haushalte) in Mrd Euro
+  - `exports` Exporte in Mrd Euro
+  - `imports` Importe in Mrd Euro
+
+c) Die Funktionen `nrow` und `ncol` liefern die Anzahl der Zeilen, bzw. Spalten eines Data Frames. Nutzen Sie die passende der beiden Funktionen um in der Variablen `n` die Anzahl der EU Länder 2017 abzuspeichern und zeigen Sie `n` an.
+```{r "3_c",optional=TRUE}
+# Enter your code here.
+
+```
+
+
+d) `P` in der vorherigen Aufgabe haben Sie bereits ein Beispiel gesehen, wie Sie bestimmte Zeilen aus einem Data Frame auswählen können. Speichern Sie in der Variable `d` einen Data Frame, der die ersten drei Zeilen von `dat` enthält.
+
+```{r "3_d"}
+# Enter your code here.
+```
+
+e) `P` Spalten kann man in R auf viele unterschiedliche Arten auswählen. Hier sind 5 Codezeilen, von denen jede die Spalte `cntry` von `d` auswählt. Drücken Sie einfach nur "check".
+
+```{r "3_e"}
+d[,1]
+d[,"cntry"]
+
+d[["cntry"]]
+d[[1]]
+d$cntry
+```
+Die letzte Möglichkeit mit dem `$` Zeichen `d$cntry` ist meist die bequemste Fassung eine Spalte auszuwählen.
+
+Bevor wir zeigen, wie man direkt mit einem Data Frame arbeiten kann, möchten wir zunächst eine einzelne Spalte in einem Vektor abspeichern und analysieren. Weisen Sie nun der Variable `p` die Spalte mit der Bevölkerungsgröße aus `dat` zu. 
+
+```{r "3_e_2"}
+# Enter your code here.
+```
+
+f) Häufig verwendete R Funktionen sind `mean`, `sum`, `max` und `min`. Sie sollen diese nun in den folgenden Aufgaben an der richtigen Stelle verwenden.
+
+i) Berechnen Sie die gesamte Bevölkerung der EU28 in Mio. Menschen
+```{r "3_f",optional=TRUE}
+# Enter your code here.
+```
+Hmm, über eine halbe Millarde Menschen. Gar nicht mal so klein die EU...
+
+ii)
+Und wieviel Mio Einwohner hat ein EU Land im Durchschnitt?
+```{r "3_f_2",optional=TRUE}
+# Enter your code here.
+```
+Der Schnitt aller EU Länder ist also etwas mehr, als die Einwohnerzahl der Niederlande.
+
+iii) Zeigen Sie die Anzahl der Einwohner (in Mio)  des größten EU28 Landes an.
+```{r "3_f_3",optional=TRUE}
+# Enter your code here.
+```
+Früher mit 80 Mio war es natürlich einfacher pro Kopf Werte im Kopf zu berechnen als mit 83 Mio. Na ja vielleicht legen wir ja noch um 17 Mio zu...
+
+iv) Wievielfach mehr Einwohner hat das größte EU Land, als das kleinste? Berechnen Sie mit R ohne zu Runden.
+```{r "3_f_4",optional=TRUE}
+# Enter your code here.
+```
+Aber immerhin ist Malta immer noch mehr als doppelt so groß wie Ulm und Neu-Ulm zusammen!
+
+g) Man kann sich alternativ auch eine sogenannte 5er-Characteristik bestehend aus Mittelwert, den Extremwerten, dem Median und den Grenzen des 1. sowie 3. Quartils des Vektors ausgeben lassen. Verwenden Sie den Befehl `summary()`. Googlen Sie ggf. wie man diesen anwendet und lassen Sie sich eine 5er-characteristic für den Vektor `p` ausgeben.
+```{r "3_g",optional=TRUE}
+# Enter your code here.
+```
+h) `summary()` funktioniert auch für den Datensatz im Ganzen. Lassen Sie sich die 5er-Characteristiken für den gesamten Datensatz `dat` ausgeben.
+```{r "3_h",optional=TRUE}
+# Enter your code here.
+```
+
+
+
+## Exercise 4 -- Data Frames Teil 2
+
+Drücken Sie auf `edit` und dann `check` um für diese Aufgabe die Datensätze erneut zu laden:
+```{r "4"}
+z <- data.frame(Land=c("Brasilien","Deutschland","Frankreich","Mexiko","Suedkorea"), Kontinent=c("Am","Eur", "Eur","Am","As"), Jahr=2018, BIP=c(2.14,4.21,2.93,1.21,1.69), ID=1:5)
+
+dat <- read_csv("eu_macro_2017.csv")
+p <- dat$pop
+```
+
+a) Man kann Vektoren auch Namen zuweisen, was manchmal ganz hilfreich sein kann. Hier ist ein Beispiel. p ist ein Vektor mit den Bevölkerungsgrößen der EU-Länder. (Bitte `edit` und dann `check` drücken)
+```{r "4_a"}
+# Weise den Ländercode als Namen zu
+names(p) <- dat$cntry
+
+# Namen sind hilfreich beim lesen
+p[c(1,7,28)] 
+
+# Man kann dann auch Elemente per Namen auswählen
+p["DEU"] 
+```
+Speichern Sie in der Variable `pop_share` den jeweiligen Anteil der Bevölkerung des Landes an der Gesamtbevölkerung der EU. 
+```{r "4_a_2"}
+# Enter your code here.
+```
+Zeigen Sie den Bevölkerungsanteil Deutschlands in der EU
+```{r "4_a_3",optional=TRUE}
+# Enter your code here.
+```
+b) lapply kann eine sehr nützliche Funktion sein. Sie erlaubt es Funktionen (wie z.B. `sum()`, `median()` oder `class()`) auf ganze Spalten oder Zeilen eines Objektes anzuwenden. So können bspw. relativ einfach Spaltensummen berechnet werden. Im folgenden sehen Sie ein Beispiel für lapply:
+```{r "4_b"}
+df <- data.frame(Filiale=1:7, Mitarbeiter=c(3,5,4,4,3,5,3), Umsatz=c(19856,17008,31220,24450,28132,28063,20524))
+head(df,3)
+lapply(df,sum)
+```
+Mit tapply können Sie Funktionen nach Gruppen anwenden (z.B. für Filialen mit gleicher Mitarbeiterzahl):
+```{r "4_b_2"}
+tapply(df$Umsatz,df$Mitarbeiter,sum)
+```
+Lassen Sie sich für jede Spalte vom Data Frame `z` den Mittelwert ausgeben und speichern Sie die Liste als `z_mean`. Lassen Sie sich anschließend `z_mean` ausgeben.
+```{r "4_b_3",optional=TRUE}
+# Enter your code here.
+
+```
+c) Lassen Sie sich für jeden Kontinent in `z` das Mimumum des BIP nach Kontinent ausgeben.
+```{r "4_c",optional=TRUE}
+# Enter your code here.
+```
+d) `P` Wir können den Bevölkerungsanteil, auch unserem Data Frame `dat` als neue Spalte hinzufügen. Lassen Sie hierfür einfach den folgenden Code laufen. Klicken Sie herifür `edit` und dann `check`.
+```{r "4_d",round.digits=3}
+dat$pop_share <- pop_share
+head(dat) # Zeigt per Default die 6 ersten Zeilen
+```
+Ohne den Umweg über andere Variablennamen, hätten wir die Spalte `pop_share` natürlich auch kompakterweise gleich wie folgt berechnen können:
+```{r "4_d_2"}
+dat$pop_share <- dat$pop / sum(dat$pop) 
+```
+e) Fügen Sie nun dem Data Frame `dat` noch eine neue Spalte `gdp_share` hinzu, die den Anteil des BIP jedes Landes am gesammten BIP der EU enthält. Zeigen Sie danach die ersten 6 Zeilen von `dat` mit dem Befehl `head`.
+```{r "4_e",round.digits=3}
+# Enter your code here.
+
+```
+
+
+```{r "4_e_2"}
+plot(gvisGeoChart(dat,"country","gdp",options=list(region=150)))
+```
+
+## Exercise Lösung Abgeben
+
+Um Ihre Lösung abzugeben, gehen Sie bitte wie folgt vor:
+
+1. Klicken Sie auf der Symbolleiste oben auf das zweite Icon von rechts mit den Balken <i class="fa fa-tasks fa-fw"></i> um Ihre bisherigen Punkte zu sehen. Wenn Ihnen noch Punkte fehlen, und sie die fehlenden Aufgaben noch versuchen wollen zu lösen, machen Sie dies bitte.
+
+2. Falls Ihnen die Punkte reichen, klicken Sie bitte in der Menuleiste ganz oben auf das Symbol ganz rechts <i class="fa  fa-download fa-fw"></i>.
+
+3. Dort klicken Sie dann bitte auf den Knopf "Download Submission File". In Ihrem Browser sollte dann eine Datei mit der Endung .sub heruntergeladen werden.
+
+4. Laden Sie die heruntergeladene .sub Datei auf der Moodle Seite Ihres Kurses, bei der entsprechenden Aufgabe für dieses Übungsblatt hoch.

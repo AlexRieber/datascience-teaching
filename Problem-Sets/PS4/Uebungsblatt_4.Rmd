@@ -1,0 +1,574 @@
+
+```{r 'check_ps', include=FALSE}
+
+user.name = 'ENTER A USER NAME HERE' # set to your user name
+
+# To check your problem set, run the 
+# RStudio Addin 'Check Problemset'
+
+# Alternatively run the following lines
+library(RTutor)
+ps.dir = getwd() # directory of this file
+ps.file = 'Uebungsblatt_4.Rmd' # name of this file
+check.problem.set('Uebungsblatt_4', ps.dir, ps.file, user.name=user.name, reset=FALSE)
+```
+
+# RTutor Uebungsblatt 4 - Projektkurs
+
+Um Code ausfuehren, markieren Sie diesen und druecken Sie dann auf "Strg + Enter" oder auf "Run" oben rechts. Alternativ koennen Sie auch auf den gruenen Play Button in jedem Chunk druecken. Fuehren Sie immer den Code einer Teilaufgabe aus bevor Sie fortfahren.
+
+Aufgaben, welche mit `optional=TRUE` gekennzeichnet sind koennen Sie uebergehen. Alle anderen Aufgaben muessen Sie abschliessen bevor Sie mit der darauffolgenden weitermachen koennen. Um die Anworten zu ueberpruefen speichern Sie diese Datei (Strg + s) und fuehren Sie das Addin 'Check Problemset' aus. Sie finden spaeter die Addins in der Kopfzeile von RStudio oder unter Tools/Addins.
+
+Sie koennen jederzeit das Uebungsblatt abspeichern und zu einem spaeteren Zeitpunkt fortfahren. Wenn Sie wissen moechten wie weit Sie fortgeschritten sind koennen sie in die Konsole `stats()` eingeben.
+
+Wenn Sie mit dem Uebungsblatt fertig Sind geben Sie in die Konsole den Befehl 'make.submission()' ein und fuehren Sie diesen aus. Dieser Befehl erstellt in Ihrem Arbeitsordner eine Abgabe Datei mit der Endung '.sub'. Laden Sie diese Datei vor dem Abgabedatum auf der Kursseite in Moodle hoch.
+
+Wenn Sie bei einer Aufgabe nicht weiter wissen, so koennen Sie jederzeit in die Konsole `hint()` eingeben um einen Hinweis zu dieser Aufgabe zu erhalten. Beginnen Sie, indem Sie in folgendem R-Chunk, wo nach Ihrem "Username" gefragt wird, Ihren Namen eintragen.
+
+Sie sollten alle Aufgaben des Problem Sets bearbeiten, jedoch mindestens 80% um das Problem Set zu bestehen!
+
+Aufgaben, welche einen Lueckentext enthalten, wie bspw:
+
+`#___#g4 <- eu_analyse %>%
+ ggplot() + 
+ geom_line(aes(x = year, y = debt_share_country, group = ___, colour = ___))
+
+`#___#g4
+
+
+Sollten Sie so beantworten, dass Sie die `___` Abschnitte befuellen und das `#___#` vor den Variablennamen loeschen.
+
+
+Beginnen sie indem Sie oben Ihren Name in das Feld user.name eingeben.
+
+
+## Exercise 1 -- Einfache lineare Zusammenhaenge
+
+Bitte installieren Sie das Paket `stargazer`, falls Sie das bis jetzt noch nicht getan haben. Sie sollten es auch noch laden.
+
+```{r "1"}
+library(stargazer)
+```
+
+`stargazer` ermoeglicht eine ansprechende Darstellung von Tabellen, insbesondere in HTMP und Latex, was Sie spaeter fuer die Projekte benoetigen werden.
+
+a) Im ersten Schritt laden wir die zur Verfuegung stehenden Daten. Laden Sie die unter Daten bereitgestellten `EU_Makro.csv` Daten in R.
+
+```{r "1_a"}
+____ <- read_csv("____")
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Da Sie sich in den letzten zwei Uebungsblaettern mit dem Datensatz vertraut gemacht haben, wollen wir hier auch mit diesem starten.
+
+Unser Motto lautet: Betrachten Sie ihre Daten!
+
+Im letzten Uebungsblatt hatten wir uns schon mit der Verschuldung der einzelnen EU-Laendern beschaeftigt, insbesondere im Zusammenhang mit den Maastricht-Kriterien. Hier wollen wir uns wieder die Verschuldung anschauen, jedoch im Zusammenhang mit der Arbeitslosigkeit:
+
+```{r "1_a_2"}
+eu_makro <- eu_makro %>%
+  mutate( debt_share_country_pro = debt_share_country * 100)
+  
+g1 <- eu_makro %>%
+  ggplot(aes(x = debt_share_country_pro, y = unempl)) + geom_point() + 
+  xlab("Verschuldungsquote in %") +
+  ylab("Arbeitslosenquote in %")
+g1
+```
+
+Auf den ersten Blick ist zu erkennen, das ein positiver Zusammenhang zwischen der Verschuldungsquote und der Arbeitslosenquote besteht. Aufgrund der Vielzahl der Beobachtungen ist es aber schwer zu sagen, wie stark der Zusammenhang ist.
+
+b) Eine beliebte Methode einen Zusammenhang in einer einzelnen Zahl zusammenzufassen ist eine einfache lineare Regression mittels der Methode der kleinsten Quadrate (engl. Ordinary Least Squares OLS). Regressieren Sie in R `unempl` auf `debt_share_country_pro`. Speichern Sie das Ergebnis in der Variablen `reg1` und zeigen Sie dann eine Zusammenfassung von `reg1`. Bitte kommentieren Sie hierfuer den Code aus und ergaenzen Sie diesen: 
+
+```{r "1_b"}
+reg1 <- lm(___~debt_share_country_pro, data=___)
+summary(___)
+
+# enter your code here ...
+
+```
+
+Die Geschaetzten Koeffizienten `(Intercept)` und  `debt_share_country_pro` korrespondieren zu den Schaetzern von `beta0` und `beta1` in der Regressionsgleichung
+
+    unempl = beta0 + beta1 * debt_share_country_pro + u
+
+Die Interpretation fuer das geschaetzte beta1 von 0.038 ist wie folgt:
+
+> Eine um 1 Prozentpunkt hoehere Verschuldungsquote korrespondiert mit einer um 0,038 Prozentpunkte hoeheren Arbeitslosenquote. 
+
+Wir nennen `unempl` hier abhaengige Variable (oft mit `y` bezeichnet) und `debt_share_country_pro` eine erklaerende Variable (oft mit `x` bezeichnet). 
+
+Anmerkung: Obwohl das Wort abhaengige Variable dies suggeriert, duerfen Sie bei nicht experimentellen Daten einen Schaetzer typischerweise nicht kausal interpretieren. Es waere falsch zu sagen, dass eine um 1 Prozentpunkt hoehere Verschuldung zu einer um 0.038 hoeheren Arbeitslosenquote *fuehrt*. Wir werden uns mit Kausalitaet noch spaeter intensiv beschaeftigen. 
+
+Wenn es nur eine erklaerende Variable `x` gibt, spricht man von einer einfachen Regression. Sie koennen aber auch mehrere erklaerende Variablen aufnehmen. Dies nennen wir dann multiple Regression, worauf wir uns spaeter konzentrieren moechten.
+
+c) Wie hoch ist die erwartete Arbeitslosigkeit bei einer Verschuldungsquote von 0% laut Schaetzung?
+Geben Sie hier Ihrer Antwort gerundet auf drei Nachkommastellen ein. Achten Sie darauf Dezimalstellen durch Punkte abzutrennen:
+
+```{r "1_c",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+d) Manchmal moechten wir mit den geschaetzten Koeffizienten direkt weiterrechnen. Hierfuer ist die Funktion `coef` nuetzlich. Wenden Sie in einem ersten Schritt die Funktion `coef` auf `reg1` an. Anschliessend speichern Sie bitte den ersten Koeffizienten in der Variable `b0` und den zweiten in der Variable `b1`.
+```{r "1_d"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+f) Fuegen Sie der Grafik `g1` in "blue" eine Linie mit der in `reg1` berechneten Regressionsgerade hinzu. Speichern Sie diese Grafik als `g2` und lassen Sie sich diese anschliessend anzeigen. Bitte fuellen Sie hierzu die Luecken aus:
+
+```{r "1_f"}
+g2 <- g1 + geom_abline(intercept=___,slope=___,colour="___")
+
+# enter your code here ...
+
+g2
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+g) In einer einfachen linearen Regression von `y` auf `x`, hat der geschaetzte Koeffizient von x (also das geschaetzte beta1) immer das gleiche Vorzeichen wie die Korrelation von `y` und `x`. Berechnen Sie die Korrelation von `unempl` und ``debt_share_country_pro` in unserem Datensatz. Schauen Sie in die Hilfe fuer `cor` und verwenden Sie nur "pairwise.complete.obs" um das Problem mit NA Werten zu umgehen.
+
+```{r "1_g",optional=TRUE}
+
+# enter your code here ...
+
+```
+Das Vorzeichen ist gleich wie von unserem Schaetzer von beta1 in der linearen Regression, aber die Korrelation hat keine intuitive quantitative Interpretation.
+
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+
+
+## Exercise 2 -- Standardfehler und Konfidenzintervalle
+
+a) Folgender Code simuliert zufaellige Werte von `x` und einer Stoergroesse `u` und berechnet dann `y` gemaess der Gleichung
+
+    y = beta0 + beta1 * x + u
+    
+mit beta0 = 10 und beta1 = 2. Lassen Sie den Code einfach laufen
+
+```{r "2_a"}
+set.seed(1)
+T <-  20 # Zahl der Beobachtungen
+beta0 <- 10; beta1 <- 2;
+u <- rnorm(T,0,3) # Normalverteilte Stoergroesse
+u
+x <- runif(T,0,4) # gleichverteilte x zwischen 0 und 4
+x
+y <- beta0 + beta1*x + u
+y
+```
+Wenn wir jetzt `y` auf `x` regressieren, was erwarten wir fuer den Schaetzer von beta1?
+
+1. Bis auf kleine numerische Ungenauigkeiten werden wir den wahren Wert beta1 stets genau schaetzen. Immerhin wissen wir ja, dass beta1 = 2 ist.
+
+2. Wir werden wahrscheinlich in unserer Schaetzung etwas von beta1 abweichen. Hoert man ja schon am Namen des Verfahrens: Kleinste-Quadrate-"Schaetzung"
+
+Geben Sie die richtige Loesung 1 oder 2 an.
+```{r "2_a_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Regressieren Sie nun `y` auf `x` mittels `lm`. Es ist nicht notwendig das Ergebnis zwischenzuspeichern.
+```{r "2_a_3",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Unser Schaetzer ist schon etwas vom wahren Parameter beta1=2 entfernt. Genau werden wir ihn so gut wie nie treffen.
+
+b) Folgender Code packt die Simulation und anschliessende Schaetzung in eine Funktion `simulate.and.estimate` und liefert die geschaetzten Koeffizienten von beta1 zurueck. Anschliessend wird die Funktion 3 mal aufgerufen.
+```{r "2_b"}
+simulate.and.estimate <- function(T=20, beta0 = 10, beta1=2) {
+  u <- rnorm(T,0,3) # Normalverteilte Stoergroesse
+  x <- runif(T,0,4) # gleichverteilte x zwischen 0 und 4
+  y <- beta0 + beta1*x + u
+  # Anmerkung lm.fit lauft schneller als
+  # lm, hat aber keinen so schoenen Syntax
+  reg <- lm.fit(x=cbind(1,x),y=y)
+  coef(reg)[2]
+}
+simulate.and.estimate()
+simulate.and.estimate()
+simulate.and.estimate()
+```
+Wir finden bei jedem Aufruf einen anderen Schaetzer fuer beta1. Der genaue Wert des Schaetzers haengt von den realisierten Werten von `x` und `u` ab und ist somit zufaellig.
+
+Die Anzahl der Beobachtungen sind hier auf 20 beschränkt. Wenn Sie mehr Beobachtungen simulieren würden (sagen wir 1000), was wäre ihre Erwartung bzgl. der Genauigkeit des Schätzers `beta1`?
+
+1) Der Schätzer wird immer noch sehr weit entfernt vom wahren Wert 2 liegen
+2) Der Schätzer wird nun deutlich näher beim wahren Wert 2 liegen
+3) Die Stichprobengröße hat keine Auswirkung auf die Schätzgenauigkeit
+
+Tippen Sie die korrekte Antwort 1,2 oder 3 ein:
+
+```{r "2_b_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+c) Nutzen Sie die Funktion `replicate`, um `simulate.and.estimate` gleich 5000 mal hintereinander aufzurufen. Speichern Sie die Ergebnisse in einem Vektor `sim.beta1` ab.
+```{r "2_c"}
+____ <- ____(____,simulate.and.estimate())
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Zeigen Sie ein Histogramm von sim.beta1 mit dem Befehl `hist`.
+```{r "2_c_2",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wir sehen, dass die 5000 simulierten Schaetzer um den wahren Wert von beta2 verteilt sind. Folgender ggplot2 zeigt das noch etwas huebscher:
+```{r "2_c_3"}
+ggplot(mapping=aes(x=sim.beta1)) + geom_density(fill="blue", alpha=0.5) + geom_vline(xintercept = 2)
+```
+
+d) Berechnen Sie nun die Standardabweichung der simulierten Schaetzer `sim.beta1`.
+```{r "2_d",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Diese Standardabweichung misst wie stark unser Schaetzer aufgrund der Zufallseinfluesse in der Stoergroesse vom echten Wert beta1=2 im Schnitt abweicht. Diese Standardabweichung eines Schaetzers heißt `Standardfehler`.
+
+e) Auch wenn Sie nur eine Stichprobe haben und nicht tausende Simulationen durchfuehrt, können Sie den Standardfehler eines Schaetzers abschaetzen. Ergaenzen Sie folgenden Code um ein `summary` des Regressionsergebnisses `reg1`.
+
+```{r "2_e"}
+reg1 <-  lm(y~x)
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Die Spalte "Std. Error" zeigt fuer jeden geschaetzten Koeffizienten, den Standardfehler des Schaetzers. Der Standardfehler ist nur abgeschaetzt aber wir sehen fuer den Koeffizienten von x, dass er nahe an dem Wert ist, den wir durch die Simulation bestimmt hatten.
+
+Generell sinkt der Standardfehler in der Zahl der Beobachtungen `n` einer Stichprobe. Genauer gesagt ist er proportional zu 1 durch die Wurzel von `n`.
+
+f) Es folgt nun eine sehr hilfreiche statistische Faustregel:
+
+> In ca. 95% der Faelle liegt der echte Zusammenhang im Interval von plus-minus 2*Standardfehlern um den geschaetzten Zusammenhang. 
+
+Man nennt dieses Interval auch das 95% Konfidenzintervall eines Schaetzers. Hier haetten wir also als approximatives 95 Konfidenzintervall fuer beta1:
+
+    Untergrenze: 1.74 - 2*0.63 = 0.48
+    Obergrenze:  1.74 + 2*0.63 = 3
+
+Wir sind also in unserem Beispiel auf Basis der Stichprobe zu 95% sicher (konfident), dass eine Erhoehung von x um eine Einheit mit einer Erhoehung von y zwischen 0.48 und 3 Einheiten korrespondiert.
+
+Genauere Konfidenzintervalle können Sie mit dem Befehl `confint` berechnen. Wenden Sie diesen auf `reg1` an um das 95% Konfidenzintervall zu berechnen. Bestimmen Sie danach mit `confint` auch das 99% Konfidenzintervall 
+
+```{r "2_f",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+g) Uebrigens: Das Paket ggplot erlaubt es auf einfache Art und Weise Regressionsgeraden in einen Scatterplot einzuzeichnen und schattiert dabei ein 95% Konfidenzintervall fuer den Verlauf der Regressionsgeraden. Lassen Sie einfach folgenden Code laufen: 
+
+```{r "2_g"}
+ggplot(mapping = aes(x=x,y=y)) + geom_point()+ geom_smooth(method="lm")
+```
+
+## Exercise 3 -- t-Werte, p-Werte und die Sternchen
+
+a) Wir moechten nun den Zusammenhang zwischen der Arbeitslosenquote und dem prozentualem BIP Wachstum in einer Regression untersuchen.
+
+Laden wir zunaechst nochmal unsere EU Datensatz
+```{r "3_a"}
+eu_makro <- read_csv("./data/EU_Makro.csv")
+```
+
+Lassen Sie nun folgenden Code laufen, der das BIP Wachstum in Prozent fuer jedes Land und Jahr berechnet.
+```{r "3_a_2"}
+eu_makro <-  eu_makro %>%
+  group_by(country) %>%
+  arrange(year) %>%
+  mutate(gdp_growth = 100*(gdp - lag(gdp)) / gdp ) %>%
+  ungroup()
+```
+
+Zunaechst moechten wir nur die Daten fuer 3 Laender nutzen: Deutschland, Frankreich und die Niederlande. Filtern Sie die Daten fuer dieser 3 Laender ("country") und speichern Sie diese in der Variablen `dat`.
+
+```{r "3_a_3"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Regressieren Sie nun die Arbeitslosequote `unempl` auf das BIP Wachstum im Datensatz `dat`. Speichern Sie das Ergebnis in der Variablen `reg1` und zeigen Sie ein `summary` davon.
+```{r "3_a_4"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Betrachten Sie die Zeile fuer gdp_growth in der Koeffiziententabelle. Der Schaetzer -0.21 bedeutet, dass ein um ein Prozentpunkt hoeheres BIP Wachstum mit einer um 0.21 Prozentpunkte niedrigeren Arbeitslosenquote korrespondiert. Daneben sehen wir den Standardfehler von 0.106. Die 3. Spalte zeigt den sog. t-Wert. Dieser berechnet sich einfach wie folgt:
+    
+    t-Wert = geschaetzte Koeffizient / Standardfehler
+
+In unserem Beispiel ist der t-Wert -1.99. Dies bedeuet also das unser Schaetzer -0.21 fast zwei Standardfehler von 0 entfernt ist.
+
+Welche Aussage ist also richtig gegeben _unserer Faustregel_ fuer das 95% Konfidenzintervall?
+
+1. Die 0 ist noch knapp im 95% Konfidenzintervall um den geschaetzten Koeffizienten fuer gdp_growth
+
+2. Die 0 ist knapp ausserhalb des 95% Konfidenzintervall um den geschaetzten Koeffizienten fuer gdp_growth
+
+3. Die 0 ist klar ausserhalb des 95% Konfidenzintervall um den geschaetzten Koeffizienten fuer gdp_growth
+
+Tippen Sie die korrekte Antwort 1,2 oder 3 ein:
+```{r "3_a_5"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wenn das 95% Konfidenzintervall eines Schaetzers nicht mehr die 0 enthaelt, können Sie von einen signifikanten Schaetzer zum Signifikanzniveau von 5% sprechen.
+
+Aehnlich können Sie von einem signifikanten Schaetzer zum 1% Signifikanzniveau sprechen, wenn das 99% Konfidenzintervall nicht mehr die 0 enthaelt.
+
+Die letzte Spalte `Pr(>|t|)` gibt des sog. p-Wert des Schaetzers an. Der p-Wert ist das hoechste Signifikanzniveau zu dem der Schaetzer noch signifikant ist. Hier haben wir einen p-Wert von 0.0505, d.h. 5.05%. Dies bedeutet, dass 94.5% Konfidenzintervall  endet rechts genau auf der 0.
+
+(Es gibt auch eine andere, aequivalente Definition des p-Wertes: Falls der wahre Koeffizient gleich 0 ist, dann ist die Wahrscheinlichkeit einen solchen Schaetzer, oder einen mit einem hoeheren absoluten Wert, zu finden kleiner als der p-Wert.)
+
+b) Welche Aussage zum p-Wert ist falsch?
+
+1. Der p-Wert berechnet sich auf der Grundlage der t-Verteilung 
+2. Die t-Verteilung nähert sich bei steigender Anzahl von Freiheitsgraden (Beobachtungen) der Normalverteilung an
+3. Die t-Verteilung nähert sich bei abnehmender Anzahl von Freiheitsgrade (Beobachtungen) der Normalverteilung an
+
+Tippen Sie die korrekte Antwort 1,2 oder 3 ein:
+```{r "3_b"}
+
+# enter your code here ...
+
+```
+
+Welche Aussagen sind richtig gemaess unserer Schaetzung?
+
+1. Der Koeffizient zu gdp_growth ist signifikant zum 1% Niveau
+2. Der Koeffizient zu gdp_growth ist signifikant zum 5% Niveau
+3. Der Koeffizient zu gdp_growth ist signifikant zum 10% Niveau
+
+Geben Sie als Antwort einen numerischen Vektor mit allen richten Antworten ein, z. B. `c(1,2,3)` wenn Sie glauben alle 3 Antworten sind richtig.
+```{r "3_b_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Bestimmte kritische Signifikanzniveaus wie 0.1%, 1% oder 5% werden noch durch die Signifikanzsternchen rechts nebem den p-Wert illustriert. Eine Legende fuer die Sternchen ist unterhalb der Tabelle die `summary` ausgibt.
+
+Waere dies eine wissenschaftliche Studie bei dem der Autor als Kernaussage einen negativen Zusammenhang zwischen Arbeitslosigkeit und BIP Wachstum belegen moechte, wuerde er sich vermutlich ueber dieses Ergebnis aergern. Als Konvention spricht man von einem signifikanten Ergebnis, wenn es mindestens zum 5% Signifikanzniveau signifikant ist. D.h. der p-Wert darf nicht groesser als 0.05 sein. Es ist typischerweise viel einfacher signifikante Ergebnisse zu publizieren.
+
+Diese Konvention ist allerdings nicht unproblematisch. Mit 5% Wahrscheinlichkeit finden wir ein signifikantes Ergebnis, selbst wenn es in Wirklichkeit keinen Effekt gibt. Wenn aber hauptsaechlich signifikante Ergebnisse veroeffentlicht werden, ist unser Wissen systematisch verzerrt (der sog. Publication Bias). Eine gute Illustration ist hier: https://xkcd.com/882/
+
+Weiterhin ist es relativ einfach durch kleine Aenderungen in der Regressionsspezifikation die Signifikanz zu aendern. Man nennt dies auch p-Hacking. Einen Beispiel finden Sie z. B. hier: 
+
+https://skranz.github.io/r/2018/04/09/Sample_Size_P-Values_and_Data_Mining.html
+
+(Der Blog beschreibt auch ein paar weitere Beispiele von RTutor Problemsets)
+
+Die American Statistical Association hat z. B. 2016 eine Erklaerung herausgegeben, die die uebermaessige Fixierung auf einen kritischen p-Wert von 5% kritisiert und z. B. vorschlaegt lieber Konfidenzintervalle und Effektgroessen hervorzuheben. Hier ist eine kurze Zusammenfassung:
+
+https://www.amstat.org//asa/files/pdfs/P-ValueStatement.pdf
+
+
+c) Das R Paket `stargazer` erlaubt es Regressionsergebnisse in einer Tabellenform darzustellen, aehnlich wie man sie in wissenschaftlichen Zeitschriften findet. Der Name ist durchaus ironisch gewaehlt und spielt auf das Verhalten an, manchmal nur auf die Signifikanzsternchen bei Schaetzungen zu achten.
+
+Aber starren wir doch mal selber nur auf die Sternchen. Folgender Code laesst unser Regression mit den Daten fuer alle Laender laufen und zeigt das Ergebnis mit `stargazer`:
+
+```{r "3_c"}
+reg2 <- lm(unempl~gdp_growth, data=eu_makro)
+stargazer(type = "text", reg2 ,  single.row = TRUE, header = FALSE, digits=2)
+```
+
+Ist der Zusammenhang zwischen der Arbeitslosenquote und BIP Wachstum statistisch signifikant und wenn ja, auf welchem Signifikanz-Niveau?
+
+1) Insignifikant
+
+2) Signifikant auf dem 10%-Niveau
+
+3) Signifikant auf dem 5%-Niveau 
+
+4) Signifikant auf dem 1%-Niveau
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und fuehren Sie die Codezeile aus:
+```{r "3_c_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Beachten Sie, dass `stargazer` per Default eine andere Definition der Signifikanzsternchen hat, als die `summary` Funktion in R.  Es foerdert eine Signifikanzsterncheninflation!
+
+
+
+d) Hier nochmal eine Wiederholungsfrage: Welche Aussage ist falsch?
+
+1) Je kleiner der p-Wert, desto unwahrscheinlicher liegt ein zufaelliger Zusammenhang zwischen den beiden untersuchten Variablen vor, wenn der wahre Zusammenhang 0 ist.
+
+2) Der p-Wert kann aus dem t-Wert errechnet werden. Je groesser der t-Wert im Betrag, desto kleiner der p-Wert.
+
+3) Das Vorzeichen des t-Werts haengt nur vom Vorzeichen des dazugehoerigen Schaetzers ab.
+
+4) Die Standardabweichung der erklaerenden Variable entpricht dem Standardfehler des Koeffizienten ('Std. Error') einer linearen Regression mit dieser erklaerenden Variable.
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und fuehren Sie die Codezeile aus:
+
+```{r "3_d"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+
+## Exercise 4 -- Logarithmierte Variablen und Interpretation von Schaetzern
+
+Manchmal ist es sinnvoll die abhaengige oder erklaerende Variablen in einer Regression zu transformieren. Besonderes gaengig ist hier die Log-Transformation. Also das logarithmieren einzelner Variablen. Wir koennen dann die lineare Regression ganz normal mit OLS durchfuehren. Jedoch aendert sich die Interpretation der geschaetzten Koeffizienten.
+
+
+
+a) Folgender Code laedt einen Datensatz mit dem BIP pro Kopf `bip` und den Kapitalstock pro Kopf `k` fuer 133 Laender der Welt in USD fuer das Jahr 2014. Der Datensatz wurde aus den Penn World Tables (siehe https://www.rug.nl/ggdc/productivity/pwt/) erstellt.
+
+```{r "4_a"}
+pwt <- readRDS("./data/pwt_2014.rds")
+head(pwt)
+```
+
+b) Regressieren Sie das BIP pro Kopf `bip` auf den Kapitalstock pro Kopf `k`. Speichern Sie das Ergebnis in `reg1` und zeigen Sie einen `summary` von `reg1`.
+
+```{r "4_b"}
+
+# enter your code here ...
+
+```
+Was ist eine richtige Interpretation des Koeffizienten von `k`?
+
+1. Ein um 1000 USD hoeherer Kapitalstock pro Kopf geht mit einem um 2440 USD hoeheren BIP pro Kopf einher.
+
+2. Ein um 1000 USD hoeherer Kapitalstock pro Kopf geht mit einem um 244 USD hoeheren BIP pro Kopf einher.
+
+3. Ein um 244 USD hoeheres BIP pro Kopf geht mit einem um 1000 USD hoeheren Kapitalstock pro Kopf einher.
+
+Tippen Sie 1,2 oder 3
+```{r "4_b_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Manchmal gibt R Zahlen in wissenschaftlicher Notation aus. Beachten Sie, dass 2.440e-01 = 0.244 ist.
+
+c) Folgender Code zeigt den Zusammenhang grafisch
+
+```{r "4_c"}
+ggplot(pwt,aes(x=k,y=bip, label=isocode)) + geom_text() + geom_smooth(method="lm")
+```
+
+Das Bild sieht nicht sonderlich schoen aus. Wir haben sehr viele Laender mit relativ kleinem BIP und Kapitalstock pro Kopf links unten in der Ecke. Weiterhin scheint bei hoeherem BIP (z B. Quatar) der Abstand von der Regressionsgerade viel groesser als bei niedrigem BIP.
+
+d) Generieren Sie fuer `pwt` mit `mutate` zwei neue Spalten `log_bip` und `log_k` (in dieser Reihenfolge), welche die logarithmierten Werte des BIP pro Kopf und Kapitalstock pro Kopf beinhalten sollen.
+
+```{r "4_d"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wir zeigen jetzt den Zusammenhang der logarithmierten Variablen grafisch:
+```{r "4_d_2"}
+ggplot(pwt,aes(x=log_k,y=log_bip, label=isocode)) + geom_text() + geom_smooth(method="lm")
+```
+
+Das sieht schon viel besser aus. Die Beobachtungen sind viel regelmaessiger um die Regressionsgerade verteilt und es gibt keine groesseren Ausreisser mehr.
+
+e) Regressieren Sie nun `log_bip` auf `log_k`. Speichern Sie das Ergebnis in `reg2` und zeigen Sie einen `summary`.
+
+```{r "4_e"}
+
+# enter your code here ...
+
+```
+
+Was ist nun die korrekte Interpretation des Koeffizienten vor log_k?
+
+1. Ein um 1000 USD hoeherer Kapitalstock pro Kopf korrespondiert mit einem um ca. 815 USD hoeheren BIP pro Kopf.
+
+2. Ein um 100% hoeherer Kapitalstock pro Kopf korrespondiert mit einem um ca. 0.815 % hoeheren BIP pro Kopf.
+
+3. Ein um 1% hoeherer Kapitalstock pro Kopf korrespondiert mit einem um ca. 0.815 % hoeheren BIP pro Kopf.
+
+Schreiben Sie 1,2, oder 3.
+```{r "4_e_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wenn sowohl die y Variable, als auch die x Variable in logarithmen gegeben ist, haben wir diese schoene Interpretation. Der Koeffizient vor x misst approximativ um wieviel Prozent sich y aendert, wenn wir x um einen Prozent erhoehen.
+
+Das schoene ist hierbei, dass man gar nicht nachvollziehen muss in welchen Einheiten x und y gemessen werden.
+
+Es gibt auch aehnliche Interpretationen fuer den Fall, dass nur y oder x logarithmiert wurde. Weitere Informationen zu der Interpretation der log-transformierten Variablen erhalten Sie beispielsweise in Wooldridge, J. M. (2015). Introductory econometrics: A modern approach. Nelson Education.
+Eine Online-Version des Buchs finden Sie [hier](https://economics.ut.ac.ir/documents/3030266/14100645/Jeffrey_M._Wooldridge_Introductory_Econometrics_A_Modern_Approach__2012.pdf)
+
+
+
+## Loesung einreichen
+
+Um Ihre Loesung zu diesem Uebungsblatt abzugeben klicken Sie auf "Check Problemset". Hierzu koennen Sie zu `Tools -> Addins -> Browse Addins ... -> Check Problemset` gehen. Danach geben Sie dann in die Konsole (Fenster unten) folgendes ein: 
+
+    make.submission()
+
+Der Befehl kontrolliert ihr Uebungsblatt und erstellt eine Datei mit dem Namen  `problemsetname__username.sub` in Ihrem Arbeitsverzeichnis, die Ihre Loesung und die Log Dateien enthaelt.
+Laden Sie diese Datei (mit der Endung .sub) dann auf Moodle hoch. 
+aendern Sie nicht den Namen der Datei!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

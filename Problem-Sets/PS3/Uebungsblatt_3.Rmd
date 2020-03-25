@@ -1,0 +1,537 @@
+
+```{r 'check_ps', include=FALSE}
+
+user.name = 'ENTER A USER NAME HERE' # set to your user name
+
+# To check your problem set, run the 
+# RStudio Addin 'Check Problemset'
+
+# Alternatively run the following lines
+library(RTutor)
+ps.dir = getwd() # directory of this file
+ps.file = 'Uebungsblatt_3.Rmd' # name of this file
+check.problem.set('Uebungsblatt_3', ps.dir, ps.file, user.name=user.name, reset=FALSE)
+```
+
+# RTutor Uebungsblatt 3 - Projektkurs
+
+Um Code ausfuehren, markieren Sie diesen und druecken Sie dann auf "Strg + Enter" oder auf "Run" oben rechts. Alternativ koennen Sie auch auf den gruenen Play Button in jedem Chunk druecken. Fuehren Sie immer den Code einer Teilaufgabe aus bevor Sie fortfahren.
+
+Aufgaben, welche mit `optional=TRUE` gekennzeichnet sind koennen Sie uebergehen. Alle anderen Aufgaben muessen Sie abschliessen bevor Sie mit der darauffolgenden weitermachen koennen. Um die Anworten zu ueberpruefen speichern Sie diese Datei (Strg + s) und fuehren Sie das Addin 'Check Problemset' aus. Sie finden spaeter die Addins in der Kopfzeile von RStudio oder unter Tools/Addins.
+
+Sie koennen jederzeit das Uebungsblatt abspeichern und zu einem spaeteren Zeitpunkt fortfahren. Wenn Sie wissen moechten wie weit Sie fortgeschritten sind koennen sie in die Konsole `stats()` eingeben.
+
+Wenn Sie mit dem Uebungsblatt fertig Sind geben Sie in die Konsole den Befehl 'make.submission()' ein und fuehren Sie diesen aus. Dieser Befehl erstellt in Ihrem Arbeitsordner eine Abgabe Datei mit der Endung '.sub'. Laden Sie diese Datei vor dem Abgabedatum auf der Kursseite in Moodle hoch.
+
+Wenn Sie bei einer Aufgabe nicht weiter wissen, so koennen Sie jederzeit in die Konsole `hint()` eingeben um einen Hinweis zu dieser Aufgabe zu erhalten. Beginnen Sie, indem Sie in folgendem R-Chunk, wo nach Ihrem "Username" gefragt wird, Ihren Namen eintragen.
+
+Sie sollten alle Aufgaben des Problem Sets bearbeiten, jedoch mindestens 80% um das Problem Set zu bestehen!
+
+Aufgaben, welche einen Lueckentext enthalten, wie bspw:
+
+`#___#g4 <- eu_analyse %>%
+ ggplot() + 
+ geom_line(aes(x = year, y = debt_share_country, group = ___, colour = ___))
+
+`#___#g4
+
+
+Sollten Sie so beantworten, dass Sie die `___` Abschnitte befuellen und das `#___#` vor den Variablennamen loeschen.
+
+
+
+## Exercise 1 - Deskriptive Analysen in Tabellenform
+
+In diesem Problem Set beschaeftigen wir uns mit deskriptiven Statistiken und insbesondere mit GGplot.
+
+Fuer die folgenden Aufgaben moechten wir uns wieder mit den Daten von Europa beschaeftigen, welche wir im letzten Problem Set eingefuehrt haben. Zu Beginn wollen wir uns einen Ueberblick ueber die Daten verschaffen und daher einige Pakete laden:
+
+Fuer die Visualisierung benoetigen wir das Paket `ggplot2`, welches Teil von `tidyverse` ist und fuer die deskriptiven Statistiken das Paket `skimr`, weiterhin benoetigen wir fuer animierte Grafiken das Paket `gganimate` und `ggrepel` um Grafiken schoen beschriften zu koennen. Das Paket `sf` ermoeglicht uns geografische Daten einzulesen und Karten zu erzeugen.
+
+Bitte laden Sie die Pakete `skimr`, `gganimate`, `gifski`, `ggrepel`, `RColorBrewer` und `sf` noch herunter, falls Sie dies bisher noch nicht gemacht haben.
+
+Anschliessend sollten Sie die folgenden Pakete laden:
+
+```{r "1___Deskriptive_Anal",eval=FALSE}
+library(tidyverse)
+library(pander)
+library(sf)
+library(gganimate)
+library(ggrepel)
+library(skimr)
+library(RColorBrewer)
+```
+
+a) Im ersten Schritt laden wir die zur Verfuegung stehenden Daten. Laden Sie die im Unterordner "Daten" bereitgestellten Datei `EU_Makro.csv` in R ein. Ergaenzen Sie hierfuer unten stehende Code-Zeile.
+
+```{r "1___Deskriptive_Anal_a"}
+____ <- read_csv("____")
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Nun koennen Sie mit dem Paket `skimr` einen guten ersten Einblick in ihre Daten erhalten.
+b) Erstellen Sie hierfuer eine Tabelle, welche alle Variablen von `eu_makro` enthaelt. Nutzen Sie hierfuer den Befehl `skim()` und speichern Sie ihre Analyse in `ueberblick` ab. Geben Sie anschliessend `ueberblick` aus.
+
+```{r "1___Deskriptive_Anal_b"}
+
+# enter your code here ...
+
+```
+
+c) Mit dem Paket `pander` koennen Sie ihre deskriptiven Statistiken etwas schoener darstellen, insbesondere, wenn Sie spaeter in ihren Projekten HTML Dokumente mit RMarkdown erstellen. Deshalb wollen wir das Paket hier direkt einfuehren. Sie koennen den Chunk einfach laufen lassen und das Ergebnis betrachten:
+
+
+```{r "1___Deskriptive_Anal_c",optional=TRUE}
+panderOptions('knitr.auto.asis', FALSE)
+ueberblick %>% pander(style="rmarkdown") 
+```
+
+Ok, unsere Daten reichen von 1991 bis 2017, wir haben einige `NAs` (missing) bei den `debt_share_country` Informationen. Wir koennen jedoch noch einiges an Informationen aus dieser Tabelle ablesen.
+
+Wie viele individuelle Laender haben wir in unserem Datensatz?
+
+1) Kann man an dieser Ausgabe nicht ablesen.
+2) 28, erkennbar an n_unique bei `country`
+3) 27, erkennbar an n_unique bei `date`
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und fuehren Sie die Codezeile aus:
+```{r "1___Deskriptive_Anal_c_2",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Die Groesse der Laender ist recht unterschiedlich. Wie viele Einwohner hat das kleinste Land im Datensatz und wie viele das groesste?
+
+1) Kann man an dieser Ausgabe nicht ablesen.
+2) 0.36 Mio. das kleinste und 83.15 Mio. das groesste Land
+3) 0.26 Mio. das kleinste und 80.12 Mio. das groesste Land
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und fuehren Sie die Codezeile aus:
+```{r "1___Deskriptive_Anal_c_3",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Dieser Ueberblick ermoeglicht uns generelle Fragestellungen mit dem Datensatz zu beantworten. Jedoch erhalten wir hier keine Informationen ueber die einzelnen Laendern, weshalb wir uns in der folgenden Fragestellung die Schuldenquote fuer die einzelnen Laender anschauen moechten.
+
+d) Mit `summarize` koennen Sie eine Tabelle aller EU-Laender erstellen und von der Schuldenquote (`debt_share_country`) jedes Landes den Mittelwert (Mittel), die Standardabweichung (SD), das Minimum (Min), Median (Median) und Maximum (Max) ausgeben (in Klammern steht der Name wie Sie die Variable nennen sollen). Runden Sie alle Werte auf zwei Nachkommastellen. Achten Sie darauf, dass `NAs` nicht in ihre Berechnungen aufgenommen werden. Nutzen Sie den Datensatz `eu_makro` und gruppieren Sie ihre Daten nach Laendern. Sortieren Sie ihre deskriptive Tabelle absteigend nach dem Median der Schuldenquote. Speichern Sie ihre Daten in `deskriptives` ab und geben Sie anschliessend `deskriptives` aus.
+
+```{r "1___Deskriptive_Anal_d"}
+#deskriptives <- eu_makro %>%
+#  group_by(___) %>%
+#  summarize(Mittel = round(___(debt_share_country, na.rm=TRUE),2),
+#            SD = round(___(debt_share_country, na.rm=TRUE),2),
+#            Min = round(___(debt_share_country, na.rm=TRUE),2),
+#            Median = round(___(debt_share_country, na.rm=TRUE),2),
+#            Max = round(___(debt_share_country, na.rm=TRUE),2)) %>%
+#  arrange(___(___))
+
+#deskriptives
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+
+## Exercise 2 -- Einfuehrung in GGplot2 und Zeitreihendiagramme
+
+Zuerst muessen wir wieder unsere Daten laden:
+```{r "2"}
+eu_makro <- read_csv("./data/EU_Makro.csv")
+```
+
+In diesem Abschnitt wollen wir uns naeher mit der Visualisierung von Daten beschaeftigen, nachdem wir nun einiges ueber die Daten gelernt haben.
+
+Hierfuer verwenden wir GGplot2, dieses Paket hat einen einfachen Grundsyntax mit dem Sie jedoch ihre Daten sehr schnell und effizient visualisieren koennen. Zuerst sollen Sie die allgemeine Syntax von `ggplot` nachvollziehen.
+
+In GGplot haben Sie immer die folgenden Kategorien:
+
+1. **Daten**: Im folgenden analysieren wir den `eu_makro` Datensatz 
+2. **Geometry**: Wir lernen verschiedene Arten von Grafiken kennen, z.B. Streudiagramm, Histogramm, Liniendiagramm
+3. **Aesthetic**: Definiert die x-Achse und y-Achse. Weiterhin koennen wir Farben und Formen unserer Grafik bestimmen, alles abhaengig von der **Geometry**, welche wir waehlen
+4. **scale**: Definieren wie die Skalierung unserer x-Achse und y-Achse sein soll
+
+Lassen Sie uns direkt mit den ersten Grafiken starten:
+
+a) Um `ggplot` besser zu verstehen wollen wir erste Grafiken nur fuer Deutschland erstellen. Filtern Sie hierfuer den `eu_makro` Datensatz nach "Germany" und speichern Sie diesen Datensatz als `deutschland` ab. 
+
+```{r "2_a"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+b) Nun koennen Sie das Bruttoinlandsprodukt (`gdp`) fuer Deutschland darstellen. Dies sollen Sie mittels eines Streudiagramms machen. Nutzen Sie hierzu den Datensatz `deutschland` und fuegen Sie einen Layer (`geom_point`) hinzu (weitere Layer koennen Sie durch `+` hinzufuegen). Sie sollten die Jahre auf der x-Achse und das Bruttoinlandsprodukt auf der y-Achse darstellen. Speichern Sie ihre Grafik in `g1` ab. Lassen Sie sich danach `g1` ausgeben. Verwenden Sie Pipes fuer ihre Analysen.
+
+```{r "2_b"}
+#g1 <- ___ %>%
+#  ggplot() + geom_point(___(x = ___, y = ___))
+
+#g1
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+c) Das Bruttoinlandsprodukt ist ueber die Jahre staendig gestiegen. Wie haben sich dazu im Vergleich die Schulden Deutschlands entwicklt? Fuegen Sie in das bestehende Diagram `g1` eine zusaetzliche Linie mit ein, welche die Verschuldung von Deutschland darstellt. Nutzen Sie hierzu `geom_line` als zusaetzlichen Layer. Speichern Sie ihre Grafik in `g2` und geben `g2` aus.
+
+```{r "2_c"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Deutschland hatte seit 2010 ein starkes Wirtschaftswachstum, jedoch ist dies mitunter auch darauf zurueckzufuehren, dass in 2008 massive Strukturprogramme gestartet wurden um die Wirtschaft nach der Insolvenz von Lehman Brothers zu stuetzen, insbesondere ab 2010 mit der Eurokrise. Wir sollten uns anschauen, wie sich die Schuldenquote anderer Laender ueber die Zeit entwickelt hat, um die Vermutung mit der Verschuldung durch die Eurokrise zu verifizieren. Insbesondere interessiert uns, wie sich die Schuldenquote anderer EU Laender entwickelt haben. Uns interessiert dabei neben Deutschland besonders Italien.
+
+d) Tragen Sie die Schuldenquote `debt_share_country` aller Laender in einem Schaubild ab. Nutzen Sie hierfuer `geom_line`. Damit Sie unterschiedliche Linien fuer jedes Land mittels `geom_line` erhalten sollten Sie das Argument `group` innerhalb der aes bei `geom_line` verwenden und hier die Variable `country` als Gruppe definieren. Um die einzelnen Linien nach den Laendern unterschiedlich einzufaerben sollten Sie das Argument `colour` innerhalb der aes von `geom_line` verwenden. Speichern Sie ihre Grafik in `g3` und geben Sie `g3` aus.
+
+```{r "2_d",optional=TRUE}
+# g3 <- ____ %>%
+#   ggplot() + 
+#   geom_line(aes(x = ____, y = ____, group=____, colour=____))
+#
+#g3
+
+# enter your code here ...
+
+```
+
+Hui...farbenfroh!
+Nun sehen wir aber leider den Wald vor lauter Baeumen nicht mehr!
+
+Das sollten wir aendern.
+Die meisten Zeitreihen in ihrem Datensatz starten in 1995. Dies erklaert, warum Sie in der ersten Exercise so viele `NAs` bei `debt_share_country` in ihrem Datensatz hatten! 
+
+e) Filtern Sie ihren Datensatz auf die Jahre 1995 und groesser. Da wir uns neben Deutschland besonders fuer Italien interessieren, sollten wir uns eine neue Variable "Laender" definieren, welche nur noch "Deutschland" und "Italien" als Laendernamen enthaelt und fuer alle anderen Namen den Eintrag "Andere" beinhaltet, nutzen Sie die Funktion `case_when` und testen Sie nach den Laendernamen in `country`. Speichern Sie den neuen Datensatz in `eu_analyse`.
+
+```{r "2_e"}
+#eu_analyse <- eu_makro %>%
+#  filter(___) %>%
+#  mutate( Laender = case_when(
+#    country == "___" ~ "Deutschland",
+#    country == "___" ~ "Italien",
+#    TRUE ~ "___"))
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+f) Nun koennen Sie mit dem Datensatz `eu_analyse` eine neue Grafik erstellen, welche nur noch Deutschland, Italien und Andere Laender anzeigt. Nutzen Sie hierfuer wieder `geom_line` wie im Abschnitt d), nur dieses mal setzen Sie die Farben basierend auf der Variablen "Laender". Speichern Sie ihre Grafik in `g4` ab und zeigen Sie anschliessend `g4`.
+
+```{r "2_f"}
+#g4 <- eu_analyse %>%
+#  ggplot() + 
+#  geom_line(aes(x = year, y = debt_share_country, group = ___, colour = ___))
+
+#g4
+
+# enter your code here ...
+
+```
+
+Hmm, ok...Sieht schon etwas besser aus, allerdings ist das rot etwas aufdringlich und die Achsenbezeichnungen stimmen noch nicht. Ein Titel waere auch nicht schlecht.
+
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+g) Nutzen Sie die Grafik `g4` aus der vorherigen Aufgabe und fuegen als Beschriftung fuer die x-Achse "Jahr" und als Beschriftung fuer die y-Achse "Schuldenquote" hinzu. Weiterhin sollte die Legendenueberschrift "Laender" heissen und die einzelnen Linien auch weniger kraeftige Farben erhalten. Nutzen Sie `scale_colour_manual` um den "Andere" die Farbe "grey" zu geben. "Deutschland die Farbe "springgreen4" und "Italien" die Farbe "blue" (in der Reihenfolge). Speichern Sie ihre Grafik als `g5` ab und geben Sie `g5` aus.
+
+```{r "2_g"}
+#g5 <- g4 + 
+#  ylab("___") + 
+#  xlab("___") +
+#  scale_colour_manual(name = "___", 
+#                      values = c("___", "___", "___"))
+#
+#g5
+
+# enter your code here ...
+
+```
+
+Ok, das sieht doch schon ganz gut aus.
+
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+h) Um einen Ueberblick zu erhalten, ob die Schuldenquote besonders hoch oder niedrig ist wollen wir noch eine Referenzlinie einbauen. Diese soll bei einer Schuldenquote von 60% liegen, wie im Maastricht-Vertrag festgesetzte. Durch `geom_hline` koennen Sie eine horizontale Linie einfuegen. Faerben Sie diese horizontale Linie rot ein. Weiterhin soll das Schaubild den Titel "Schuldenquote einzelner EU-Laender von 1995 - 2017" erhalten. Speichern Sie ihre fertige Grafik als `final` ab und geben Sie `final` aus.
+
+```{r "2_h"}
+#final <- g5 +
+#  ___("Schuldenquote einzelner EU-Laender von 1995 - 2017") +
+#  ___(___=0.60, ___ = "red")
+
+#final
+
+# enter your code here ...
+
+```
+
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+i) Wenn Sie nun auf die Legende verzichten wollen und stattdessen direkt die Linien beschriften, dann koennen Sie dies tun. Durch `theme_bw()` erhalten wir ein etwas schoeneres Layout und `guides(color = FALSE)` loescht die Legende. `geom_text_repel` fuegt den Legendentext dann den Linien hinzu. Lassen Sie fuer das Endergebnis einfach den folgenden Code-Chunk laufen.
+
+```{r "2_i",optional=TRUE}
+final +
+  theme_bw() +
+  guides(color = FALSE) +
+  geom_text_repel(aes(x = year, y = debt_share_country, label = Laender),
+                  data          = filter(eu_analyse %>% filter(Laender!="Andere", year==last(year))),
+                  size          = 4,
+                  box.padding   = 1.5,
+                  point.padding = 0.5,
+                  force         = 100,
+                  segment.size  = 0.2,
+                  segment.color = "grey50",
+                  direction     = "x")
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+
+## Exercise 3 -- Verteilungen mit Histogrammen und Balkendiagrammen
+
+Zuerst sollten wir wieder unsere Daten laden:
+```{r "3"}
+eu_makro <- read_csv("./data/EU_Makro.csv")
+eu_analyse <- eu_makro %>%
+  filter(year>=1995) %>%
+  mutate( Laender = case_when(
+    country == "Germany" ~ "Deutschland",
+    country == "Italy" ~ "Italien",
+    TRUE ~ "Andere"))
+```
+
+In der vorherigen Uebung hatten wir uns den Verlauf der Schuldenquote fuer einzelne Laender ueber die Zeit angeschaut. Doch es kann auch sehr informativ sein die Verteilung der Schuldenquote in einzelnen Jahren anzuschauen. Hierfuer eignet sich besonders das Histogramm.
+
+a) Betrachten Sie die Verteilung der Schuldenquote bei den EU Laendern im `eu_makro` Datensatz fuer das Jahr 2005. Nutzen Sie hierfuer den Befehl `geom_histogram`. Speichern Sie die Grafik unter `eu_2005` ab und lassen Sie sich `eu_2005` ausgeben.
+
+```{r "3_a"}
+#eu_2005 <- eu_makro %>% 
+#  filter(___) %>%
+#  ggplot(aes(___)) + 
+#  ___
+
+#eu_2005
+
+# enter your code here ...
+
+```
+
+Als erstes Histogramm gar nicht mal schlecht! Jetzt schauen wir mal, was wir da noch machen koennen.
+
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+b) Die Achsenbeschriftungen sind noch etwas behaebig. Benennen Sie doch bitte die x-Achse zu "Schuldenquote" und die y-Achse zu "Anzahl" um. Weiterhin sollten Sie die Bandbreite anpassen. Sinnvoll waere eine Bandbreite von 0.01, d.h. dann sind alle Laender zwischen 0 und 1% Schuldenquote in einem Balken zusammengefasst etc. Im letzten Schritt sollten Sie noch mit `geom_vline` an der Stelle 0.6 eine vertikale, gestrichelte ("dashed"), rote Linie in das Histogramm einzeichnen. Schreiben Sie ihren Code noch einmal neu und nutzen Sie _nicht_ `eu_2005`. Speichern Sie ihr Histogram als `eu_2005f` ab und geben Sie `eu_2005f` aus.
+
+```{r "3_b",optional=TRUE}
+#eu_2005f <- ___ %>%
+#  filter(___) %>%
+#  ggplot(aes(___)) +
+#  geom_histogram(___) + 
+#  ylab(___) +
+#  xlab(___) +
+#  ___(___ = 0.6, color="___", linetype="___")
+#
+#eu_2005f
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+c) Um Vergleichswerte zu bekommen waere es ganz hilfreich die Verteilungen der Schuldenquote von 2005, 2008, 2011 und 2014 einander gegenueberzustellen (in der Reihenfolge). Filtern Sie hierzu ihren `eu_makro` Datensatz auf die entsprechenden Jahre und nutzen Sie `facet_wrap` um die Verteilungen der vier Jahre **untereinander** darzustellen. Achten Sie darauf, dass die x-Achse mit "Schuldenquote" und die y-Achse mit "Anzahl" beschriftet ist und geben Sie der Grafik den Titel "Verteilung der Schuldenquote". Speichern Sie ihre Grafik als `eu_vergleich` ab und geben Sie `eu_vergleich` aus.
+
+```{r "3_c",optional=TRUE}
+#eu_vergleich <- eu_makro %>% 
+#  filter(year==2005 | ___ | ___ | ___) %>%
+#  ggplot(aes(___)) + 
+#  geom_histogram(___) +
+#  geom_vline(xintercept = 0.6, color="red", linetype="dashed") +
+#  xlab("___") +
+#  ylab("___") +
+#  ggtitle("___") +
+#  facet_wrap(___ ~., nrow=___)
+
+#eu_vergleich
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+d) Wenn Sie das Schaubild von 2005 mit 2014 vergleichen, wie hat sich die Schuldenquote ueber die Zeit entwickelt?
+
+1) Deutlich mehr Laender erfuellen die Maastricht-Kriterien in 2005 wie 2014
+2) Deutlich mehr Laender verletzen die Maastricht-Kriterien in 2005 wie 2014
+3) Es gibt keine Unterschiede im Hinblick auf die Maastricht-Kriterien bei den Histogrammen von 2005 und 2014
+3) Es koennen keine Aussagen zu den Maastricht Kriterien und den Unterschieden zwischen 2005 und 2014 getroffen werden
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und fuehren Sie die Codezeile aus:
+```{r "3_d",optional=TRUE}
+
+# enter your code here ...
+
+```
+
+Histogramme sind sehr schoen um Verteilungen darzustellen. Jedoch verlieren wir bei diesen die Information, um welches Land es sich genau gehandelt hat. Deshalb wollen wir im naechsten Schritt ein Balkendiagramm aufzeigen, welches die Namen der Laender beinhaltet. Tragen Sie in einem Balkendiagramm die Schuldenquote _relativ_ zu den im Maastricht-Vertrag vorgegebenen 60% des BIP ab. 
+
+e) Erzeugen Sie im ersten Schritt eine Indikatorvariable "typ" welche 1 ist, wenn die Schuldenquote des Landes ueber 60% liegt und 0 sonst. Speichern Sie "typ" als Variable der Klasse Faktor ab. Berechnen Sie weiterhin die Schuldenquote im Vergleich zu den Maastricht Kriterien von 60% (Schuldenquote - 0.6) und speichern Sie diese Werte in einer neuen Variablen "relation" ab. Speichern Sie den Datensatz in `balken` ab.
+
+```{r "3_e"}
+#balken <- eu_analyse %>%
+#  mutate( typ = ___(___(debt_share_country>___,1,0)),
+#          relation = debt_share_country - ___)
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+f) Verwenden Sie den in Aufgabe e) erzeugten `balken` Datensatz und erstellen Sie ein Balkendiagramm fuer das Jahr 2005. Verwenden Sie die Balkenbreite 0.5 und faerben Sie ihre Balken nach der Variable `typ` ein. Tragen Sie bitte auf der x-Achse die Laender und auf der y-Achse die "relation" ab. Benennen Sie die x-Achse mit "Laender" und die y-Achse mit "Relation" und geben Sie der Grafik die Ueberschrift "Einhaltung der Maastricht Kriterien in 2005". Speichern Sie ihre Grafik in `plot_balken` und geben Sie danach `plot_balken` aus.
+
+```{r "3_f"}
+#plot_balken <- balken %>%
+#  filter(___) %>%
+#  ggplot(aes(x=___, y=___)) + 
+#  geom____(stat=___, aes(fill=___), width=___) +
+#  xlab(___) +
+#  ylab(___) +
+#  ___("Einhaltung der Maastricht Kriterien in 2005")
+
+#plot_balken
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+g) Wir koennen noch etwas schoenere Farben verwenden und die Legende etwas anders benennen. Der Code baut auf ihrer zuvor erstellten `plot_balken` Grafik auf und ergaenzt diese. Sie koennen den Chunk einfach ausfuehren.
+
+```{r "3_g",optional=TRUE}
+plot_balken_final <- plot_balken +
+  scale_fill_manual(name="Rel. Schuldenquote", 
+                    labels = c("Erfuellt Maastricht", "Verletzt Maastricht"),
+                    values = c("0"="springgreen4", "1"="red"))
+
+plot_balken_final
+```
+
+h) Leider koennen wir die Laendernamen auf der x-Achse nicht besonders gut lesen. Deshalb entscheiden wir uns dafuer die Grafik zu drehen. Dies koennen Sie mit `coord_flip()` erreichen. Weiterhin wollen wir noch die Daten von 2014 als Vergleich mit hinzunehmen. Grenzen Sie daher den Datensatz `balken` auf die Jahre 2005 und 2014 ein und erstellen Sie die gleiche Grafik wie in f), nur fuer zwei Jahre **nebeneinander** mittels `facet_wrap`. Benennen Sie die neue Grafik mit "Einhaltung der Maastricht Kriterien in 2005 und 2014". Speichern Sie ihre Grafik in `flipped_bars` und geben Sie `flipped_bars` aus.
+
+```{r "3_h"}
+#flipped_bars <- balken %>%
+#  filter(year==2005 | ___) %>%
+#  ggplot(aes(x=___, y=___)) + 
+#  geom_bar(stat=___, aes(fill=___), width=___) +
+#  xlab(___) +
+#  ylab("Relation") +
+#  ___("Einhaltung der Maastricht Kriterien in 2005 und 2014") +
+#  facet_wrap( ___~., ncol=___) +
+#  coord_flip()
+
+#flipped_bars
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+i) Wir koennen noch etwas schoenere Farben verwenden und die Legende etwas anders benennen. Der Code baut auf ihrer zuvor erstellten `flipped_bars` Grafik auf und ergaenzt diese. Sie koennen ihn einfach ausfuehren.
+
+```{r "3_i",optional=TRUE}
+flipped_bars +
+  scale_fill_manual(name="Rel. Schuldenquote", 
+                    labels = c("Erfuellt Maastricht", "Verletzt Maastricht"),
+                    values = c("0"="springgreen4", "1"="red"))
+```
+In diesem Schaubild sehen wir auf einen Blick, dass sich zwischen 2005 und 2014 einiges an der Haushaltsdisziplin der EU Mitgliedstaaten geaendert hat. Weiterhin koennen wir sehr schnell die Laender ausmachen, bei welchen die Verschuldung besonders stark zugenommen hat.
+
+j) Bezug nehmend auf die Balkendiagramme aus der Teilaufgabe h) koennen wir anstatt Facett-Grafiken auch animierte Grafiken erzeugen. Nutzen Sie hierfuer das Paket `gganimate`. Sie koennen den Code aus i) uebernehmen, sollten jedoch darauf achten, dass Sie den Datensatz nicht mehr filter und `facet_wrap` aus dem Code entfernen. Speichern Sie den Datensatz in `animated_bars` ab.
+Anschliessend koennen Sie durch `animated_bars + transition_time() ...` ihren Datensatz animieren lassen.
+
+```{r "3_j",optional=TRUE}
+#animated_bars <- balken %>%
+#  ggplot(aes(x=___, y=___)) + 
+#  geom_bar(stat=___, aes(fill=___), width=.5) +
+#  ___("Laender") +
+#  ylab(___) +
+#  ___("Einhaltung der Maastricht Kriterien in 2005 und 2014") +
+#  scale_fill_manual(name="Rel. Schuldenquote", 
+#                    ___ = c("Erfuellt Maastricht", "Verletzt Maastricht"),
+#                    ___ = c("0"="springgreen4", "1"="red")) +
+#  coord_flip()
+
+# enter your code here ...
+
+animated_bars + transition_time(as.integer(year)) +
+  labs(title = "Jahr: {frame_time}")
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+
+## Exercise 4 - Kartenmaterial
+
+Es gibt eine ganze Reihe R Pakete mit denen Sie gut Karten erstellen koennen und auch noch flexibler anpassen koennen. Im ersten Problem Set hatten Sie bereits `gvisGeoChart` kennen gelernt. Die Pakete <a href="https://rstudio.github.io/leaflet/" target="_blank">leaflet</a> und <a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html" target="_blank">tmap</a> erlauben z. B. interaktive Karten, bei denen man wie bei Google Maps zoomen kann. Auch das allround Grafiktpaket `ggplot2` erlaubt es Karten zu basteln.
+
+Diese Pakete erfordern jedoch eine explizite Spalte mit geografische Informationen fuer jede Region in einem Datensatz.
+
+Der folgende Code laedt eine Version unseres Datensatz, bei denen wir solche Geoinformationen fuer die EU Laender bereits schon in der Spalte `geometry` hinzugefuegt haben. Die Daten sind im internen R format `Rds` gespeichert und wir nutzen die Funktion `readRDS` um sie zu laden.
+```{r "4___Kartenmaterial"}
+dat <-  readRDS("./data/eu_macro_maps.Rds")
+head(dat)
+```
+Die Spalte `geometry` beinhaltet Listen mit den Koordinaten der verschiedenen Eckpunkte der jeweiligen Laendergrenzen.
+
+Der folgende Infoblock zeigt, wie wir diese Daten erstellt haben.
+
+info("Erstellen des Kartenmaterials") # Run this line (Strg-Enter) to show info
+
+
+Wir moechten nun zeigen, wie Sie mit `ggplot2` eine Karte erstellen koennen, mit flexibler Beschriftung. Wir zeigen hier die Schuldenquote, d.h. oeffentliche Schulden geteilt durch BIP fuer die EU 28 Laender. Sie koennen den Code Chunk einfach ausfuehren:
+
+```{r "4___Kartenmaterial__2",optional=TRUE, fig.width=8, fig.height=5, dev='svg'}
+# Erstelle die Spalte debt_share in Prozent und gerundet
+dat <-  dat %>%
+  mutate(debt_share = round(100*gov_debt / gdp))
+# Erstelle die Spalte label fuer die Beschriftung zur Verschuldung
+# in der Karte
+dat <-  dat %>%
+  mutate(label = paste0(cntry," ", debt_share,"%"))
+
+# Erstelle schoene Farbpalette 
+# mit RColorBrewer
+colours = rev(brewer.pal(8,"RdYlGn"))
+#dat %>%
+#  ggplot() +
+#  geom_sf(aes(fill=___, geometry=geometry)) +
+#  geom_sf_text(aes(label=___, geometry=geometry), size=3)+
+#  theme_void() + 
+#  scale_fill_gradientn(colours = colours, name = ___) +
+#  theme(panel.grid.major = element_line(color = "white"))
+
+# enter your code here ...
+
+```
+Ganz interessant, dass viele osteuropaeischen EU-Laender auch im Verhaeltnis zu Ihrem BIP eine im Vergleich recht geringe Staatsverschuldung haben.
+
+
+
+
+## Loesung einreichen
+
+Um Ihre Loesung zu diesem Uebungsblatt abzugeben klicken Sie auf "Check Problemset". Hierzu koennen Sie zu `Tools -> Addins -> Browse Addins ... -> Check Problemset` gehen. Danach geben Sie dann in die Konsole (Fenster unten) folgendes ein: 
+
+    make.submission()
+
+Der Befehl kontrolliert ihr Uebungsblatt und erstellt eine Datei mit dem Namen  `problemsetname__username.sub` in Ihrem Arbeitsverzeichnis, die Ihre Loesung und die Log Dateien enthaelt.
+Laden Sie diese Datei (mit der Endung .sub) dann auf Moodle hoch. 
+aendern Sie nicht den Namen der Datei!

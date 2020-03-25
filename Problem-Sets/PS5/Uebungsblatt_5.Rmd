@@ -1,0 +1,556 @@
+
+```{r 'check_ps', include=FALSE}
+
+user.name = 'ENTER A USER NAME HERE' # set to your user name
+
+# To check your problem set, run the 
+# RStudio Addin 'Check Problemset'
+
+# Alternatively run the following lines
+library(RTutor)
+ps.dir = getwd() # directory of this file
+ps.file = 'Uebungsblatt_5.Rmd' # name of this file
+check.problem.set('Uebungsblatt_5', ps.dir, ps.file, user.name=user.name, reset=FALSE)
+```
+
+# RTutor Uebungsblatt 5 - Projektkurs
+
+Um Code ausfuehren, markieren Sie diesen und druecken Sie dann auf "Strg + Enter" oder auf "Run" oben rechts. Alternativ koennen Sie auch auf den gruenen Play Button in jedem Chunk druecken. Fuehren Sie immer den Code einer Teilaufgabe aus bevor Sie fortfahren.
+
+Um die Anworten zu ueberpruefen speichern Sie diese Datei (Strg + s) und fuehren Sie das Addin 'Check Problemset' aus. Sie finden die Addins in der Kopfzeile von RStudio oder unter Tools/Addins.
+
+Sollten Ihnen Umlaute nicht richtig angezeigt werden speichern Sie diese Datei mit "Save with Encoding" und waehlen Sie dann "UTF-8".
+
+Sie koennen jederzeit das Uebungsblatt abspeichern und zu einem spaeteren Zeitpunkt fortfahren. Wenn Sie wissen moechten wie weit Sie fortgeschritten sind koennen sie in die Konsole `stats()` eingeben.
+
+Wenn Sie mit dem Uebungsblatt fertig Sind geben Sie in die Konsole den Befehl 'make.submission()' ein und fuehren Sie diesen aus. Dieser Befehl erstellt in Ihrem Arbeitsordner eine Abgabe Datei mit der Endung '.sub'. Laden Sie diese Datei vor dem Abgabedatum auf der Kursseite in Moodle hoch.
+
+Wenn Sie bei einer Aufgabe nicht weiter wissen, so koennen Sie jederzeit in die Konsole `hint()` eingeben um einen Hinweis zu dieser Aufgabe zu erhalten. Beginnen Sie, indem Sie in folgendem R-Chunk, wo nach Ihrem "Username" gefragt wird, Ihren Namen eintragen.
+
+Aufgaben, welche einen Lueckentext enthalten, wie bspw:
+
+`#___#g4 <- eu_analyse %>%
+ ggplot() + 
+ geom_line(aes(x = year, y = debt_share_country, group = ___, colour = ___))
+
+`#___#g4
+
+
+Sollten Sie so beantworten, dass Sie die `___` Abschnitte befuellen und das `#___#` vor den Variablennamen loeschen
+
+
+
+In diesem Problem Set betrachten wir zwei veschiedene Datensaetze um den Unterschied zwischen Zusammenhang und kausalem Effekt zu beleuchten.
+
+
+## Exercise 1 -- Bildung und Einkommen
+
+Bitte installieren Sie die Pakete `stargazer`, `wooldridge`, `DiagrammeR` und `skimr` falls Sie das bis jetzt noch nicht getan haben.
+
+a) Im wooldridge-Pakte finden Sie den Datensatz `wage1`, welcher US Daten zu 526 Arbeitnehmern, deren Loehne, Ausbildung und Herkunft aus dem Jahr 1976 enhaelt. Lassen Sie folgenden Code laufen um die Daten in einer Variablen zu speichern und einen Ueberblick zu erhalten:
+```{r "1_a"}
+library(wooldridge)
+data(wage1)
+head(wage1)
+skim(wage1)
+```
+
+Fuer eine Erklaerung der Variablen geben Sie einfach `help(wage1)` in der R Konsole ein.
+
+
+b) Wir moechten nun durch eine lineare Regression den Zusammenhang zwischen Stundenlohn in Dollar (wage) als abhaengige Variable und Ausbildungszeit in Jahren (educ) als erklaerende Variable beschreiben. Fuehren Sie die entsprechende Regression durch, speichern das Ergebnis als `reg1` und zeigen Sie ein `summary` von `reg1`.
+
+```{r "1_b",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+c) Nun ein kleines Quiz. Ist folgende Interpretation des Regressionsergebnisses vermutlich korrekt?
+
+> Interpretation 1: Eine um ein Jahr laengere Ausbildung fuehrt im Durchschnitt zu einem um ca. 0.54 USD hoeheren Stundenlohn.
+
+Schreiben Sie "ja" oder "nein"
+```{r "1_c",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+d) Tatsaechlich wuerde wohl fast jeder Fachmann Interpretation 1 als falsch betrachten, folgende Interpretationen dagegen durchaus als korrekt ansehen:
+
+> Interpretation 2: Menschen mit einer um ein Jahr laengerer Ausbildung haben im Durchschnitt einen um ca. 0.54 USD hoeheren Stundenlohn.
+
+> Interpretation 3: Eine um ein Jahr laengerer Ausbildung ist mit einem im Durchschnitt ca. 0.54 USD hoeheren Stundenlohn assoziiert.
+
+Interpretationen 2 und 3 sprechen nur ueber einen _Zusammenhang_ zwischen Ausbildungsjahren und Stundenlohn. Interpretation 1 spricht dagegen von der Hoehe eines _kausalen Effektes_ von Bildungsjahren auf Stundenlohn.
+
+Wenn die Daten nicht aus einem sehr sorgfaeltig gestalteten randomisierten Experiment stammen, misst der geschaetzte Koeffizient einer einfacher Regression von y auf x oft nur einen Zusammenhang, aber unter- oder ueberschaetzt systematisch den kausalen Effekt einer Aenderung von x auf y. Man sagt dann, dass der Schaetzer _verzerrt_ ist.
+
+e) Ein Hauptgrund fuer Verzerrungen sind das wichtige Einflussgroessen, die sowohl `x` als auch `y` beeinflussen in einer Regression fehlen. Wir moechten dies an einem Beispiel illustrieren.
+
+Vervollstaendigen Sie den Code and der Stelle ___, um die durchschnittlichen Ausbildungsjahre von Maennern und Frauen zu vergleichen.
+
+```{r "1_e",optional=TRUE}
+wage1 %>%
+ mutate(gender = ifelse(female==1,"___","___")) %>%
+ group_by(gender) %>%
+ summarize(mean(___))
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wir sehen, dass maennliche Arbeitnehmer 1976 im Schnitt eine etwas laengere Ausbildung hatten als weibliche. Weiterhin koennte man vermuten, dass selbst bei gleicher Ausbildungsdauer maennliche Arbeitnehmer einen hoeheren Studenlohn erhalten haben.
+
+Folgendes Pfeildiagramm illustriert die vermuteten kausalen Effekte (einfach Code laufen lassen):
+```{r "1_e_2"}
+grViz('digraph G {
+
+x [label="Ausbildungsjahre x"]
+y [label="Stundenlohn y"]
+w [label="maennlich"]
+
+x -> y [label="+"];
+w -> x [label="+"];
+w -> y [label="+"];
+}')
+```
+
+Jeder Pfeil im Diagramm soll einen kausalen Effekt illustrieren. Der Pfeil von Ausbildungsjahren zu Stundenlohn ist der Effekt, an dem wir interessiert sind. 
+Es gibt aber noch einen anderen angenommenen Zusammenhang. I.d.R. haben Maenner im Schnitt eine laengere Ausbildung und auch bei gleicher Ausbildung haben sie einen hoeheren Studenlohn wie Frauen.
+
+Wenn wir y auf nur eine Variable x regressieren, misst der geschaetzte Koeffizient immer den gesammten Zusammenhang, der sich in der Summe durch alle moeglichen Kausalketten bildet. Angenommen es gaebe nur die im Pfeildiagramm dargestellten Effekte. Was waere dann korrekt?
+
+1. Der kausale Effekt von Ausbildung auf Stundenlohn ist systematisch _kleiner_, als die geschaetzten 0.54 USD mehr pro extra Ausbildungsjahr.
+
+2. Der kausale Effekt von Ausbildung auf Stundenlohn ist systematisch _groesser_, als die geschaetzten 0.54 USD mehr pro extra Ausbildungsjahr.
+ 
+Tippen Sie 1 oder 2 ein:
+```{r "1_e_3",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Der geschaetzte Koeffizient in Hoehe von 0.54 USD wuerde zusaetzlich zum wahren kausalen Effekt in unserem Beispiel noch den indirekten positiven Zusammenhang ueber das Geschlecht beinhalten.
+
+Der indirekte positive Zusammenhang ueber das Geschlecht laeuft wie folgt: Eine Person mit vielen Ausbildungsjahren ist eher ein Mann. Aber Maenner haben auch bei gleich vielen Ausbildungsjahren im Schnitt einen hoeheren Stundenlohn als Frauen. Also misst der Koeffizient von Ausbildungjahren auch zum Teil den Effekt von Geschlecht auf Stundenlohn.
+
+D.h. der wahre kausale Effekt waere kleiner als 0.54 USD hoeherer Stundenlohn pro extra Ausbildungsjahr. Wir sagen entsprechend, dass der Schaetzer von 0.54 nach _oben_ verzerrt ist.
+
+f) Eine Moeglichkeit fuer eine fehlende Einflussgroesse zu _kontrollieren_, ist sie mit in die Regression hineinzunehmen. Lassen Sie hierfuer folgenden Code laufen:
+
+```{r "1_f",optional=TRUE}
+reg2 <- lm(wage ~ educ + female, data=wage1)
+summary(reg2)
+```
+
+Der Koeffizizient `-2.27` vor der Variablen `female` bedeutet hier, dass bei gleich langer Ausbildung (aber nicht unbedingt im gleichen Fachgebiet) Frauen im Schnitt einen um 2.27 USD niedrigeren Stundenlohn hatten. (Warum misst aber -2.27 vermutlich nicht den kausalen Effekt des Geschlechts auf den Stundenlohn?)
+
+Der Koeffizient `0.506` vor `educ` bedeutet, dass _kontrolliert_ fuer das Geschlecht, ein Jahr laengere Ausbildung im Schnitt mit einem um 0.506 USD hoeheren Stundenlohn korrespondiert. Dieser Wert ist kleiner als unser vorheriger Schaetzer 0.54. Indem wir fuer das Geschlecht kontrolliert haben, haben wir die durch das Geschlecht induzierte Verzerrung herausgerechnet.
+
+Vermutlich ueber- oder unterschaetzt aber auch der Schaetzer `0.506` noch immer systematisch den kausalen Effekt von Ausbildungsjahren auf Stundenlohn da es noch weitere fehlende Einflussgroessen gibt. Beispielsweise, tendieren intelligentere Menschen zu studieren (mehr Ausbildungsjahre) und koennen tendenziell auch bei gleicher Ausbildungslaenge hoehere Loehne erzielen. Intelligenz waere also eine weitere fehlende Einflussgroesse die zu einer Verzerrung fuehrt. Sie koennen sich sicher auch noch andere fehlende Einflussgroessen die zu Verzerrungen fuehren koennen vorstellen.
+
+g) Betrachten Sie folgendes Pfeildiagramm fuer ein abstraktes Beispiel:
+
+```{r "1_g"}
+grViz('digraph G {
+x -> y [label="+"];
+w -> y [label="+"];
+}')
+```
+Wir haben eine Variable `w` die nur `y` aber nicht `x` beeinflusst. Es soll keine weiteren relevanten kausalen Effekte geben.
+
+Nehmen Sie an, wir regressieren y auf x ohne fuer w zu kontrollieren, d.h `lm(y~x)`. Ist der geschaetzte Koeffizient von `x` ein verzerrter oder unverzerrter Schaetzer des kausalen Effektes von `x` auf `y`? Geben Sie "verzerrt" oder "unverzerrt" ein:
+
+```{r "1_g_2",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Tatsaechlich schaetzen wir hier unverzerrt den kausalen Effekt. Dass `w` die Variable `y` beeinflusst ist nicht schlimm, solange Sie nicht gleichzeitig einen Einfluss auf `x` hat. Zu einer Verzerrung kommt es nur, wenn wir Variablen weglassen, die sowohl `x` als auch `y` beeinflussen.
+
+Es waere in diesem Beispiel aber auch nicht schlimm, wenn wir `w` als Kontrollvariable in die Regression aufnehmen. Es ist nur nicht notwendig.
+
+Dies kann man durch eine kleine Simulationsstudie illustrieren, wo wir den wahren kausalen Effekt kennen. Lassen Sie zunaechst folgenden Code laufen und versuchen Sie ihn nachzuvollziehen.
+```{r "1_g_3"}
+########################################
+# Beispiel 1: w hat nur Einfluss auf y
+########################################
+set.seed(123)
+n <- 10000
+beta1 <- 2 # wahrer kausaler effekt
+w <- rnorm(n,0,1)
+x <- rnorm(n,0,1)
+y <- beta1*x + w + rnorm(n,0,1)
+
+# Regression mit w als Kontrollvariable
+reg1 <- lm(y~x+w)
+# Regression ohne w als Kontrollvariable
+reg2 <- lm(y~x)
+# Zeige Ergbenisse nebeneinander
+library(stargazer)
+stargazer(reg1, reg2, type="text", digits=3, keep.stat=c("n"))
+```
+Hier beeinflusst w nur y aber nicht x. Beide Regressionen liefern fast den gleichen Schaetzer des Einflusses von x auf y der nahe am wahren kausalen Effekt von `beta1 = 2` dran liegt.
+
+Diese Beobachtung liefert auch den Grund warum man bei Daten aus randomisierten Experiementen kausale Effekte oft unverzerrt schaetzen kann. Wenn eine Variable `x` zufaellig gewaehlt wird, wird sie von keiner anderen Variablen systematisch beeinflusst. Selbst wenn es noch fehlende Einflussgroessen gibt, die `y` beeinflussen, koennen wir trotzdem den kausalen Effekt von `x` auf `y` schaetzen.
+
+Hier nun stattdessen eine Simulation, in der die Variable w sowohl x als auch y beeinflusst. (Zeichnen Sie zur Uebung ein entsprechendes Pfeildiagramm auf Papier.)
+```{r "1_g_4"}
+########################################
+# Beispiel 2: w hat Einfluss auf y und x
+########################################
+set.seed(123)
+n <- 10000
+beta1 <- 2 # wahrer kausaler effekt
+w <- rnorm(n,0,1)
+x <- rnorm(n,0,1) + w
+y <- beta1*x + w + rnorm(n,0,1)
+
+# Regression mit w als Kontrollvariable
+reg1 <- lm(y~x+w)
+# Regression ohne w als Kontrollvariable
+reg2 <- lm(y~x)
+# Zeige Ergbenisse nebeneinander
+stargazer(reg1, reg2, type="text", digits=3, keep.stat=c("n"))
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wenn wir w als Kontrollvariable einbauen, ist der Koeffizient von x weiterhin sehr nahe am wahren kausalen Effekt `beta1=2` von x auf y dran. Wenn wir aber nun w in der Regression weglassen, ist unser Schaetzer mit 2.5 deutlich groesser als beta1, also  systematisch nach oben verzerrt.
+
+Frage: Liegt in der zweiten Regression der wahre kausale Effekt `beta1=2` im 95% Konfidenzintervall um unseren Schaetzer des Koeffizienten von x? Schreiben Sie "ja" oder "nein"
+```{r "1_g_5"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Das 95% Konfideninzintervall ist ungefaehrt der Schaetzer (hier 2.5) plus-minus zweimal der Standardfehler (hier 0.00869). Wir sehen, dass der wahre kausale Effekt `beta1=2.0` da weit von entfernt ist. Das genaue 95% Konfidenzinterval zeigt folgender Code: 
+```{r "1_g_6"}
+confint(lm(y~x))
+```
+Berechnen Sie auch das 99% Konfidenzintervall:
+```{r "1_g_7"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Das 99% Konfidenzintervall ist kleiner als plus-minus 3 der Standarfehler um den Schaetzer herum. Auch davon ist der wahre kausale Effekt `beta1` weit entfernt.
+
+Das bedeutet: Konfidenzintervalle, Standardfehler und p-Werte beziehen sich auf einen Zusammenhang von x und y. Sie helfen uns nicht zu erkennen, ob wir einen kausalen Effekt verzerrt schaetzen oder nicht. Anders gesagt koennen Konfidenzintervalle sehr klein sein, der wahre kausale Effekt von x auf y kann aber trotzdem weit entfernt von dem geschaetzten Koeffizienten liegen.
+
+h) Man koennte jetzt denken: Im Zweifel schmeisse ich immer einfach alle Variablen die ich habe in meine Regression als Kontrollvariablen hinein. Entweder reduziert eine zusaetzliche Kontrollvariable eine Verzerrung (super) oder sie hat keine relevante Auswirkung auf den Koeffizienten der mich interessiert (dann macht es ja nichts).
+
+Ganz so einfach ist es allerdings nicht. Zum einen kann die Schaetzung zu ungenau werden (grosse Standardfehler und Konfidenzintervalle), wenn man zu viele erklaerende Variablen im Vergleich zur Anzahl der Beobachtungen hat. (Dies ist aber weniger ein Problem bei ausreichend grossen Stichproben.)
+
+Ein anderer wichtiger Punkt ist, dass man keine Kontrollvariablen einbauen sollte die von `x` beeinflusst werden, wenn man den kausalen Effekt von `x` auf `y` schaetzen moechte.
+
+Auch dies moechten wir anhand eines Beispiels illustrieren. Personen mit mehr Ausbildungsjahren haben bei gleichem Alter tendenziell weniger Jahre Berufserfahrung (`exper`) als Personen mit kuerzerer Bildung. Berufserfahrung hat aber auch einen positiven Zusammenhang mit den Stundenlohn:
+
+```{r "1_h"}
+cor(wage1$exper,wage1$wage)
+```
+
+Den negativen Zusammenhang zwischen Ausbildungsdauer und Berufserfahrung sehen Sie hier:
+
+```{r "1_h_2"}
+cor(wage1$exper,wage1$educ)
+```
+
+Wenn wir andere Einflussgroessen, wie z. B. Geschlecht, ignorieren, scheint folgendes Pfeildiagramm also plausibel fuer die kausalen Wirkunsketten:
+```{r "1_h_3"}
+grViz('digraph G {
+
+x [label="Ausbildungsjahre x"]
+y [label="Stundenlohn y"]
+w [label="Arbeitserfahrung"]
+
+x -> y [label="+"];
+x -> w [label="-"];
+w -> y [label="+"];
+}')
+
+```
+
+Mehr Ausbildungjahre haben einen direkten positiven Effekt auf den Stundenlohn. Allerdings gibt es einen indirekten negativen Effekt, da mehr Ausbildungjahre tendenziell zu weniger Arbeitserfahrung fuehren.
+
+Zur Erinnerung, wenn wir Stundenlohn nur auf Ausbildungsjahre regressieren, finden wir einen Koeffizienten von 0.54: 
+```{r "1_h_4"}
+coef(lm(wage~educ, data=wage1))
+```
+
+In welche Richtung veraendert sich vermutlich der geschaetzte Koeffizient von `educ` wenn wir Arbeitserfahrung `exper` mit in die Regression hineinnehmen? Schreiben Sie "groesser" oder "kleiner":
+
+```{r "1_h_5",optional=TRUE}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Betrachten wir das Ergebnis:
+```{r "1_h_6"}
+coef(lm(wage~educ+exper, data=wage1))
+```
+
+Tatsaechlich finden wir jetzt einen groesseren Effekt von Ausbildungsjahren auf Stundenlohn (0.64 statt 0.54). Zur Erklaerung schauen Sie nochmal auf das Pfeildiagramm.
+
+Wenn wir Arbeitserfahrung nicht in die Regression hineineinehmen, schaetzt der Koeffizient von x die Summe aus den positiven direkten Effekt von Ausbildung auf Stundenlohn und den negativen Effekt durch eine geringere Arbeitserfahrung.
+
+Wenn wir fuer Arbeitserfahrung kontrollieren, wird dieser zweite Kanal aus dem Regressionsergebnis herausgerechnet. Wir betrachten dann naemlich den Effekt von Ausbildungsjahren auf Stundenlohn, gegeben dass wir gedanklich die Jahre an Arbeitserfahrung konstant halten. Da wir also den negativen Effekt herausrechnen, schaetzt unser Koeffizient nur den direkten positiven Effekt und ist somit nun groesser.
+
+Aber was ist jetzt der "wahre" kausale Effekt von Ausbildungsjahren auf Stundenlohn (angenommen, dass es nur die im Pfeildiagramm gezeigten Einflussgroessen gaebe):
+
+  -  0.54 (direkter und indirekter Effekt) oder
+  
+  -  0.64 (nur direkter Effekt)?
+
+Geben Sie 0.54 oder 0.64 an.
+```{r "1_h_7"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Man betrachtet typischerweise die Summe aller Auswirkungen einer Aenderung der Ausbildungsjahren auf den Stundenlohn als kausalen Effekt, sowohl den direkten Effekt als auch den indirekten Effekt. D.h. die richtige Regression um den kausalen Effekt zu schaetzen waere im Beispiel `lm(wage~educ)` mit dem Koeffizienten 0.54. (Natuerlich nur unter der Annahme, dass es keine weiteren Einflussfaktoren gibt.)
+
+Aber auch das Ergebnis der Regression kontrolliert fuer Arbeitserfahrung `lm(wage~educ+exper)` ist interessant. Es zeigt uns, was der Effekt von Ausbildungsjahren ist, wenn wir gedanklich die Arbeitserfahrung festhalten. Aus der Differenz beider Schaetzer 0.64-0.54 = 0.1 sehen wir, wie relevant der Wirkungskanal ueber die Arbeitserfahrung ist.
+
+i) Manchmal ist man an unterschiedlichen Effekten interessiert oder es ist per se nicht ganz klar, welche Kontrollvariablen (oder funktionale Formen) am geeignetsten sind. Deshalb sieht man in wissenschaftlichen Publikationen typischerweise Ergebnisse von mehreren Regressionsspezifikationen nebeneinander. 
+
+Fuegen Sie zu dem Code unten noch eine dritte Regression hinzu, in der Sie sowohl (in dieser Reihenfolge) fuer `female` und `nonwhite`,  als auch `exper` kontrollieren und speichern Sie diese in `reg3`.
+
+```{r "1_i"}
+reg1 <- lm(wage ~ educ, data = wage1)
+reg2 <- lm(wage ~ educ + female + nonwhite, data=wage1)
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Der folgende Code nutzt `stargazer` um die 3 Regressionen im typischen Tabellenformat nebeneinander darzustellen:
+```{r "1_i_2"}
+stargazer( reg1, reg2, reg3 ,type = "text",  digits=2, omit.stat = c("f","ser"))
+```
+
+Hier wird allerdings vermutlich keine der 3 Regressionen den wirklichen durchschnittlichen Einfluss von einem zusaetzlichen Ausbildungsjahr auf den Stundenlohn messen. Das liegt daran, dass wir vermutlich noch viele weitere unbeobachtete Einflussgroessen, wie z. B. Intelligenz, haben die sowohl Ausbildungsjahre, als auch Stundenlohn systematisch beeinflussen.
+
+Leider haben wir nicht fuer alle diese Variablen Daten, und koennen somit nicht die Verzerrung vollstaendig durch Kontrollvariablen  eliminieren. Es gibt andere Ansaetze kausale Effekte unverzerrt zu schaetzen, wie z. B. Instrumentalvariablenschaetzer. Diese werden wir aber nicht im Projektkurs behandeln.
+
+
+## Exercise 2 -- Weiterbildungsprogramme
+
+a) Im folgenden betrachten wir ein neues Beispiel. Wir wollen nun den Einfluss eines Weiterbildungsangebots fuer junge Arbeitslose auf die Arbeitslosigkeit untersuchen. Hierzu werden wir den Datensatz `jtrain3` aus dem Paket 'wooldridge' untersuchen. Der Datensatz enthaelt Informationen zu 2675 Personen, deren Erwerbsstatus, einige personenbezogenen Daten und ob sie an einem Weiterbildungsangebot im Jahr 1977 teilgenommen haben.
+
+Sie erhalten durch den naechsten Chunk Informationen zum Datensatz:
+
+```{r "2_a",optional=TRUE}
+help(jtrain3)
+data(jtrain3)
+head(jtrain3)
+skim(jtrain3)
+```
+
+Wie die Variable `female` im vorherigen Beispiel sind auch hier wieder einige Variablen, die nur mit 0 und 1 belegt sind. Diese Variablen sind sogenannte Indikatorvariablen, welche auch oft Dummyvariablen genannt werden. Eine 1 in der entsprechenden Variable zeigt z.B. an, dass eine Person verheiratet ist (`married`), oder an der Weiterbildungsmassnahme im Jahr 1977 teilgenommen hat (`train`). Wir koennen Dummyvariablen ganz normal fuer eine OLS-Regression verwenden. Nur die Interpretation veraendert sich ein wenig, wenn die abhaengige Variable eine Dummyvariable ist, aber dazu gleich mehr...
+
+Als kleine Voruebung, speichern Sie in der Variablen `n_train` die Zahl der Arbeitslosen im Datensatz, die an einer Weiterbildung teilgenommen haben und zeigen Sie `n_train`.
+
+```{r "2_a_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Welches Vorzeichen sollte der kausale Effekt von Weiterbildungangebot `train` auf den Arbeitslosigkeitsdummy in 1978 `unemp78` haben um die Weiterbildungsmassnahmen zu rechtfertigen?
+
+1) Signifikant positiv
+
+2) Signifikant negativ
+
+Geben Sie hier die Ziffer Ihrer Antwort ein und fuehren Sie die Codezeile aus:
+
+```{r "2_a_3"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wir wuerden schon hoffen, dass eine Weiterbildungsmassnahme die Wahrscheinlichkeit reduziert im naechsten Jahr arbeitslos zu sein.
+
+
+b) Fuehren Sie eine lineare Regression (mittels OLS) mit x=`train` und y=`unem78` (Arbeitslosigkeit im Jahr 1978) durch. Speichern sie diese als `reg1` und zeigen Sie einen `summary` davon.
+
+```{r "2_b"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Der geschaetzte Zusammenhang ist signifikant positiv. Ist die abhaengige Variable (`y`) eine Dummyvariable gibt der Schaetzer (hier:`beta1`) eine Veraenderung von Wahrscheinlichkeit in Prozentpunkten an. D.h. eine arbeitslose Person die 1977 an dem Weiterbildungsprogramm teilnahm ist mit ca. 12,84 Prozentpunkten hoeherer Wahrscheinlichkeit in 1978 noch immer arbeitslos, als eine arbeitslose Person, die 1977 nicht an einem Weiterbildungsprogramm teilnahm. 
+
+Bedeutet dies, dass mehr Weiterbildung zu mehr Arbeitslosigkeit fuehrt?
+
+c) Ergaenzen Sie folgenden Code um die durchschnittliche Teilnahme an Weiterbildungsprogrammen 1977 und die Arbeitslosenquote 1978 zwischen den Personen zu vergleichen, die 1975 arbeitslos/nicht arbeitslos waren.
+```{r "2_c"}
+___ %>% 
+ group_by(___) %>%
+ summarize(mean(train), mean(___))
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wir lernen aus dem Vergleich vom Personen, die 1975 nicht arbeitslos waren zu Personen die schon 1975 arbeitslos waren (vermutlich Langzeitarbeitslose):
+
+  1. Die Wahrscheinlichket 1977 an einer Weiterbildungsmassnahme teilzunehmen ist knapp 10 mal so hoch.
+  
+  2. Die Arbeitslosenquote 1978 ist auch knapp 10 mal so hoch.
+  
+d) Dies suggeriert, dass die bislang fehlende Einflussgroesse Langzeitarbeitslosigkeit zu starken Verzerrungen fuehren koennte. Man spricht hier auch von Verzerrungen durch _Selektionseffekte_, da selektiv mehr Langzeitarbeitslose am Trainingsprogramm teilnehmen als Kurzzeitarbeitslose.
+
+Betrachten Sie hierzu folgendes Pfeildiagramm (einfach Code laufen lassen):
+
+```{r "2_d"}
+library(DiagrammeR)
+grViz('digraph G {
+
+x [label="Weiterbildung in 1977"]
+y [label="Arbeitslos in 1978"]
+w [label="Arbeitslos in 1975"]
+
+x -> y [label="?"]
+w -> x [label="+"]
+w -> y [label="+"]
+}')
+```
+
+Wir wollen gleich `unem75` als Kontrollvariable in die Regression hineinnehmen. In welche Richtung wird sich der Koeffizient der Weiterbildungsvariable `train` dann vermutlich veraendert?
+
+Schreiben Sie "kleiner" oder "groesser".
+
+```{r "2_d_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Regressieren Sie nun `unem78` auf `train` und `unem75`. Speichern Sie das Ergebnis in der Variablen `reg2`. Zeigen Sie danach das Ergebnis von `reg1` und `reg2` nebeneinander mit `stargazer`.
+
+```{r "2_d_3"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Wenn wir fuer Langzeitarbeitslosigkeit kontrollieren, wandelt sich der zuvor stark signifikant positive Koeffizient von Weiterbildung in einen stark signifikant negativen Koeffizienten: Teilnahme an Weiterbildung in 1977 geht mit einer um 13.7 Prozentpunkte geringeren Wahrscheinlichkeit in 1978 arbeitslos zu sein einher. 
+
+e) Statt `unem75` als zusaetzliche erklaerende Variable aufzunehmen, koennten wir alternativ auch fuer den Effekt von Langzeitarbeitslosigkeit kontrollieren, indem wir zwei separate Regressionen laufen lassen. Einmal fuer Personen die schon 1975 arbeitslos waren und einmal fuer diejenigen, die es nicht waren.
+
+Erstellen Sie zwei Datensaetze aus `jtrain3`: 
+`jtrain3_la` soll alle Personen beinhalten, die 1975 arbeitslos waren, und `jtrain3_ka` alle anderen.
+
+```{r "2_e"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Lassen Sie nun die einfache Regression von `unem78` auf `train` (ohne `unem75`) fuer beide Datensaetze (`jtrain3_la` und `jtrain3_ka`) laufen. Speichern Sie die Ergebnisse in den Variablen `reg_la` und `reg_ka` ab. Zeigen Sie danach `reg1`, `reg2`, `reg_la` und `reg_ka` nebeneinander mit `stargazer`.
+
+```{r "2_e_2"}
+
+# enter your code here ...
+
+stargazer(reg1, reg2, reg_la, reg_ka,type="text",keep.stat=c("n"), column.labels = c("alle","alle", "Lang Alo","Kurz Alo") )
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Das Ergebnis ist interessant. Bei den Kurzzeitarbeitslosen und Berufstaetigen (4. Regression) finden wir wieder einen positiven Koeffizienten: Weiterbildung in 1977 geht mit hoeherer Arbeitslosigkeit in 1978 einher. Vermutlich haben wir hier noch weitere Selektionsprobleme; beispielhaft koennten hauptsaechlich die Kurzzeitarbeitslosen mit schlechteren Arbeitsmarktchance eher an Weiterbildungsmassnahmen teilnehmen.  Das waere z.B. der Fall, wenn Kurzzeitarbeitslose mit einer hoehreren Wahrscheinlichkeit an der Weiterbildung (fuer Abrbeistlose) teilgenommen haben als Beschaeftigte, aber gleichzeitig eine schlechtere Perspektive am Arbeistmarkt (unabhaegig von der Weiterbildung) haben. Klingt plausibel, oder?
+
+Bei den Langzeitarbeitslosen sehen wir aber jetzt einen noch viel staerkeren negativen Koeffizienten, als in Regression 2. Fuer Langzeitarbeitslose geht eine Teilnahme an der Weiterbildung in 1977 mit einer um 39.1 Prozentpunkte geringeren Wahrscheinlichkeit einher in 1978 arbeitslos zu sein. Natuerlich kann es auch hier noch fehlende Einflussgroessen geben, z. B. sind vielleicht bereits sehr demotivierte Langzeitsarbeitslose sowohl weniger bereit an Weiterbildung teilzunehmen als auch weniger bereit noch aktiv nach einer Stelle zu suchen.
+
+Auch wenn wir wegen weiterer fehlender Einflussgroessen vermutlich noch keine wirklichen kausalen Effekte von Weiterbildung schaetzen, suggerieren die Ergebnisse, dass Weiterbildungsmassnahmen sehr unterschiedlich auf verschiedene Personengruppen wirken koennen.
+
+Man spricht hier auch von _heterogenen_ Effekten.
+
+f) Statt die Datensaetze zu teilen, kann man heterogene Effekte auch durch sog. Interaktionseffekte schaetzen. Hierfuer moechten wir folgende Regressionsgleichung schaetzen:
+
+
+    unemp78 = beta0 + beta1*train + beta2*unem75 + beta3*train*unem75 + u
+
+wobei `beta3` den Koeffizienten fuer den Interaktionseffekt zwischen train und unem75 beschreibt. Die Variable `train*unem75` ist nur 1 fuer eine Person, die 1975 arbeitslos war und an einem Weiterbildungsprogramm teilgenommen hat, sonst ist sie 0.
+
+Lassen Sie einfach folgenden Code laufen:
+
+```{r "2_f"}
+reg3 <- lm(unem78 ~ train + unem75 + train:unem75 , data=jtrain3)
+stargazer(reg_la, reg_ka, reg3, type="text",keep.stat=c("n"), column.labels = c("Lang Alo","Kurz Alo", "alle") )
+```
+Fuer die Interpretation nehmen wir mal einfachheitshalber an, es gaebe keine weiteren fehlenden Einflussgroessen. 
+
+Dann misst in `reg3` der Koeffzient 0.136 vor `train` den Effekt von Weiterbildung auf Arbeitslosgigkeit fuer Kurzzeitarbeitslose in der Stichprobe.
+
+Der Koeffizient -0.527 vor dem Interaktionseffekt `train:unem75` misst die Differenz des Effektes von Weiterbildung auf Arbeitslosigkeit fuer Langzeitarbeitslose verglichen zu der Gruppe der Kurzzeitarbeitslosen und Beschaeftigten. D.h. fuer Langzeitarbeitslose sinkt die Wahrscheinlichkeit nach Weiterbildung arbeitslos zu bleiben um 52.7 Prozentpunkte staerker als fuer Kurzzeitarbeitslose und Beschaeftigte.
+
+Die Summe beider Koeffizienten ist gleich dem Effekt von Weiterbildung auf Arbeitslosigkeit fuer Langzeitarbeitslose:
+
+    0.136 - 0.527 = -0.391
+
+Die Interpretation von Regressionen mit Interaktionseffekten erfordert etwas Uebung, aber man sieht solche Spezifikationen recht oft in empirischen Analysen.
+
+
+
+Anmerkung: Trotz aller Kontrollvariablen gibt es vermutlich immer noch fehlende Einflussgroessen in unseren Regressionen oben, so dass wir kausale Effekte nur verzerrt schaetzen. Zum Glueck werden aber immer mehr Arbeitsmarktmassnahmen durch randomisierte Experimente evaluiert.
+
+Betrachten Sie folgendes Design fuer ein randomisiertes Experiment:
+
+1. Man waehlt zufaellig Arbeitslose aus, denen angeboten wird an einer Weiterbildungsmassnahme teilzunehmen.
+
+2. Man vergleicht dann die Arbeitsmarktperformance der Teilnehmer mit denen die kein Weiterbildungsangebot erhalten hatten.
+
+Meinen Sie dieses Design loest die meisten relevanten Selektionsproblem und erlaubt es kausale Effekte von Weiterbildung zu schaetzen? Antworten Sie "ja" oder "nein".
+
+```{r "2_f_2"}
+
+# enter your code here ...
+
+```
+Hier waere ein guter Zeitpunkt das Addin 'Check Problemset' auszufuehren!
+
+Das Problem mit diesem Design ist, dass es weiterhin einen Selektionseffekt gibt, dahingehend wer die Weiterbildungsmassnahme annimmt. Z. B. werden vielleicht gute Fachkraefte die kurzfristig arbeitslos sind, das Weiterbildungsangebot systematisch ablehnen, da sie davon ausgehen, schnell eine neue Arbeitsstelle zu finden.
+
+Ein alternatives Design waere folgendes:
+Man kuendigt eine Weiterbildungsprogramm an und nimmt zunaechst Bewerbungen aller interessierten Arbeitslosen entgegen. Dann waehlt man die Haelfte der Bewerber zufaellig aus, die tatsaechlich daran teilnehmen duerfen. Dann vergleicht man die Arbeitsmarktsituation der zufaellig ausgewaehlten Bewerber mit den zufaellig abgelehnten Bewerbern.
+
+Da man nur innerhalb der Gruppe von Personen vergleicht, die am Weiterbildungsprogramm teilnehmen moechten, sollte man bei diesem Desgin besser Selektionseffekte beheben koennen und tatsaechlich kausale Effekte des Weiterbildungsprogramms schaetzen koennen.
+
+## Loesung einreichen
+
+Um Ihre Loesung zu diesem Uebungsblatt abzugeben klicken Sie auf "Check Problemset". Hierzu koennen Sie zu `Tools -> Addins -> Browse Addins ... -> Check Problemset` gehen. Danach geben Sie dann in die Konsole (Fenster unten) folgendes ein: 
+
+    make.submission()
+
+Der Befehl kontrolliert ihr Uebungsblatt und erstellt eine Datei mit dem Namen  `problemsetname__username.sub` in Ihrem Arbeitsverzeichnis, die Ihre Loesung und die Log Dateien enthaelt.
+Laden Sie diese Datei (mit der Endung .sub) dann auf Moodle hoch. 
+aendern Sie nicht den Namen der Datei!
+
