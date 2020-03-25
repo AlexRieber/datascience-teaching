@@ -11,11 +11,11 @@ To achive this we do weekly assignments where students have to solve problem set
 
 The topics include:
 
-Problem Set 1: Basic introduction to R and a short introduction to ggplot as well as a small introduction to data frames
-Problem Set 2: Basic introduction how to get data into R, join different datasets and manipulate datasets. Here we introduce the basic dyplr syntax.
-Problem Set 3: Introduction to ggplot and how to make plots effective and visually appealing. Animated graphs as well as maps are also included in this section.
-Problem Set 4: Introduction to linear regression, standard errors, confidence intervals and the interpretation of coefficients.
-Problem Set 5: Introduction to causality with monte-carlo simulations and real world data.
+- Problem Set 1: Basic introduction to R and a short introduction to ggplot as well as a small introduction to data frames
+- Problem Set 2: Basic introduction how to get data into R, join different datasets and manipulate datasets. Here we introduce the basic dyplr syntax.
+- Problem Set 3: Introduction to ggplot and how to make plots effective and visually appealing. Animated graphs as well as maps are also included in this section.
+- Problem Set 4: Introduction to linear regression, standard errors, confidence intervals and the interpretation of coefficients.
+- Problem Set 5: Introduction to causality with monte-carlo simulations and real world data.
 
 See https://github.com/skranz/RTutor for more details about RTutor and links to other problem sets.
 
