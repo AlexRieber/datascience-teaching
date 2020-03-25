@@ -9,13 +9,15 @@ To achive this we do weekly assignments where students have to solve problem set
 
 ## Problem Sets
 
-The topics include:
+The topics include the following.
 
-- Problem Set 1: Basic introduction to R and a short introduction to ggplot as well as a small introduction to data frames
-- Problem Set 2: Basic introduction how to get data into R, join different datasets and manipulate datasets. Here we introduce the basic dyplr syntax.
-- Problem Set 3: Introduction to ggplot and how to make plots effective and visually appealing. Animated graphs as well as maps are also included in this section.
-- Problem Set 4: Introduction to linear regression, standard errors, confidence intervals and the interpretation of coefficients.
-- Problem Set 5: Introduction to causality with monte-carlo simulations and real world data.
+- Problem Set 1: Basic introduction to R and a short introduction to ggplot as well as a small introduction to data frames. [Here is the link to the RStudio Cloud to test this problem set](https://rstudio.cloud/project/1067600)
+- Problem Set 2: Basic introduction how to get data into R, join different datasets and manipulate datasets. Here we introduce the basic dyplr syntax. [Here is the link to the RStudio Cloud to test this problem set](https://rstudio.cloud/project/1067683)
+- Problem Set 3: Introduction to ggplot and how to make plots effective and visually appealing. Animated graphs as well as maps are also included in this section. [Here is the link to the RStudio Cloud to test this problem set](https://rstudio.cloud/project/1067712)
+- Problem Set 4: Introduction to linear regression, standard errors, confidence intervals and the interpretation of coefficients. [Here is the link to the RStudio Cloud to test this problem set](https://rstudio.cloud/project/1067737)
+- Problem Set 5: Introduction to causality with monte-carlo simulations and real world data. [Here is the link to the RStudio Cloud to test this problem set](https://rstudio.cloud/project/1067774)
+
+If you like to give these problem sets a try just klick on the above link for every problem set and it will open up an Rstudio Cloud project with the respective problem set.
 
 See https://github.com/skranz/RTutor for more details about RTutor and links to other problem sets.
 
@@ -27,4 +29,4 @@ See https://github.com/skranz/RTutor for more details about RTutor and links to 
 
 # Sources & Attributions
 
-- The problem sets have been created by Julius Düker, Sebastian Kranz an me.
+- The problem sets have been created by Julius Düker (@juduke), Sebastian Kranz (@skranz) an me (@AlexRieber).
