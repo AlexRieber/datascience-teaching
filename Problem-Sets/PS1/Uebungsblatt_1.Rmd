@@ -269,7 +269,7 @@ Wenn Sie genauer wissen wollen, was das Argument `stringsAsFactors = FALSE` im A
 
 info("Hintergrund zu stringsAsFactors = FALSE") # Run this line (Strg-Enter) to show info
 
-Mit der Basisversion von R würde uns nur `read.csv` zur Verfügung stehen. Da wir jedoch in Zukunft immer das Paket `tidyverse` laden wollen und dessen Vorteile nutzen, können wir das dort enthaltene Paket `redr` nutzen und die Funktion `read_csv` verwenden.
+Mit der Basisversion von R würde uns nur `read.csv` zur Verfügung stehen. Da wir jedoch in Zukunft immer das Paket `tidyverse` laden wollen und dessen Vorteile nutzen, können wir das dort enthaltene Paket `readr` nutzen und die Funktion `read_csv` verwenden.
 
 b) `P` Lesen Sie nun den Datensatz eu_macro_2017.csv ein uns speichern Sie diesen unter `dat`. Der Datensatz hat eine Kopfzeile, Datenpunkte werden mit Kommas voneinander getrennt und Dezimalstellen mit Punkten gekennzeichnet. Nutzen Sie `read_csv` für das Einlesen.
 Lassen Sie sich anschließend die ersten 8 Zeilen anzeigen.
@@ -365,7 +365,7 @@ Drücken Sie auf `edit` und dann `check` um für diese Aufgabe die Datensätze e
 ```{r "4"}
 z <- data.frame(Land=c("Brasilien","Deutschland","Frankreich","Mexiko","Suedkorea"), Kontinent=c("Am","Eur", "Eur","Am","As"), Jahr=2018, BIP=c(2.14,4.21,2.93,1.21,1.69), ID=1:5)
 
-dat <- read_csv("eu_macro_2017.csv")
+dat <- read_csv("./data/eu_macro_2017.csv")
 p <- dat$pop
 ```
 
