@@ -1,0 +1,285 @@
+---
+title: "Sortierung und Vektor Arithmetik"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(here)
+library(knitr)
+library(gapminder)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+options(scipen=999)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+
+gif_link <- function(link, file, size){
+    knitr::asis_output(
+      paste0('<center>\n<a href="',
+             link,
+             '">\n<img src="',
+             file,
+             '" style = "width: ',
+             size,
+             'px;"/>\n</a>\n</center>'
+      ))
+}
+```
+
+## Der `sort` - Befehl
+
+Sortierung mittels des `sort` Befehls:
+
+- Sortiert die von uns nachgefragte Variable in aufsteigender Reihenfolge
+
+```{r}
+x <- c(15, 43, 12, 19)
+sort(x)
+```
+
+**Problem**: Oft möchten wir unseren kompletten Datensatz auf der Basis einer Variablen sortieren, nicht nur die Variable selbst.
+
+---
+
+## Der `order` - Befehl
+
+Sortierung mittels des `order`-Befehls:
+
+- Gibt den Indexwert wieder, welche den Eingabevektor sortiert
+  
+```{r}
+x <- c(15, 43, 12, 19)
+index <- order(x)
+x
+index
+x[index]
+```
+
+---
+
+## Der `order` - Befehl
+
+Indizierung nutzen um einen Data Frame nach einer gegebenen Variablen zu sortieren:
+
+- Beispielsweise die Lebenserwartung gegeben dem BIP pro Kopf
+
+```{r, eval=FALSE}
+ind <- order(gapminder$gdpPercap)
+gapminder$lifeExp[ind]
+```
+
+- Sortierung immer aufsteigend, wenn eine absteigende gewünscht ist, dann kann dies spezifiziert werden
+
+```{r, eval=FALSE}
+ind <- order(gapminder$gdpPercap, decreasing = TRUE)
+gapminder$lifeExp[ind]
+```
+
+
+---
+
+## Die Befehle `max` and `which.max`
+
+- Größter Wert einer Variablen herausfinden mit `max` 
+- Größter Indexwert mit `which.max`
+
+```{r}
+data("gapminder")
+max(gapminder$gdpPercap)
+i_max <- which.max(gapminder$gdpPercap)
+gapminder$gdpPercap[i_max]
+```
+
+- Gleiches gilt für das Minimum mit `min` und `which.min`.
+
+.question[Welches ist der maximale/minimale Wert für die Lebenserwartung in den Daten?]
+
+<!--
+Lebenserwartung_max <- max(gapminder$lifeExp)
+Lebenserwartung_min <- min(gapminder$lifeExp)
+--> 
+---
+
+class: inverse, center, middle
+
+# Vektor Arithmetik
+
+---
+
+## Gesamtes BIP?
+
+Wie groß ist die Bevölkerung für das Land mit dem höchsten BIP pro Kopf?
+
+```{r}
+gapminder$pop[which.max(gapminder$gdpPercap)]
+```
+
+Das Land mit dem BIP pro Kopf von `r max(gapminder$gdpPercap)` Dollar hat eine Bevölkerung von nur 212 846 Personen. 
+
+.instructions[Wir können uns hier für alle Länder das gesamte BIP berechnen.]
+
+In R können wir die Information zum BIP eines Landes direkt berechnen, da arithmetische Operationen in R auf einem Vektor _elementweise_ ausgeführt werden.
+
+---
+
+## Rechnen mit zwei Vektoren
+
+Wenn wir zwei Vektoren der gleichen Länge in R multipliziert, dann werden diese _elementweise_ multipliziert.
+
+$$
+\begin{pmatrix}
+a\\
+b\\
+c\\
+d
+\end{pmatrix}
+\*
+\begin{pmatrix}
+e\\
+f\\
+g\\
+h
+\end{pmatrix}
+=
+\begin{pmatrix}
+a * e\\
+b * f\\
+c * g\\
+d * h
+\end{pmatrix}
+$$
+
+Dies können wir uns zunutze machen und das BIP für jedes Land durch folgenden Befehl berechnen:
+
+```{r}
+BIP <- gapminder$gdpPercap * gapminder$pop
+#Wir wollen auf 0 Stellen hinter dem Komma runden
+gapminder$BIP <- round(gapminder$gdpPercap * gapminder$pop,0)
+```
+
+- Anschließend können wir nach dem BIP sortieren:
+
+```{r, eval=FALSE}
+gapminder$pop[order(BIP)]
+```
+
+---
+
+## Unterteilung mit logischen Operatoren
+
+BIP vorhanden, was nun?
+ 
+- Filtern nach BIP größer oder gleich $1.000.000.000.000
+
+```{r}
+h <- BIP >= 1000000000000
+```
+
+- Wie oft sehen wir Länder mit einem BIP größer oder gleich 1 Billion Dollar in den Daten?
+
+```{r}
+sum(h)
+```
+
+---
+
+## Logische Operatoren
+
+Durch logische Operatoren können wir mehrere Bedingungen miteinander verknüpfen.
+
+- Durch `&` können wir mehrere Bedingungen verbinden
+- Durch `|` mehrere entweder, _oder_ Bedingungen erzeugen
+
+**Beispiel:**
+
+- Wie viele Länder haben in 2007 ein BIP größer als 1 Billion Dollar?
+
+```{r}
+hohes_BIP <- gapminder$BIP >= 1000000000000
+jahr <- gapminder$year == 2007
+kombi <- hohes_BIP & jahr
+length(gapminder$BIP[kombi])
+```
+
+.question[Wie ist die Bevölkerungs-Verteilung für Länder mit einem BIP >= 1 Billion Dollar in 2007?]
+
+<!--
+gapminder$pop[kombi]
+--> 
+
+---
+
+## Der Befehl `which`
+
+Effizientere Filterung, sollte nur genau ein Wert gesucht werden:
+
+```{r}
+kleinestes_BIP <- which(gapminder$BIP == 52784691)
+kleinestes_BIP
+gapminder$pop[kleinestes_BIP]
+```
+
+---
+
+## Der Befehl `match`
+
+Sollen nun mehrere Einträge abgefragt werden kann `match` verwendet werden:
+
+```{r}
+einige_laender <- match(c(52784691, 10094200603, 9648014150), gapminder$BIP)
+einige_laender
+```
+
+Wie groß ist die Bevölkerung für diese Länder?
+
+```{r}
+gapminder$pop[einige_laender]
+```
+
+.alert[Die Funktion `match` gibt nur den _ersten_ Treffer für einen Vektor zurück!]
+
+---
+
+## Der Befehl `%in%`
+
+Alternative zu `match` wäre `%in%`:
+
+**Vorteil:** In Kombination mit `which` können _alle_ Treffer gefunden werden, nicht nur der Erste.
+
+```{r}
+c(52784691, 10094200603, 9648014150) %in% gapminder$BIP
+which(gapminder$BIP %in% c(52784691, 10094200603, 9648014150))
+```
+

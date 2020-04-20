@@ -1,0 +1,425 @@
+---
+title: "Datentypen"
+#author: 'Dr. Alexander Rieber<br> <a href="https://github.com/AlexRieber"><i class="fa fa-github fa-fw"></i>&nbsp; AlexRieber</a><br> <a href="mailto:alexander.rieber@uni-ulm.de"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; alexander.rieber@uni-ulm.de</a><br>'
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(here)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+```
+
+
+## Verschiedene Datentypen in R
+
+R unterscheidet fünf verschiedene, sogenannte atomare Datentypen.
+
+- Buchstaben, z.B. Namen (sogenannte "Character")
+- Ganzzahlige Werte ("Integer")
+- Numerische Werte ("Numeric")
+- Faktor Variablen ("Factor")
+- Boolsche Variablen ("Boolean"), d.h. logische Werte wie z.B. "WAHR"
+
+Die Funktion `class()` ist hilfreich wenn Sie den Datentyp einer Variable herausfinden wollen.
+
+---
+
+## Die `class` Funktion
+
+```{r}
+a <- 5
+b <- "Bruttoinlandsprodukt"
+class(a)
+class(b)
+```
+
+- R speichert grundsätzlich alle Zahlen als numerische Variablen 
+- Wenn speziell "Integers" gespeichert werden sollen wird dies mit angehängtem `L` erreicht (d.h. `a <- 5L`).
+
+---
+
+## Data Frame
+
+- In der Praxis sind in Datensätzen unterschiedliche Datentypen vermischt
+- Werden in R als sogenannte Data Frames abgespeichert 
+    - Diese sind auf keinen Datentyp festgelegt
+    - Zweidimensionale Tabelle
+- Beispielhaft am Datensatz `gapminder` aus dem `gapminder` Paket
+    - Herunterladen und einlesen mittels:
+```{r}
+#install.packages("gapminder")
+library(gapminder)
+data("gapminder")
+class(gapminder)
+```
+
+---
+
+## Erster Blick auf die Daten
+
+- `class` Funktion -> Um welchen Datentyp handelt es sich?
+- `glimpse` Funktion -> Übersicht über die wichtigsten Eigenschaften des Datensatzes:
+    - Anzahl der Beobachtungen und Variablen
+    - Name jeder Variablen
+    - Kodierung jeder Variablen
+    - Auszug der ersten Einträge pro Variable
+- `str` Funktion -> base R Variante von `glimpse`
+- Nähere Infos zum Datensatz und den Variablen über Hilfe-Seiten (`?gapminder`)
+
+---
+
+## Erster Blick auf die Daten
+
+- Alternativen zu `str` sind die Funktionen `head()` und in RStudio `View`
+
+.small[
+```{r}
+head(gapminder)
+```
+
+```{r, eval=FALSE}
+View(gapminder)
+```
+]
+
+- `dim` Anzahl der Variablen und Beobachtungen
+- `attributes` gibt Spalten- und Reihennamen aus, sowie den Datentyp
+
+---
+
+## Variablen im Datensatz
+
+- `names` zeigt die Namen der Variablen im Datensatz
+- Um eine bestimmte Variable auszuwählen nutzen wir folgende Struktur: `Datensatzname$Variablenname` 
+- Hier ein Beispiel:
+
+```{r, eval=FALSE}
+names(gapminder)
+gapminder$country
+```
+
+**Ausgabe:** Vektor aller in der Variablen enthaltenen Werte
+
+- Sortierung gleich wie im Data Frame
+
+---
+class: inverse, center, middle
+
+# Vektoren: Numerische, alphabetische und logische Informationen
+
+---
+
+## Numerische und logische Vektoren
+
+- Durch `gapminder$lifeExp` wird ein Zahlenvektor ausgegeben
+- Jede Spalte eines Data Frame ist ein Vektor
+- Anzahl der Einträge über Funktion `length` bestimmen
+
+```{r}
+length(gapminder$lifeExp)
+```
+
+Vektoren können nicht nur numerisch oder alphabetisch sein, sondern auch logische Werte enthalten. 
+
+- Logische Vektoren entweder WAHR (TRUE) oder FALSCH (FALSE)
+
+```{r}
+z <- 3 == 2
+z
+class(z)
+```
+
+---
+
+## Relationale Operatoren
+
+Relationale Operatoren prüfen ob bestimmte Beziehungen gelten:
+
+- Der *relationale Operator* `==` im vorherigen Beispiel evaluiert ob 3 gleich 2 ist. 
+- Alle weiteren *relationalen Operatoren* finden Sie in R mit Hilfe der folgenden Suche:
+
+```{r}
+?Comparison
+```
+
+**Bitte beachten**: Der Befehl `=` weist einer Variablen einen bestimmten Wert zu. 
+Bitte **vermeiden** Sie die Zuordnung mittels **`=`** und verwenden Sie `<-` um einer Variablen einen bestimmten Wert zuzuordnen.
+
+Sehen Sie hierzu auch den Coding Style Guide von [Google](https://google.github.io/styleguide/Rguide.html) und im [tidyverse](https://style.tidyverse.org/)
+
+
+---
+
+## Relationale Operatoren in R
+
+Operator    | Definition                   |
+------------|------------------------------|
+`<`         | kleiner als                  | 
+`<=`        |	kleiner als oder gleich      |
+`>`         | größer als                   |
+`>=`        |	größer als oder gleich       |
+`==`        |	exakt gleich                 |
+`!=`        |	ungleich                     |
+`x & y`     | `x` UND `y`                  |
+`x`&nbsp;&#124;&nbsp;`y`     | `x` ODER `y` |
+`is.na(x)`    | teste ob `x` ist gleich `NA` |
+`!is.na(x)`   | teste ob `x` ist nicht gleich `NA` |
+`x %in% y`    | teste ob `x` in `y` ist |
+`!(x %in% y)` | teste ob `x` nicht in `y` ist |
+`!x`          | nicht `x` |
+
+
+---
+
+## Vektoren erzeugen
+
+In R selbst lassen sich folgendermaßen Vektoren erzeugen:
+
+```{r}
+vektor <- c(15, 20, 25) # numerischer Vektor
+vektor
+länder <- c("Deutschland","Schweden","Südafrika") # alphabetischer Vektor
+```
+
+- `c()` steht für concatenate, d.h. _verbinden_
+
+---
+
+## Vektoren benennen
+
+Weiterhin können die Einträge von Vektoren benannt werden:
+
+```{r}
+länder <- c("Deutschland" = 15, "Schweden" = 20, "Südafrika" = 25)
+class(länder)
+names(länder)
+```
+
+Auch bestehende Vektoren können benannt werden:
+
+```{r}
+vektor <- c(15, 20, 25)
+länder <- c("Deutschland","Schweden","Südafrika")
+names(vektor) <- länder
+vektor
+```
+
+---
+
+## Reihen
+
+Eine weitere wichtige Möglichkeit Vektoren zu generieren sind Reihen:
+
+```{r}
+seq(1, 10)
+1:10
+```
+
+- Erstes Argument: Start der Reihe
+- Zweites Argument: Ende der Reihe
+- Default: Schritte erhöhen sich um 1
+- Möglichkeit die Größe der Schritte zu definieren:
+
+
+```{r}
+seq(1, 10, 0.5)
+```
+
+---
+
+## Die Unterteilung
+
+- Einzelne Elemente eines Vektors mit quadratischen Klammern ansteuern
+
+```{r}
+vektor[2]
+```
+
+- Mehrere Elemente durch verketteten Index
+
+```{r}
+vektor[c(1,3)]
+```
+
+---
+
+## Die Unterteilung
+
+- Mehrere aufeinander folgende Elemente
+
+```{r}
+vektor[1:2]
+```
+
+- Benannte Elemente
+
+```{r}
+vektor["Deutschland"]
+```
+
+---
+
+## Typumwandlung
+
+- Wichtig zu verstehen, wie R Datentypen intern behandelt
+- Bevor R eine Fehlermeldung ausgibt stellt es Vermutungen an, was mit der Eingabe gemeint war
+
+**Beispiel:**
+
+Ein Vektor kann nur gleiche Datentypen beinhalten, bspw. nur numerische oder nur alphabetische Einträge. 
+
+Somit sollte folgende Eingabe eine Fehlermeldung produzieren:
+
+```{r}
+x <- c(1, "Schweden", 3)
+```
+
+- Weder Warn- noch Fehlermeldung
+
+---
+
+## Typumwandlung
+
+- Die Funktion `class` gibt Aufschluss warum
+
+```{r}
+x
+class(x)
+```
+
+- Augen auf bei der Programmierung!
+  - Unbeabsichtigte Typumwandlungen können zu Fehlern führen
+    - Sehr mühsam herauszufinden
+    - Fallen oft sehr spät auf
+
+---
+
+## Typumwandlung erzwingen
+
+In R kann die Typumwandlung auch erzwungen werden:
+
+```{r}
+x <- 1:5
+y <- as.character(x)
+y
+```
+
+Mit `as.numeric` können Sie diese Umwandlung in die andere Richtung erzwingen. 
+
+```{r}
+as.numeric(y)
+```
+
+**Wichtig:** In einigen Datensätzen werden Zahlen als Buchstaben gespeichert, hier kann die Funktion `as.numeric` sehr hilfreich sein.
+
+.question[Welche Klasse hat der folgende Vektor `test <- c(12, "Kanada", TRUE)`?]
+
+<!--
+test <- c(12, "Kanada", TRUE)
+class(test)
+--> 
+
+---
+
+## Nicht verfügbare Werte (NA)
+
+Falls R keine Vermutung hat:
+
+- Datenpunkt wird als `NA` deklariert. 
+- `NA` steht für "not available"
+
+```{r}
+x <- c("1", "b", "3")
+as.numeric(x)
+```
+
+- Hier gibt es eine Warnmeldung
+
+.alert[In echten Datensätzen gibt es oft einige `NA`!]
+
+ 
+---
+
+## Faktorvariablen
+
+Faktorvariablen scheinen aus Buchstaben zu bestehen, werden von R intern jedoch als "Integers" behandelt.
+
+Pros:  
+
+- Sind in einigen Analysen notwendig um kategorische Daten darzustellen (Regressionen, Grafiken etc.)
+- Sind selbsterklärend durch Labels und damit nachvollziehbar
+- Kompakte Form um Datensatz darzustellen
+
+Contra:  
+
+- Sorgen oft für Verwirrung und werden mit _Characters_ verwechselt, verhalten sich jedoch ganz anders wie diese
+
+---
+
+## Faktorvariablen
+
+Die Variable "continent" ist beispielsweise als Faktorvariable abgespeichert:
+
+.small[
+```{r}
+class(gapminder$continent)
+is.factor(gapminder$continent)
+levels(gapminder$continent)
+table(gapminder$continent)
+```
+]
+
+---
+
+## Basislevel bei Faktorvariablen
+
+Wenn Faktorvariablen in Regressionen verwendet werden, dann wird oft ein sogenanntes Basislevel herangezogen. In der Regression werden dann die Ergebnisse für die anderen Gruppen in der Faktorvariablen immer im Vergleich zu diesem Basislevel berechnet.
+
+- Wenn Sie nun lieber eine andere Gruppe als Basislevel auswählen möchten (hier die Europ)a, so können Sie dies folgendermaßen machen:
+
+.small[
+```{r}
+gapminder$continent <- fct_relevel(gapminder$continent, "Europe")
+levels(gapminder$continent)
+table(gapminder$continent)
+```
+]
+
+.instructions[Das Paket [`forcats`](https://forcats.tidyverse.org/index.html), aus welchem die Funktion `fct_relevel` stammt, hilft bei Faktorvariablen ungemein weiter]

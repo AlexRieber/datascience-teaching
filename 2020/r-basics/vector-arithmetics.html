@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Sortierung und Vektor Arithmetik</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Sortierung und Vektor Arithmetik
+
+---
+
+
+
+
+## Der `sort` - Befehl
+
+Sortierung mittels des `sort` Befehls:
+
+- Sortiert die von uns nachgefragte Variable in aufsteigender Reihenfolge
+
+
+```r
+x &lt;- c(15, 43, 12, 19)
+sort(x)
+```
+
+```
+[1] 12 15 19 43
+```
+
+**Problem**: Oft möchten wir unseren kompletten Datensatz auf der Basis einer Variablen sortieren, nicht nur die Variable selbst.
+
+---
+
+## Der `order` - Befehl
+
+Sortierung mittels des `order`-Befehls:
+
+- Gibt den Indexwert wieder, welche den Eingabevektor sortiert
+  
+
+```r
+x &lt;- c(15, 43, 12, 19)
+index &lt;- order(x)
+x
+```
+
+```
+[1] 15 43 12 19
+```
+
+```r
+index
+```
+
+```
+[1] 3 1 4 2
+```
+
+```r
+x[index]
+```
+
+```
+[1] 12 15 19 43
+```
+
+---
+
+## Der `order` - Befehl
+
+Indizierung nutzen um einen Data Frame nach einer gegebenen Variablen zu sortieren:
+
+- Beispielsweise die Lebenserwartung gegeben dem BIP pro Kopf
+
+
+```r
+ind &lt;- order(gapminder$gdpPercap)
+gapminder$lifeExp[ind]
+```
+
+- Sortierung immer aufsteigend, wenn eine absteigende gewünscht ist, dann kann dies spezifiziert werden
+
+
+```r
+ind &lt;- order(gapminder$gdpPercap, decreasing = TRUE)
+gapminder$lifeExp[ind]
+```
+
+
+---
+
+## Die Befehle `max` and `which.max`
+
+- Größter Wert einer Variablen herausfinden mit `max` 
+- Größter Indexwert mit `which.max`
+
+
+```r
+data("gapminder")
+max(gapminder$gdpPercap)
+```
+
+```
+[1] 113523.1
+```
+
+```r
+i_max &lt;- which.max(gapminder$gdpPercap)
+gapminder$gdpPercap[i_max]
+```
+
+```
+[1] 113523.1
+```
+
+- Gleiches gilt für das Minimum mit `min` und `which.min`.
+
+.question[Welches ist der maximale/minimale Wert für die Lebenserwartung in den Daten?]
+
+&lt;!--
+Lebenserwartung_max &lt;- max(gapminder$lifeExp)
+Lebenserwartung_min &lt;- min(gapminder$lifeExp)
+--&gt; 
+---
+
+class: inverse, center, middle
+
+# Vektor Arithmetik
+
+---
+
+## Gesamtes BIP?
+
+Wie groß ist die Bevölkerung für das Land mit dem höchsten BIP pro Kopf?
+
+
+```r
+gapminder$pop[which.max(gapminder$gdpPercap)]
+```
+
+```
+[1] 212846
+```
+
+Das Land mit dem BIP pro Kopf von 113523.1329 Dollar hat eine Bevölkerung von nur 212 846 Personen. 
+
+.instructions[Wir können uns hier für alle Länder das gesamte BIP berechnen.]
+
+In R können wir die Information zum BIP eines Landes direkt berechnen, da arithmetische Operationen in R auf einem Vektor _elementweise_ ausgeführt werden.
+
+---
+
+## Rechnen mit zwei Vektoren
+
+Wenn wir zwei Vektoren der gleichen Länge in R multipliziert, dann werden diese _elementweise_ multipliziert.
+
+$$
+`\begin{pmatrix}
+a\\
+b\\
+c\\
+d
+\end{pmatrix}`
+\*
+`\begin{pmatrix}
+e\\
+f\\
+g\\
+h
+\end{pmatrix}`
+=
+`\begin{pmatrix}
+a * e\\
+b * f\\
+c * g\\
+d * h
+\end{pmatrix}`
+$$
+
+Dies können wir uns zunutze machen und das BIP für jedes Land durch folgenden Befehl berechnen:
+
+
+```r
+BIP &lt;- gapminder$gdpPercap * gapminder$pop
+#Wir wollen auf 0 Stellen hinter dem Komma runden
+gapminder$BIP &lt;- round(gapminder$gdpPercap * gapminder$pop,0)
+```
+
+- Anschließend können wir nach dem BIP sortieren:
+
+
+```r
+gapminder$pop[order(BIP)]
+```
+
+---
+
+## Unterteilung mit logischen Operatoren
+
+BIP vorhanden, was nun?
+ 
+- Filtern nach BIP größer oder gleich $1.000.000.000.000
+
+
+```r
+h &lt;- BIP &gt;= 1000000000000
+```
+
+- Wie oft sehen wir Länder mit einem BIP größer oder gleich 1 Billion Dollar in den Daten?
+
+
+```r
+sum(h)
+```
+
+```
+[1] 66
+```
+
+---
+
+## Logische Operatoren
+
+Durch logische Operatoren können wir mehrere Bedingungen miteinander verknüpfen.
+
+- Durch `&amp;` können wir mehrere Bedingungen verbinden
+- Durch `|` mehrere entweder, _oder_ Bedingungen erzeugen
+
+**Beispiel:**
+
+- Wie viele Länder haben in 2007 ein BIP größer als 1 Billion Dollar?
+
+
+```r
+hohes_BIP &lt;- gapminder$BIP &gt;= 1000000000000
+jahr &lt;- gapminder$year == 2007
+kombi &lt;- hohes_BIP &amp; jahr
+length(gapminder$BIP[kombi])
+```
+
+```
+[1] 13
+```
+
+.question[Wie ist die Bevölkerungs-Verteilung für Länder mit einem BIP &gt;= 1 Billion Dollar in 2007?]
+
+&lt;!--
+gapminder$pop[kombi]
+--&gt; 
+
+---
+
+## Der Befehl `which`
+
+Effizientere Filterung, sollte nur genau ein Wert gesucht werden:
+
+
+```r
+kleinestes_BIP &lt;- which(gapminder$BIP == 52784691)
+kleinestes_BIP
+```
+
+```
+[1] 1297 1298
+```
+
+```r
+gapminder$pop[kleinestes_BIP]
+```
+
+```
+[1] 60011 61325
+```
+
+---
+
+## Der Befehl `match`
+
+Sollen nun mehrere Einträge abgefragt werden kann `match` verwendet werden:
+
+
+```r
+einige_laender &lt;- match(c(52784691, 10094200603, 9648014150), gapminder$BIP)
+einige_laender
+```
+
+```
+[1] 1297   19    4
+```
+
+Wie groß ist die Bevölkerung für diese Länder?
+
+
+```r
+gapminder$pop[einige_laender]
+```
+
+```
+[1]    60011  2780097 11537966
+```
+
+.alert[Die Funktion `match` gibt nur den _ersten_ Treffer für einen Vektor zurück!]
+
+---
+
+## Der Befehl `%in%`
+
+Alternative zu `match` wäre `%in%`:
+
+**Vorteil:** In Kombination mit `which` können _alle_ Treffer gefunden werden, nicht nur der Erste.
+
+
+```r
+c(52784691, 10094200603, 9648014150) %in% gapminder$BIP
+```
+
+```
+[1] TRUE TRUE TRUE
+```
+
+```r
+which(gapminder$BIP %in% c(52784691, 10094200603, 9648014150))
+```
+
+```
+[1]    4   19 1297 1298
+```
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

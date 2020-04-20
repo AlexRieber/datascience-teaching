@@ -1,0 +1,204 @@
+---
+title: "Vorstellung des Projektkurs quantitative Wirtschaftswissenschaften"
+author: 'Dr. Alexander Rieber<br> <a href="https://github.com/AlexRieber"><i class="fa fa-github fa-fw"></i>&nbsp; AlexRieber</a><br> <a href="mailto:alexander.rieber@uni-ulm.de"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; alexander.rieber@uni-ulm.de</a><br>'
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(here)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+```
+
+## Was ist quantitative Wirtschaftsforschung?
+
+- <i class="fa fa-database fa"></i> + <i class="fa fa-flask fa"></i> = Quantitative Wirtschaftswissenschaften?
+--
+
+- <i class="fa fa-database fa"></i> + <i class="fa fa-code fa"></i> = Quantitative Wirtschaftswissenschaften?
+--
+
+- <i class="fa fa-database fa"></i> + <i class="fa fa-user fa"></i> + <i class="fa fa-code fa"></i> = Quantitative Wirtschaftswissenschaften?
+--
+
+- <i class="fa fa-database fa"></i> + <i class="fa fa-users fa"></i> + <i class="fa fa-code fa"></i> = Quantitative Wirtschaftswissenschaften?
+--
+
+<br>
+
+Die Digitalisierung mit ihrer Datenflut hat in jeden Bereichen Einzug gehalten. 
+Ob in Wirtschaft oder Forschung: Die Analyse und Interpretation von Informationen, insbesondere großer Datenmengen, ist von entscheidender Bedeutung.
+
+.alert[In diesem Kurs lernen Sie Daten strukturiert, im Team und reproduzierbar zu analysieren und auszuwerten.]
+
+Dieser Kurs ist für alle, die nicht nur passiv konsumieren, sondern Inhalte aktiv erarbeiten möchten.
+
+---
+
+class: center, middle
+
+## Was sagt Prof. Dr. Google dazu?
+
+"The ability to take data — to be able to understand it, to process it, to extract value from it, to visualize it, to communicate it — that’s going to be a hugely important skill in the next decades, not only at the professional level but even at the educational level for elementary school kids, for high school kids, for college kids. Because now we really do have essentially free and ubiquitous data. So the complimentary scarce factor is the ability to understand that data and extract value from it."
+
+.small[Hal Varian (Chief Economist bei Google), The McKinsey Quarterly, Januar 2009]
+
+---
+
+# Was kann ich mir unter diesem Kurs vorstellen?
+
+Dieser Kurs ist eine **Einführung in quantitatives Arbeiten** mit wirtschaftswissenschaftlichen Datensätzen. 
+
+--
+
+**Q - Brauchen Sie für diesen Kurs Vorkenntnisse im Bereich quantitatives Arbeiten?**  
+A - Nein.
+
+--
+
+**Q - Ist dies ein Statistikkurs?**  
+A - Quantitatives Arbeiten $\ne$ Statistik. Jedoch sind quantiatives Arbeiten und Statistik eng miteinander verwandt. Da wir in diesem Kurs sehr anwendungsorientiert arbeiten und keine Beweise führen unterscheidet er sich jedoch sehr von traditionellen Statistik Vorlesungen.
+
+--
+
+**Q - Werden wir in diesem Kurs programmieren?**   
+A - Ja.
+
+--
+
+**Q - Welche Programmiersprache werden wir nutzen?**  
+A - R. Weiterhin verwenden wir die IDE R-Studio.
+
+
+---
+
+
+class: inverse, center, middle
+
+# Vorlesungsdetails
+
+---
+
+## Aufbau der Veranstaltung
+
+**Zuerst: Vorlesungseinheiten**
+- Interaktive Vorlesung mit integrierten Übungsaufgaben
+- `RTutor` Übungsaufgaben um Inhalte zu vertiefen
+
+**Danach: Projektarbeiten**
+- Ein gemeinsames Projekt mit dem Dozenten
+- Zwei selbstständige Projekte
+- Peer Review der Projekte
+
+---
+class: inverse, center, middle
+
+# Mit welchen Daten bekommen _Sie_ es zu tun?
+
+---
+
+### Opioidkrise in den USA
+
+.pull-left[
+<br><br>
+In diesem Projekt widmen Sie sich der Frage:
+
+.alert[Gibt es einen Zusammenhang zwischen der Verschreibung von Opioiden und den Drogentoten in den USA?]
+
+Zur Beantwortung dieser Frage werten Sie Informationen der amerikanischen Gesundheitsbehörde aus.
+]
+.pull-right[
+<br><br>
+```{r, echo=FALSE, out.width="120%"}
+opioid <- "../figs/drugs_vs_alkohol.png"
+include_graphics(opioid)
+```
+]
+
+---
+
+## Tripadviosr vs. Expedia
+
+.pull-left[
+<br><br>
+In diesem Projekt widmen Sie sich der Frage:
+
+.alert[Sollten Sie auf Tripadvisor die Bewertungen ihrer Hotelgäste beantworten?]
+
+Zur Beantwortung dieser Frage werten Sie die Webseiten und Kundenrezesionen von Hotels bei Tripadvisor und Expedia aus.
+]
+.pull-right[
+<br><br>
+```{r, echo=FALSE}
+library(cowplot)
+library(ggplot2)
+library(magick)
+expedia <- ggdraw() + draw_image("../figs/Expedia_small.png", scale = 0.9)
+trip <- ggdraw() + draw_image("../figs/Tripadvisor_small.png", scale = 0.9)
+
+plot_grid(expedia, trip)
+```
+]
+
+---
+
+## Uber vs. Taxi
+
+.pull-left[
+<br><br>
+In diesem Projekt widmen Sie sich der Frage:
+
+.alert[Welche Auswirkungen hat Uber und Lyft auf die Taxibranche in den USA?]
+
+Zur Beantwortung dieser Frage werten Sie Informationen über Fahrten von Uber, Lyft und verschiedenen Taxis in Chicago aus.
+]
+.pull-right[
+<br><br>
+```{r, echo=FALSE}
+pickup <- "../figs/pickup.jpeg"
+include_graphics(pickup)
+```
+]
+
+---
+
+class: inverse, center, middle
+
+## Interesse?
+
+Dann schreiben Sie sich in unseren [Moodle Kurse](https://moodle.uni-ulm.de/course/view.php?id=14251) ein, hier erfahren Sie mehr!
+

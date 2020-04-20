@@ -1,0 +1,140 @@
+---
+title: "Programmieren in R"
+#author: 'Dr. Alexander Rieber<br> <a href="https://github.com/AlexRieber"><i class="fa fa-github fa-fw"></i>&nbsp; AlexRieber</a><br> <a href="mailto:alexander.rieber@uni-ulm.de"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; alexander.rieber@uni-ulm.de</a><br>'
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(here)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+library(gapminder)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+```
+
+
+## Bedingte Anweisungen
+
+In manchen Situationen wollen wir bestimmte Werte, oder `NAs` durch vordefinierte, andere Werte ersetzen.
+Gegeben wir wollen dies hier tun und die Bevölkerung für Indien immer mit 0 ersetzen
+
+```{r}
+data("gapminder")
+gapminder_indien <- gapminder %>%
+  mutate( pop = ifelse(country == "India", 0, pop) ) 
+
+filter(gapminder_indien, country == "India")
+```
+
+---
+
+## `case_when` Anweisung
+
+Ẁenn wir mehrer Bedingungen auf einmal betrachten müssen, dann hilft uns `case_when` weiter.
+
+Beispielsweise wollen wir für alle Länder mit einem weniger als 50 Jahren Lebenserwartung eine Variable `Lebenserwartung` generieren, welche den Wert `<50` annimmt, für weniger als 50 Jahre Lebenserwartung, `50-70` mit Lebenswerartung zwischen 50 und 70 Jahren und `>70` bei einer Lebenserwartung mehr als 70 Jahre. Wir betrachten hier alle Länder für das Jahr 2007.
+
+```{r}
+gapminder <- gapminder %>%
+  filter( year == 2007 ) %>%
+  mutate(Lebenserwartung = case_when(lifeExp <50 ~ "<50",
+                                     lifeExp >=50 & lifeExp <=70 ~ "50-70",
+                                     lifeExp >70 ~ ">70"))
+
+table(gapminder$Lebenserwartung)
+```
+
+---
+
+## Funktionen in R
+
+Für Aufgaben, welche wir in R öfter anwenden, wollen wir nicht jedes mal von neuem den gleichen Befehl eingeben.
+
+- Hier lohnt es sich eine Funktion für den Befehl zu schreiben
+- Durch die Funktion `function` weiß R das nun eine Funktion definiert wird
+- Beispielsweise den Mittelwert berechnen durch `summe(x)/länge(x)`
+
+```{r}
+durchschnitt <- function(x){
+  s <- sum(x)
+  n <- length(x)
+  s/n
+}
+```
+
+Da es in R bereits die Funktion `mean` gibt können wir testen ob unsere Funktion zum gleichen Ergebnis kommt wie die in R vordefinierte Funktion:
+
+```{r}
+x <- 1:100
+identical(mean(x), durchschnitt(x))
+```
+
+---
+
+## Scoping
+
+Variablen welche in R innerhalb einer Funktion definiert werden, werden auch nur in dieser Funktionsumgebung verwendet.
+
+```{r}
+s <- 5
+durchschnitt(51:100)
+s
+```
+
+Wenn wir uns nun `s` anschauen, dann ist dies immer noch `r s`, auch nachdem wir die Funktion `durchschnitt` aufgerufen haben (wird lexikalisches Scoping genannt).
+
+- Unterschiede zwischen lexikalischem und dynamischem Scoping finden Sie [hier](http://adv-r.had.co.nz/Functions.html#lexical-scoping)
+
+
+---
+
+## For-Schleifen
+
+Nach der Definition einer Funktion wollen wir diese auf mehrere Elemente anwenden.
+Dies können wir über eine Schleife erreichen.
+
+- Über eine Schleife können bestimmte Aktionen $n$ mal wiederholt werden.
+
+```{r}
+n <- 5
+for(i in 1:n){
+  print(i)
+}
+```
+
+- In der For-Schleife wird die Eingabe evaluiert und entsprechende Aktion ausgeführt (hier die Ausgabe der Zahlen von $n=1,\dots,5$)
+- Die gleiche Aktion wird 5 mal ausgeführt, es ändert sich nur $n$

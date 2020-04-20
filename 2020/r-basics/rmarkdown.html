@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>RMarkdown und R Basics</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# RMarkdown und R Basics
+
+---
+
+
+
+
+
+class: inverse, center, middle
+
+# Reproduzierbare Datenanalyse
+
+---
+
+## Reproduzierbare Datenanalyse
+
+.alert[Was bedeutet Reproduzierbarkeit?]
+
+Kurzfristig:
+
+- Können die Tabelle und Schaubilder aus dem zur Verfügung stehenden Code und den Daten erstellt werden?
+- Wird klar beschrieben was und **warum** etwas gemacht wurde?
+- Sind alle Schritte der Analyse nachvollziehbar dokumentiert?
+
+Langfristig:
+
+- Können Elemente des Codes für andere Projekte wiederverwendet werden?
+
+
+---
+
+## Programme in diesem Kurs
+
+![](../figs/toolkit.png)
+
+.small[Quelle: [datasciencebox.org](https://datasciencebox.org//slides/u1_d01-meet-the-toolkit/u1_d01-meet-the-toolkit.html#1).]
+
+- Programmiersprache -&gt; R und RStudio
+- "Literate Programmierung" (alles in einem Ort, d.h. Code, Text und Output) -&gt; RMarkdown
+- Versionierung -&gt; Git/Github
+
+---
+class: inverse, center, middle
+
+# R und RStudio
+
+---
+
+## Was ist R und RStudio?
+
+- R ist eine Programmiersprache
+- RStudio ist ein Interface für R
+
+**Wie können Sie sich das vorstellen?**
+
+&lt;img src="../figs/engine-dashboard.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+.small[Quelle: [ModernDive](https://moderndive.com/1-getting-started.html)]
+
+---
+
+## Lernen Sie R und RStudio kennen
+
+Erstes Problem Set:
+
+- R als Taschenrechner
+- Kleine Grafiken erzeugen
+- Datensätze in R einlesen
+
+---
+
+## tidyverse
+
+.pull-left[
+&lt;img src="../figs/tidyverse.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+.center[[tidyverse](https://www.tidyverse.org/)]
+
+- Zusammenstellung verschiedener Pakete zur Datenanalyse
+- Alle Pakete verbindet eine gemeinsame Philosophie und Struktur
+- Hauptautor: Hadley Wickham
+]
+
+---
+
+class: inverse, center, middle
+
+# Markdown
+
+---
+
+## Einführung
+
+- Sehr einfache Syntax ohne komplexe Formatierung
+- Sie können sich voll auf das Schreiben konzentrieren
+- Plattformunabhängig (Kann zwischen verschiedenen Geräten geteilt werden)
+- Besonders gut für Readmes, Tutorials, Reports, deskriptive Analysen, Blogs, Journal Artikels ...
+- Einfache Möglichkeit PDFs, Word-Dateien oder HTMLs zu erstellen
+      - PDFs können Sie mit dem Paket `pandoc` erzeugen, vorausgesetzt sie haben Latex installiert
+
+---
+
+## Überschriften
+
+Es sind bis zu sechs Glierdungsebenen in RMarkdown möglich:
+
+- Überschrift 1 wird so erreicht: `# Überschrift 1`  
+- Überschrift 4 wird so erreicht: `### Überschrift 4`
+
+Durch das voranstellen eines weiteren Hashtags (`#`) gelangen Sie jeweils eine Gliederungsebene tiefer
+
+---
+
+## Links
+
+In Markdown können Sie auch Links zu externen Dokumenten setzen:
+
+- Möglichkeit 1: Lokale Links
+    - Zu Verlinkender Text in eckige Klammern gesetzt (`[ ]`) und der Link danach in runde Klammern (`( )`) 
+    - [Beispiel](https://www.markdowntutorial.com/) (`[Beispiel](https://www.markdowntutorial.com/)`).
+
+
+- Möglichkeit 2: Globale Links
+    - Es gibt auch die Möglichkeit Links global zu setzen
+    - [Markdown Tutorial][Tutorial] (`[Markdown Tutorial][Tutorial]`). 
+    - Später im Text, oder am Ende:    
+    `[Tutorial]: https://www.markdowntutorial.com/`
+    - Vorteilhaft bei mehrmaligem Verwenden des Links
+
+[Tutorial]: https://www.markdowntutorial.com/
+
+---
+
+## Bilder
+
+- Funktioniert ähnlich wie Links
+- Bildunterschrift in eckigen Klammern, Link in runden Klammern
+- Beispiel:   
+`![RMarkdown Logo](https://www.rstudio.com/wp-content`
+`/uploads/2014/04/rmarkdown-400x464.png)`
+
+---
+
+## Bilder
+
+- Ausgeführt sieht dies dann folgendermaßen aus:
+![RMarkdown Logo](../figs/rmarkdown-400x464.png)
+
+
+---
+
+## Formeln
+
+- Möglichkeit Formeln in Latex zu setzen
+- Inline Formel möglich: 
+
+`\(R = \alpha + \beta * \pi^{2} + \epsilon\)` 
+
+(`$R = \alpha + \beta * \pi^{2} + \epsilon$`)
+
+- Oder in einer Formelumgebung:
+```
+\begin{equation}
+\mathbb{E}[Y] = \beta_0 + \beta_1x
+\end{equation}
+```
+`\begin{equation}
+\mathbb{E}[Y] = \beta_0 + \beta_1x
+\end{equation}`
+
+
+---
+
+class: inverse, center, middle
+
+# R Markdown
+
+---
+
+## Einführung
+
+- R Markdown ist eine Erweiterung von Markdown mit sogenannten `Chunks`
+- R Code kann direkt in R Markdown ausgeführt werden
+- Resultate aus R werden direkt in das Markdown-Dokument eingefügt
+- Einfaches Erstellen von HTML-Seiten mit integrierten Tabellen, Grafiken, Code 
+- Mit `knitr` können R Markdown Dateien kompiliert und in _normale_ Markdown Dateien umgewandelt werden
+- Hilfe zu R Markdown gibt es unter `?rmarkdown` 
+- Das R Markdown [Cheatsheet](http://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf) kann oft sehr hilfreich sein
+
+---
+
+## knitr
+
+Um `knitr` zu verwenden klicken Sie den folgenden Button in RStudio:
+
+![Dieses Bild zeigt wo der Knit-button zu finden ist](../figs/RStudioScreenshot.png)
+
+---
+
+## Einbetten von Code
+
+Es gibt drei Arten, wie Sie ihren Code in R Markdown Dokumenten so verpacken, dass er beim "knitten" auch verarbeitet wird.
+
+- Fassen Sie den Code in Blöcke: Geben Sie `` ```{r} `` beim Start des Blocks und wenn der Block zu Ende ist ` ``` ` ein  
+- Benutzen Sie die Tastaturkombination **Strg + Alt + I** (OS X: **Cmd + Option + I**)  
+- Gehen Sie auf "Code" -&gt; "Insert Chunk" in der Funktionsleiste
+
+---
+
+## Einbetten von Code
+
+- Chunks sind eingebettete Code-Blöcke in R Markdown
+- Auf der folgenden Folie wird die Funktionsweise von Chunks am Beispieldatensatz `economics` aus dem `tidyverse` Paket demonstriert
+    - Der Datensatz `economics` beinhaltet Daten zur Arbeitslosigkeit in den USA seit 1967
+- Im folgenden Beispiel wollen wir zuerst das Paket `tidyverse` laden und anschließend deskriptive Analyse mit zwei verschiedenen Befehlen durchführen
+- Durch das `knitten` in HTML wird sowohl der Code, als auch dessen Output angezeigt
+
+---
+
+## Einbetten von Code
+.small[
+
+```r
+library(tidyverse)
+summary(economics)
+```
+
+```
+      date                 pce               pop            psavert      
+ Min.   :1967-07-01   Min.   :  506.7   Min.   :198712   Min.   : 2.200  
+ 1st Qu.:1979-06-08   1st Qu.: 1578.3   1st Qu.:224896   1st Qu.: 6.400  
+ Median :1991-05-16   Median : 3936.8   Median :253060   Median : 8.400  
+ Mean   :1991-05-17   Mean   : 4820.1   Mean   :257160   Mean   : 8.567  
+ 3rd Qu.:2003-04-23   3rd Qu.: 7626.3   3rd Qu.:290291   3rd Qu.:11.100  
+ Max.   :2015-04-01   Max.   :12193.8   Max.   :320402   Max.   :17.300  
+    uempmed          unemploy    
+ Min.   : 4.000   Min.   : 2685  
+ 1st Qu.: 6.000   1st Qu.: 6284  
+ Median : 7.500   Median : 7494  
+ Mean   : 8.609   Mean   : 7771  
+ 3rd Qu.: 9.100   3rd Qu.: 8686  
+ Max.   :25.200   Max.   :15352  
+```
+]
+
+---
+
+## Einbetten von Code
+
+.small[
+
+```r
+glimpse(economics)
+```
+
+```
+Observations: 574
+Variables: 6
+$ date     &lt;date&gt; 1967-07-01, 1967-08-01, 1967-09-01, 1967-10-01, 1967-11-01,…
+$ pce      &lt;dbl&gt; 506.7, 509.8, 515.6, 512.2, 517.4, 525.1, 530.9, 533.6, 544.…
+$ pop      &lt;dbl&gt; 198712, 198911, 199113, 199311, 199498, 199657, 199808, 1999…
+$ psavert  &lt;dbl&gt; 12.6, 12.6, 11.9, 12.9, 12.8, 11.8, 11.7, 12.3, 11.7, 12.3, …
+$ uempmed  &lt;dbl&gt; 4.5, 4.7, 4.6, 4.9, 4.7, 4.8, 5.1, 4.5, 4.1, 4.6, 4.4, 4.4, …
+$ unemploy &lt;dbl&gt; 2944, 2945, 2958, 3143, 3066, 3018, 2878, 3001, 2877, 2709, …
+```
+]
+
+---
+
+## Schaubilder
+
+- Sie können auch Schaubilder direkt in R Markdown erstellen lassen und einbinden
+- Beispiel: Scatter-Plot der Anzahl der Arbeitslosen in den USA seit 1967
+
+
+```r
+qplot(date, unemploy, data=economics)
+```
+
+&lt;img src="rmarkdown_files/figure-html/unnamed-chunk-5-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Schaubilder
+
+.question[
+**Aufgabe**: Lesen Sie die Dokumentation des Economics Datensatzes mittels `?economics` und erstellen Sie einen Scatter-Plot, welcher das Datum auf der x-Achse und die _Sparquote_ auf der y-Achse darstellt. 
+]
+
+---
+
+## Tabellen 
+
+- Tabellen können Sie in Markdown durch den Spaltentrenner | und den Zeilentrenner - - - erstellen. 
+- Linksbündig ausgerichtet
+- Durch Doppelpunkte auch mittige oder rechte Ausrichtung möglich
+
+Hier ein Beispiel:
+
+
+```r
+A|B|C
+---:|---|---
+1|2|3
+1|2|3
+1|2|3
+```
+
+
+Wird in Markdown wie folgt dargestellt:
+
+A|B|C
+---:|---|---
+1|2|3
+1|2|3
+1|2|3
+
+---
+
+## Tabellen mit Pander
+
+- In R erstellte Tabellen durch Paket `pander()` direkt darstellen
+- R Chunk zusätzlich den Parameter results='asis' übergeben (` ```{r, result='asis'} `), damit es korrekt interpretiert wird
+- Pander noch informieren, dass es sich um ein R Markdown Dokument handelt mit dem Paramterstil (style="rmarkdown") 
+- Beispiel: Ersten 5 Zeilen für die ersten 4 Spalten aus dem `economics` Datensatz als Markdown Tabelle ausgegeben:
+
+
+```r
+#install.packages("pander")
+library(pander)
+library(tidyverse)
+pander(economics[1:5, 1:4], style = "rmarkdown")
+```
+
+
+
+|    date    |  pce  |  pop   | psavert |
+|:----------:|:-----:|:------:|:-------:|
+| 1967-07-01 | 506.7 | 198712 |  12.6   |
+| 1967-08-01 | 509.8 | 198911 |  12.6   |
+| 1967-09-01 | 515.6 | 199113 |  11.9   |
+| 1967-10-01 | 512.2 | 199311 |  12.9   |
+| 1967-11-01 | 517.4 | 199498 |  12.8   |
+
+---
+
+## Der `Cache`
+
+- Bei großen Dokumenten kann das "knitten" sehr lange dauern
+- Möglichkeit Ergebnisse zu `cachen`, d.h. Ergebnisse zwischenzuspeichern
+- Option `cache = TRUE` nach der Einführung des Code Blocks ` ```{r, cache = TRUE} `
+- Wenn sich in den Chunks mit den _gecachten_ Informationen jedoch etwas ändert muss die Option `cache=TRUE` entfernt werden, ansonsten werden die Änderungen nicht in ihr Dokument aufgenommen
+
+---
+
+## Anzeigen von Chunks
+
+- Nicht immer wünschenswert, dass der Code-Chunk mit angezeigt wird
+- Beispielsweise sollen Sie in ihren Projektarbeiten die Chunks immer ausblenden und nur die Ergebnisse zeigen
+- Ausschalten der Option durch echo=FALSE möglich (` ```{r,echo=FALSE}`)
+- Beispielsweise unser Scatter-Plot von vorhin:
+
+---
+
+## Anzeigen von Chunks
+
+&lt;img src="rmarkdown_files/figure-html/unnamed-chunk-8-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Anzeigen von Chunks
+
+- Soll nur der Code Chunk angezeigt werden, jedoch kein Output, dann müssen Sie ein eval=FALSE voranstellen (` ```{r,eval=FALSE}`)
+
+
+```r
+qplot(date, unemploy, data=economics)
+```
+
+---
+
+## Typische Optionen
+
+Im Chunk haben Sie mehrere Optionen, wie dieser von R interpretiert werden soll.
+
+Output:
+
+- results: "asis"/"hide" (Output wie er vom Chunk kommt anzeigen/nicht zeigen)
+- echo: "TRUE"/"FALSE" (Code aus Chunk zeigen/nicht zeigen)
+- eval: "TRUE"/"FALSE" (Chunk nicht beachten/beachten)
+- include: "TRUE"/"FALSE" (Code Output zeigen/nicht zeigen)
+- message: "TRUE"/"FALSE" (Benachrichtigungen anzeigen/nicht anzeigen)
+- warnings: "TRUE"/"FALSE" (Warnmeldungen anzeigen/nicht anzeigen)
+- error: "TRUE"/"FALSE" (Fehlermeldungen anzeigen/nicht anzeigen)
+- cache: "TRUE"/"FALSE" (Zuvor gespeicherte Inhalte anzeigen/ Immer neu berechnen)
+
+---
+
+## Typische Optionen
+
+Schaubilder:
+
+- fig.height: Nummer (Höhe eines Schaubilds festlegen)
+- fig.width: Nummer (Breite eines Schaubilds festlegen)
+- out.width: Nummer (Breite des Outputs, kann auch in '%' angegeben werden)
+---
+
+## Code extrahieren 
+
+Zusammenfassen des R Code einer `.Rmd` Datei möglich? 
+
+- Der Code kann durch `purl()` aus einer `.Rmd`-Datei separat abgespeichert werden 
+- Hier ein Beispiel mit allen Befehlen, welche bisher gebraucht wurden, abgespeichert in einem "Einfuehrung-in-RMarkdown.R" Dokument im aktuellen Arbeitsverzeichnis.
+
+.small[
+
+```r
+library(knitr)
+purl(input = "v2_RMarkdown.Rmd", output="Einfuehrung-in-RMarkdown.R", documentation = 0)
+```
+]
+
+---
+
+## RMarkdown Hilfe
+
+.pull-left[
+.center[RMarkdown cheat sheet]
+
+&lt;img src="../figs/r-markdown-cheatsheet.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[**Markdown Guide**
+
+`Help -&gt; Markdown Quick Reference`
+&lt;img src="../figs/markdown-reference.jpg" width="70%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Wofür nutzen wir RMarkdown
+
+- Alle Vorlesungsfolien/`RTutor` Problem Sets/Projekte etc. sind in RMarkdown
+- Sie starten immer mit einem RMarkdown Template in ihre Projekte
+- Die Vorgaben in den Templates werden im Laufe des Semesters geringer
+    - `RTutor` Problem Sets ist noch sehr genau wie Sie zu einem Ergenis kommen
+    - In den Projekten können Sie frei coden
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

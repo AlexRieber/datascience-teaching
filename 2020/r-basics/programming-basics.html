@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programmieren in R</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Programmieren in R
+
+---
+
+
+
+
+
+## Bedingte Anweisungen
+
+In manchen Situationen wollen wir bestimmte Werte, oder `NAs` durch vordefinierte, andere Werte ersetzen.
+Gegeben wir wollen dies hier tun und die Bevölkerung für Indien immer mit 0 ersetzen
+
+
+```r
+data("gapminder")
+gapminder_indien &lt;- gapminder %&gt;%
+  mutate( pop = ifelse(country == "India", 0, pop) ) 
+
+filter(gapminder_indien, country == "India")
+```
+
+```
+# A tibble: 12 x 6
+   country continent  year lifeExp   pop gdpPercap
+   &lt;fct&gt;   &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;
+ 1 India   Asia       1952    37.4     0      547.
+ 2 India   Asia       1957    40.2     0      590.
+ 3 India   Asia       1962    43.6     0      658.
+ 4 India   Asia       1967    47.2     0      701.
+ 5 India   Asia       1972    50.7     0      724.
+ 6 India   Asia       1977    54.2     0      813.
+ 7 India   Asia       1982    56.6     0      856.
+ 8 India   Asia       1987    58.6     0      977.
+ 9 India   Asia       1992    60.2     0     1164.
+10 India   Asia       1997    61.8     0     1459.
+11 India   Asia       2002    62.9     0     1747.
+12 India   Asia       2007    64.7     0     2452.
+```
+
+---
+
+## `case_when` Anweisung
+
+Ẁenn wir mehrer Bedingungen auf einmal betrachten müssen, dann hilft uns `case_when` weiter.
+
+Beispielsweise wollen wir für alle Länder mit einem weniger als 50 Jahren Lebenserwartung eine Variable `Lebenserwartung` generieren, welche den Wert `&lt;50` annimmt, für weniger als 50 Jahre Lebenserwartung, `50-70` mit Lebenswerartung zwischen 50 und 70 Jahren und `&gt;70` bei einer Lebenserwartung mehr als 70 Jahre. Wir betrachten hier alle Länder für das Jahr 2007.
+
+
+```r
+gapminder &lt;- gapminder %&gt;%
+  filter( year == 2007 ) %&gt;%
+  mutate(Lebenserwartung = case_when(lifeExp &lt;50 ~ "&lt;50",
+                                     lifeExp &gt;=50 &amp; lifeExp &lt;=70 ~ "50-70",
+                                     lifeExp &gt;70 ~ "&gt;70"))
+
+table(gapminder$Lebenserwartung)
+```
+
+```
+
+  &lt;50   &gt;70 50-70 
+   19    83    40 
+```
+
+---
+
+## Funktionen in R
+
+Für Aufgaben, welche wir in R öfter anwenden, wollen wir nicht jedes mal von neuem den gleichen Befehl eingeben.
+
+- Hier lohnt es sich eine Funktion für den Befehl zu schreiben
+- Durch die Funktion `function` weiß R das nun eine Funktion definiert wird
+- Beispielsweise den Mittelwert berechnen durch `summe(x)/länge(x)`
+
+
+```r
+durchschnitt &lt;- function(x){
+  s &lt;- sum(x)
+  n &lt;- length(x)
+  s/n
+}
+```
+
+Da es in R bereits die Funktion `mean` gibt können wir testen ob unsere Funktion zum gleichen Ergebnis kommt wie die in R vordefinierte Funktion:
+
+
+```r
+x &lt;- 1:100
+identical(mean(x), durchschnitt(x))
+```
+
+```
+[1] TRUE
+```
+
+---
+
+## Scoping
+
+Variablen welche in R innerhalb einer Funktion definiert werden, werden auch nur in dieser Funktionsumgebung verwendet.
+
+
+```r
+s &lt;- 5
+durchschnitt(51:100)
+```
+
+```
+[1] 75.5
+```
+
+```r
+s
+```
+
+```
+[1] 5
+```
+
+Wenn wir uns nun `s` anschauen, dann ist dies immer noch 5, auch nachdem wir die Funktion `durchschnitt` aufgerufen haben (wird lexikalisches Scoping genannt).
+
+- Unterschiede zwischen lexikalischem und dynamischem Scoping finden Sie [hier](http://adv-r.had.co.nz/Functions.html#lexical-scoping)
+
+
+---
+
+## For-Schleifen
+
+Nach der Definition einer Funktion wollen wir diese auf mehrere Elemente anwenden.
+Dies können wir über eine Schleife erreichen.
+
+- Über eine Schleife können bestimmte Aktionen `\(n\)` mal wiederholt werden.
+
+
+```r
+n &lt;- 5
+for(i in 1:n){
+  print(i)
+}
+```
+
+```
+[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+```
+
+- In der For-Schleife wird die Eingabe evaluiert und entsprechende Aktion ausgeführt (hier die Ausgabe der Zahlen von `\(n=1,\dots,5\)`)
+- Die gleiche Aktion wird 5 mal ausgeführt, es ändert sich nur `\(n\)`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
