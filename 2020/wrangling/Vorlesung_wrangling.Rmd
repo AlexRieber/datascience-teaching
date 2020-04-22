@@ -1,0 +1,123 @@
+---
+title: "Vorlesung_wrangling"
+output: html_document
+---
+
+```{r}
+getwd()
+setwd("C:/Users/rieber/Desktop/datascience-teaching/2020/wrangling")
+getwd()
+
+list.files("data")
+```
+
+```{r}
+library(readr)
+readLines("data/Geburtenrate-Beispieldatensatz.csv")
+
+geburten <- read_csv("data/Geburtenrate-Beispieldatensatz.csv")
+
+```
+
+```{r}
+library(readxl)
+
+excel_sheets("data/Geburtenrate-Lebenserwartung_Beispiel.xlsx")
+
+lebenserwartung_geburtenrate <- read_xlsx("data/Geburtenrate-Lebenserwartung_Beispiel.xlsx")
+```
+
+```{r}
+gapminder <- readRDS("data/gapminder_life.rds")
+```
+
+```{r}
+library(haven)
+
+kindersterblichkeit <- read_dta("data/Kindersterblichkeit.dta")
+```
+
+```{r}
+View(geburten)
+```
+
+```{r}
+library(tidyr)
+tidy_data <- pivot_longer(geburten, names_to = "jahr", values_to = "Geburtenrate", cols = c("1950":"2015"))
+
+tidy_data <- pivot_longer(geburten, names_to = "jahr", values_to = "Geburtenrate", cols = -country)
+```
+
+```{r}
+wide_data <- pivot_wider(tidy_data, names_from = "jahr", values_from = "Geburtenrate")
+```
+
+```{r}
+library(dplyr)
+tidy_data_extended <- lebenserwartung_geburtenrate %>%
+  pivot_longer(names_to = "name", values_to = "Wert", cols = -country) %>%
+  separate(name, c("jahr", "variablen_name"), "_", extra = "merge", convert = TRUE) %>%
+  pivot_wider(names_from = "variablen_name", values_from = "Wert") %>%
+  mutate( life_expectancy = as.numeric( life_expectancy ),
+          fertility = as.numeric( fertility ))
+```
+
+```{r}
+tidy_data_extended %>%
+  mutate(life_fert = life_expectancy + 5)
+
+gapminder %>%
+  select(-c(country, jahr, fertility))
+
+gapminder %>%
+  filter( jahr >= 2000 , country == "Germany")
+
+x <- gapminder %>%
+  group_by( country ) %>%
+  summarise(avg_life = mean(life_expectancy),
+            sd_life = sd(life_expectancy)) %>%
+  ungroup()
+
+x %>%
+  arrange(desc(avg_life))
+
+```
+
+```{r}
+tab1 <- tidy_data_extended %>%
+  select(country, jahr, life_expectancy)
+
+tidy_data <- tidy_data %>%
+  mutate(jahr = as.numeric(jahr))
+
+join1 <- left_join(tidy_data, tab1, by=c("country", "jahr"))
+```
+
+```{r}
+join2 <- right_join(tidy_data, tab1, by=c("country", "jahr"))
+
+join2 %>%
+  filter( country== "Germany")
+```
+
+```{r}
+cols1 <- tidy_data %>%
+  filter( jahr == 2000 ) %>%
+  select(Geburtenrate)
+
+cols2 <- tidy_data_extended %>%
+  filter( country == "Germany" | country == "South Korea") %>%
+  filter( jahr == 2000) 
+head(cols2)
+
+head(cols1)
+
+new <- bind_cols(cols1, cols2)
+
+new
+```
+
+```{r}
+bind_rows(cols1, cols2)
+```
+
