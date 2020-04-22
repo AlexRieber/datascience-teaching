@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Die Datenaufbereitung mit dplyr</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Die Datenaufbereitung mit dplyr
+
+---
+
+
+
+
+layout: false
+class: center, middle
+name: wrangling
+
+# Data Wrangling
+
+&lt;center&gt;
+&lt;a href="https://dplyr.tidyverse.org"&gt;
+&lt;img src="../figs/dplyr.png" style = "width: 400px;"/&gt;
+&lt;/a&gt;
+&lt;/center&gt;
+
+---
+
+## Das `dplyr` Paket
+
+Mit `dyplr` haben wir innerhalb des `tidyverse` Funktionalitäten an der Hand, mit denen wir Datensätze in R bearbeiten können:
+
+  - Kombination mehrere Operationen durch die _Pipe_: `%&gt;%`
+  - Datensätze verändern (z.B. neue Spalte) mit `mutate`
+  - Datensätze nach bestimmten Variablen sortieren mit `arrange`
+  - Einzelne Reihen herausfiltern mit `filter`
+  - Einzelne Spalten herauspicken mit `select`
+
+Wir konzentrieren uns wieder auf die heruntergeladenen `gapminder` Daten, welche wir bereits in R importiert und in das richtige Format gebracht haben (`tidy`). 
+
+Hier nutzen wir den Datensatz `tidy_data_extended` und laden diesen als `gapminder`:
+
+
+```r
+gapminder &lt;- readRDS("data/gapminder_life.rds")
+```
+
+---
+
+## Base R versus `tidyverse`
+
+- Durchschnittliche Lebenserwartung weltweit im Jahr 1952 in unserem Datensatz:
+
+--
+
+.pull-left[
+**Base R**
+
+.small[
+
+```r
+avg_1952 &lt;- gapminder[gapminder$jahr == 1952, ]
+mean(avg_1952$life_expectancy)
+```
+
+```
+[1] 51.0925
+```
+]
+]
+
+.pull-right[
+
+**Tidyverse**
+
+.small[
+
+```r
+library(dplyr)
+gapminder %&gt;% 
+  filter( jahr == 1952 ) %&gt;%
+  summarize(avg_lifeExp_1952 = mean(life_expectancy)) %&gt;% 
+  pull()
+```
+
+```
+[1] 51.0925
+```
+]
+]
+
+---
+
+## Die Pipe `%&gt;%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+
+```r
+gapminder %&gt;% 
+  filter( jahr == 1952 ) %&gt;%
+  summarize(avg_lifeExp_1952 = mean(life_expectancy))
+```
+
+---
+
+## Die Pipe `%&gt;%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+
+```r
+*gapminder %&gt;% # Zuerst der Datensatz und dann ...
+  filter( jahr == 1952 ) %&gt;%
+  summarize(avg_lifeExp_1952 = mean(life_expectancy))
+```
+
+---
+
+## Die Pipe `%&gt;%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+
+```r
+*gapminder %&gt;% # Zuerst der Datensatz und dann ...
+* filter( jahr == 1952 ) %&gt;% # nur das Jahr 1952 und dann ...
+  summarize(avg_lifeExp_1952 = mean(life_expectancy))
+```
+
+---
+
+## Die Pipe `%&gt;%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+
+```r
+*gapminder %&gt;% # Zuerst der Datensatz und dann ...
+* filter( jahr == 1952 ) %&gt;% # nur das Jahr 1952 und dann ...
+* summarize(avg_lifeExp_1952 = mean(life_expectancy)) # die durchschnittliche Lebenserwartung berechnen
+```
+
+
+```
+# A tibble: 1 x 1
+  avg_lifeExp_1952
+             &lt;dbl&gt;
+1             51.1
+```
+
+---
+
+## Die sieben wichtigsten Befehle für das data wrangling
+
+- `mutate()`
+- `select()`
+- `filter()`
+- `summarize()`
+- `group_by()`
+- `arrange()`
+- `lead()` und `lag()`
+
+---
+
+## `mutate()`
+
+- Mittels `mutate()` können Sie:
+    - &lt;font color="green"&gt;eine neue Variable mit einem bestimmten Wert generieren&lt;/font&gt; ODER
+    - eine neue Variable auf der Basis anderer Variablen generieren ODER
+    - den Inhalt einer bestehenden Variablen verändern
+
+--
+
+
+```r
+gapminder_new &lt;- gapminder %&gt;% 
+* mutate(eins = 1)
+
+head(gapminder_new, 4)
+```
+
+```
+# A tibble: 4 x 5
+  country  jahr life_expectancy fertility  eins
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;
+1 Brazil   1950            50.3      6.18     1
+2 Brazil   1951            50.6      6.17     1
+3 Brazil   1952            51.1      6.15     1
+4 Brazil   1953            51.6      6.14     1
+```
+
+---
+
+## `mutate()`
+
+- Mittels `mutate()` können Sie:
+    - eine neue Variable mit einem bestimmten Wert generieren ODER
+    - &lt;font color="green"&gt;eine neue Variable auf der Basis anderer Variablen generieren&lt;/font&gt; ODER
+    - den Inhalt einer bestehenden Variablen verändern
+
+--
+
+
+```r
+gapminder_new &lt;- gapminder %&gt;% 
+* mutate( life_fertility = life_expectancy * fertility )
+
+head(gapminder_new, 4)
+```
+
+```
+# A tibble: 4 x 5
+  country  jahr life_expectancy fertility life_fertility
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;          &lt;dbl&gt;
+1 Brazil   1950            50.3      6.18           311.
+2 Brazil   1951            50.6      6.17           312.
+3 Brazil   1952            51.1      6.15           314.
+4 Brazil   1953            51.6      6.14           317.
+```
+
+---
+
+## `mutate()`
+
+- Mittels `mutate()` können Sie:
+    - eine neue Variable mit einem bestimmten Wert generieren ODER
+    - eine neue Variable auf der Basis anderer Variablen generieren ODER
+    - &lt;font color="green"&gt;den Inhalt einer bestehenden Variablen verändern&lt;/font&gt;
+
+--
+
+
+```r
+gapminder_new &lt;- gapminder %&gt;% 
+* mutate( life_expectancy = life_expectancy + 5 )
+
+head(gapminder_new, 4)
+```
+
+```
+# A tibble: 4 x 4
+  country  jahr life_expectancy fertility
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+1 Brazil   1950            55.3      6.18
+2 Brazil   1951            55.6      6.17
+3 Brazil   1952            56.1      6.15
+4 Brazil   1953            56.6      6.14
+```
+
+---
+
+## `select()`
+
+Mittels `select()` können Sie:
+
+- &lt;font color="green"&gt;einzelne Variablen aus dem Datensatz selektieren&lt;/font&gt; ODER
+- einzelne Variablen aus dem Datensatz entfernen
+
+--
+
+
+```r
+gapminder_select &lt;- gapminder %&gt;% 
+* select(country, jahr, fertility)
+
+head(gapminder_select, 4)
+```
+
+```
+# A tibble: 4 x 3
+  country  jahr fertility
+  &lt;chr&gt;   &lt;int&gt;     &lt;dbl&gt;
+1 Brazil   1950      6.18
+2 Brazil   1951      6.17
+3 Brazil   1952      6.15
+4 Brazil   1953      6.14
+```
+
+---
+
+## `select()`
+
+Mittels `select()` können Sie:
+
+- einzelne Variablen aus dem Datensatz selektieren ODER
+- &lt;font color="green"&gt;einzelne Variablen aus dem Datensatz entfernen&lt;/font&gt;
+
+--
+
+
+```r
+gapminder_select2 &lt;- gapminder %&gt;% 
+* select(`-`c(country, fertility))
+
+head(gapminder_select2, 4)
+```
+
+
+```
+# A tibble: 4 x 2
+   jahr life_expectancy
+  &lt;int&gt;           &lt;dbl&gt;
+1  1950            50.3
+2  1951            50.6
+3  1952            51.1
+4  1953            51.6
+```
+
+---
+
+## `filter()`
+
+Wenn Sie nur die Jahre 2000 und größer betrachten möchten nutzen Sie `filter()`:
+
+
+```r
+gapminder_filter &lt;- gapminder %&gt;%
+* filter(jahr &gt;= 2000)
+
+head(gapminder_filter,4)
+```
+
+```
+# A tibble: 4 x 4
+  country  jahr life_expectancy fertility
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+1 Brazil   2000            70.7      2.36
+2 Brazil   2001            71.1      2.32
+3 Brazil   2002            71.4      2.26
+4 Brazil   2003            71.7      2.2 
+```
+
+--
+
+- Mit relationalen Operatoren (bspw. `&gt;=`) können Sie genau spezifizieren, welche Reihen sie herausfiltern möchten.
+
+---
+
+## Relationale Operatoren mit `filter()`
+
+Mit `|` können Sie prüfen, ob _einer_ der Filter wahr ist:
+
+--
+
+
+```r
+gapminder %&gt;%
+  filter(jahr &gt;= 2000 `|` country == "Germany") %&gt;%
+  head(4)
+```
+
+
+```
+# A tibble: 4 x 4
+  country  jahr life_expectancy fertility
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+1 Brazil   2000            70.7      2.36
+2 Brazil   2001            71.1      2.32
+3 Brazil   2002            71.4      2.26
+4 Brazil   2003            71.7      2.2 
+```
+
+---
+
+## Relationale Operatoren mit `filter()`
+
+Mit `,` können Sie prüfen, ob _alle_ Filter wahr sind:
+
+--
+
+
+```r
+gapminder %&gt;%
+  filter(jahr &gt;= 2000 `,` country == "Germany") %&gt;%
+  head(4)
+```
+
+
+```
+# A tibble: 4 x 4
+  country  jahr life_expectancy fertility
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+1 Germany  2000            78.1      1.35
+2 Germany  2001            78.4      1.35
+3 Germany  2002            78.6      1.35
+4 Germany  2003            78.8      1.35
+```
+
+
+---
+
+## `summarize()`
+
+- `summarize` und `summarise` sind Synonyme und führen beide zum gleichen Ergebnis
+- Berechnung von Zusammenfassungen, z.B. die durchschnittliche Lebenserwartung über alle Länder und Jahre hinweg:
+
+--
+
+
+```r
+lifeExp.avg &lt;- gapminder %&gt;% 
+* summarize(durchschnitt = mean(life_expectancy),
+*           abweichung = sd(life_expectancy))
+
+lifeExp.avg
+```
+
+```
+# A tibble: 1 x 2
+  durchschnitt abweichung
+         &lt;dbl&gt;      &lt;dbl&gt;
+1         64.6       10.7
+```
+
+---
+
+## `summarize()` mit `group_by` kombinieren
+
+Das gleiche Ergebnis für verschiedene Untergruppen erstellen mit `group_by()`:
+
+--
+
+
+```r
+gapminder %&gt;% 
+* group_by( country ) %&gt;%
+  summarize(durchschnitt = mean(life_expectancy),
+            abweichung = sd(life_expectancy))
+```
+
+--
+
+Vergessen Sie nicht danach wieder `ungroup()` zu verwenden!
+
+--
+
+
+```r
+grouped_gap &lt;- gapminder %&gt;% 
+* group_by( country ) %&gt;%
+  summarize(durchschnitt = mean(life_expectancy),
+            abweichung = sd(life_expectancy)) %&gt;%
+* ungroup()
+
+head(grouped_gap, 3)
+```
+
+```
+# A tibble: 3 x 3
+  country durchschnitt abweichung
+  &lt;chr&gt;          &lt;dbl&gt;      &lt;dbl&gt;
+1 Brazil          64.0       7.29
+2 Canada          75.5       4.06
+3 China           61.6      11.3 
+```
+
+---
+
+## `summarize()` 
+
+Daten werden durch `summarize()` als `data.frame` abgespeichert. 
+
+Zahl als `double` extrahieren:
+
+
+```r
+lifeExp.avg %&gt;% 
+* pull(durchschnitt)
+```
+
+```
+[1] 64.58241
+```
+
+---
+
+## `arrange()`
+
+Ordnet den Datensatz nach einer Variablen
+  - Effizienter als der `order` Befehl aus Base R
+  - **Default:** Aufsteigende Sortierung
+  - Möglichkeit: Absteigende Sortierung mit `arrange(desc(fertility))`
+
+--
+
+
+```r
+gapminder %&gt;% 
+  filter( jahr == 1952 ) %&gt;%
+* arrange( desc(fertility) ) %&gt;%
+  head(4)
+```
+
+```
+# A tibble: 4 x 4
+  country       jahr life_expectancy fertility
+  &lt;chr&gt;        &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+1 South Africa  1952            44.7      6.31
+2 Brazil        1952            51.1      6.15
+3 China         1952            42.9      5.97
+4 India         1952            35.8      5.9 
+```
+
+---
+
+## `arrange()`
+
+`arrange()` bietet die Möglichkeit einer verschachtelten Sortierung:
+
+- Zuerst wird nach einer bestimmten Variable sortiert
+- Anschließend sortieren wir innerhalb dieser Variable auf eine weitere Variable
+
+.instructions[Sortieren Sie erst nach `life_expectancy` und anschließend nach `fertility`]
+
+--
+
+
+```r
+gapminder %&gt;% 
+  filter( jahr == 1952 ) %&gt;%
+* arrange( desc( life_expectancy, fertility) ) %&gt;%
+  head(4)
+```
+
+```
+# A tibble: 4 x 4
+  country  jahr life_expectancy fertility
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+1 Canada   1952            68.7      3.62
+2 Germany  1952            67.4      2.11
+3 Russia   1952            58.2      2.88
+4 Brazil   1952            51.1      6.15
+```
+
+---
+
+## `lead()` und `lag()`
+
+- `lead()` liest den vorausgehende Werte einer Variablen aus
+- `lag()` liest den darauffolgenden Werte einer Variablen aus
+- Insbesondere bei der Arbeit mit Zeitreihendaten wichtig
+  - Kann gut mit `group_by` kombiniert werden
+--
+
+
+```r
+gapminder %&gt;% 
+  arrange( country, jahr ) %&gt;%
+* mutate(lag_fertility = lag(fertility),
+*        lead_fertility = lead(fertility)) %&gt;%
+  select(country, jahr, fertility, lag_fertility, lead_fertility) %&gt;% 
+  head(4)
+```
+
+--
+
+
+```
+# A tibble: 4 x 5
+  country  jahr fertility lag_fertility lead_fertility
+  &lt;chr&gt;   &lt;int&gt;     &lt;dbl&gt;         &lt;dbl&gt;          &lt;dbl&gt;
+1 Brazil   1950      6.18         NA              6.17
+2 Brazil   1951      6.17          6.18           6.15
+3 Brazil   1952      6.15          6.17           6.14
+4 Brazil   1953      6.14          6.15           6.14
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

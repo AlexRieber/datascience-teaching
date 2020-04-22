@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Datum und Uhrzeit in R</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Datum und Uhrzeit in R
+
+---
+
+
+
+
+
+## Datum und Uhrzeit in R
+
+Damit R mit Datum und Uhrzeit richtig umgehen kann werden Strings wie `15. Januar 2009` intern in eine Zahl umgewandelt.
+
+- Hierbei wird ein sogenannter Referenztag angelegt (_epoch_), von welchem aus alle Tage berechnet werden
+- In R ist der Referenztag der `1. Januar 1970`
+- Intern wird dadurch der `15. Januar 2009` als 14259 abgespeichert
+- Wie bei Faktorvariablen erscheint ein Datum als String-Variable
+  - Jedoch: Bei der Ausgabe des Datentyps erkennen wir, dass es sich um ein Datum handelt
+
+
+```r
+library(lubridate)
+x &lt;- dmy("15. Januar 2009")
+class(x) # welcher Objekttyp ist hier enthalten
+```
+
+```
+[1] "Date"
+```
+
+```r
+as.numeric(x) # Von R intern verwendet
+```
+
+```
+[1] 14259
+```
+
+---
+
+## Datum und Uhrzeit in R
+
+- `ggplot2` beachtet den Datentyp und kann Datumsformate richtig wiedergeben
+- Mit dem Paket `lubridate` können Sie in R effizient mit dem Datumsformat arbeiten
+- Sie können mit lubridate den Tag, Monat und Jahr einzeln aus einem Datum extrahieren
+
+
+```r
+dates &lt;- c("2010-03-05", "2012-03-09", "2006-01-04",
+       "2002-12-12")
+dates2 &lt;- ymd(dates) # Umwandeln in Datum
+data.frame(Datum = dates2, 
+           Monat = month(dates2),
+           Tag = day(dates2),
+           Jahr = year(dates2))
+```
+
+```
+       Datum Monat Tag Jahr
+1 2010-03-05     3   5 2010
+2 2012-03-09     3   9 2012
+3 2006-01-04     1   4 2006
+4 2002-12-12    12  12 2002
+```
+
+---
+
+## Datum und Uhrzeit in R 
+
+
+Eine weitere wichtige Funktion um Strings ins Datumsformat zu konvertieren sind die _Parser_
+
+  - Hier ein etwas ausführlicheres Beispiel zu den Möglichkeiten eines _Parsers_ in `lubridate`:
+
+
+```r
+x &lt;- c(20030101, "Geschrieben am 2007 2 9", "2005/01/02", 
+       20090103, "201004 ... 07", "2007-1-14",
+       "2003-1, 5")
+ymd(x)
+```
+
+```
+[1] "2003-01-01" "2007-02-09" "2005-01-02" "2009-01-03" "2010-04-07"
+[6] "2007-01-14" "2003-01-05"
+```
+
+---
+
+## Datum und Uhrzeit in R 
+
+Problematisch: Wenn das Datum _nicht_ im Format "Jahr, Monat, Tag" vorhanden ist, sondern bspw. in "Monat, Tag, Jahr"
+
+Hierfür bietet `lubridate` alle möglichen Kombinationen von `ymd` als Parser an: 
+- Bspw. `mdy` oder `dmy`
+
+---
+
+## Datum und Uhrzeit in R
+
+.question[Angenommen Sie haben heute mittag um 14:00 Uhr Ortszeit einen Flug nach New York. Die Flugzeit beträgt 9h. Zu welcher Uhrzeit landen Sie in New York (Ortszeit) und wie viel Uhr ist es dann in Frankfurt?]
+
+--
+
+Sie können mit `lubridate` neben dem Tag auch die Uhrzeit auslesen indem Sie `hms` an den Datumsparser anhängen und zusätzlich alle Zeitzonen einpflegen mit den `OlsonNames()`:
+
+--
+
+
+```r
+start &lt;- dmy_hms("6. Mai 2019 14:00:00", tz = "Europe/Berlin")
+```
+
+--
+
+
+```r
+start &lt;- dmy_hms("6. Mai 2019 14:00:00", tz = "Europe/Berlin")
+ankunft &lt;- start + hours(9)
+
+ankunft_ortszeit &lt;- with_tz(ankunft, tz = "America/New_York")
+
+ankunft_ortszeit
+```
+
+```
+[1] "2019-05-06 17:00:00 EDT"
+```
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false,
+"self_contained": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

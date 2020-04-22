@@ -1,0 +1,338 @@
+---
+title: "Die Datenaufbereitung"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(wooldridge)
+library(here)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+
+gif_link <- function(link, file, size){
+    knitr::asis_output(
+      paste0('<center>\n<a href="',
+             link,
+             '">\n<img src="',
+             file,
+             '" style = "width: ',
+             size,
+             'px;"/>\n</a>\n</center>'
+      ))
+}
+```
+
+
+class: center, middle
+
+# Daten aufarbeiten mit `tidyr`
+
+`r gif_link("https://tidyr.tidyverse.org", "../figs/tidyr.png", 400)`
+
+
+---
+
+## Daten aufarbeiten ("tidy")
+
+
+```
+"Tidy datasets are all alike but every messy dataset is messy in its own way." 
+– Hadley Wickham
+```
+
+Damit alle Bearbeitungsschritte innerhalb von R und `tidyverse` funktionieren müssen die Daten in einem bestimmten Format vorliegen:
+
+$\rightarrow$ Die Daten müssen _tidy_ sein
+
+---
+
+## Daten aufarbeiten ("tidy")
+
+```{r, echo=FALSE, out.width='100%'}
+include_graphics("../figs/tidy_data.png")
+```
+.small[Quelle: Wickham, H., & Grolemund, G. (2016). R for data science: import, tidy, transform, visualize, and model data." O'Reilly Media, Inc.]
+
+- Jede Variable ist in einer eigenen Spalte repräsentiert
+- Jede Beobachtung ist in einer extra Reihe (repräsentiert eine eigene Beobachtung)
+- Wird auch als "long"-Format bezeichnet
+
+---
+
+## Ist dieser Datensatz `tidy`?
+
+```{r "Datensätze einlesen", echo=FALSE}
+library(haven)
+library(readxl)
+geburtenrate <- read_csv("data/Geburtenrate-Beispieldatensatz.csv")
+leben_und_geburt <- read_xlsx("data/Geburtenrate-Lebenserwartung_Beispiel.xlsx", sheet="Lebenserwartung_Geburtenrate")
+kindersterblichkeit <- read_dta("data/Kindersterblichkeit.dta")
+
+```
+
+```{r, message=FALSE}
+head(geburtenrate)
+```
+.small[Quelle: [GapMinder](https://www.gapminder.org/data/)]
+
+---
+
+## Ist dieser Datensatz `tidy`?
+
+- Hier bekommen wir alle von uns gewünschten Werte über die Geburtenrate
+
+**Ein Blick auf die ersten 5 Spalten:**
+
+```{r, eval=TRUE}
+select(geburtenrate, country, "1950":"1954")
+```
+
+--
+- _Allerdings:_ Der Datensatz ist im `wide`-Format
+    - Jede Reihe beinhaltet mehrere Beobachtungen
+    - Die Variable ist in der Kopfzeile definiert
+
+$\rightarrow$ Daten sind **nicht** tidy
+
+---
+
+class: center, middle, inverse
+
+# Reshaping
+
+---
+
+## Datenformat anpassen
+
+- Daten eingelesen `r emo::ji("check")`
+
+**To do:**
+- Daten in ein geeignetes Format zur Analyse überführen
+
+$\rightarrow$  Hier helfen uns die Funktionen des `tidyr` Pakets
+- `pivot_longer` und `separate`
+    
+---
+
+## `pivot_longer()`
+
+- Mit `pivot_longer` können Daten aus dem `wide`-Format in das `long`-Format überführt werden
+
+Allgemeiner Befehl: 
+
+`pivot_longer( names_to = Daten, values_to = Spaltenvariable, cols =  Beobachtungsvariable)`
+
+```{r}
+tidy_data <- geburtenrate %>%
+  pivot_longer(names_to = "jahr", values_to = "geburtenrate", 
+               cols = c("1950":"2015")) 
+```
+--
+
+- cols: Welche Spalten sollen zusammengefasst werden?
+- names_to: Wie soll die neue, zusammengefasste Spalte heißen?
+- values_to: Wo sollen die Werte, welche aktuell in den Spalten stehen abgespeichert werden?
+
+---
+
+## `pivot_longer()`
+
+Alternativ können Sie auch die Spalte spezifizieren, welche **nicht** zusammengefasst werden sollen:
+
+```{r}
+tidy_data <- geburtenrate %>%
+  pivot_longer(names_to = "jahr", 
+               values_to = "geburtenrate", -country)
+```
+
+--
+
+Der neu erzeugte Data Frame ist _tidy_:
+
+```{r}
+head(tidy_data,4)
+```
+
+---
+
+## `pivot_longer()`
+
+Problem:
+
+- Die Daten in der Spalte `jahr` sind nicht nummerisch
+  - `pivot_longer` geht davon aus, dass Spaltennamen immer aus Buchstaben bestehen
+```{r}
+class(tidy_data$jahr)
+```
+
+--
+
+- Können Sie durch ein zusätzliches `mutate` lösen:
+
+```{r}
+tidy_data <- geburtenrate %>%
+  pivot_longer(names_to = "jahr", 
+               values_to = "geburtenrate", -country) %>%
+  mutate( jahr = as.numeric(jahr))
+
+class(tidy_data$jahr)
+```
+
+---
+
+## `pivot_longer()`
+
+Wollen Sie nun die Datenreihen grafisch darstellen ist dies einfach möglich:
+
+```{r, fig.height=4}
+tidy_data %>% 
+  ggplot(aes(jahr, geburtenrate, color = country)) +
+  geom_point()
+```
+
+---
+
+## `pivot_longer()`
+
+`r gif_link("https://raw.githubusercontent.com/apreshill/teachthat/master/pivot/pivot_longer_smaller.gif", "../figs/pivot_longer_smaller.gif", 700)`
+
+.center[
+.small[Quelle: [Erstellt von Apres Hill](https://github.com/apreshill/teachthat/blob/master/pivot/pivot_longer_smaller.gif)]
+]
+
+---
+
+## Die `pivot_wider` Funktion
+
+- `pivot_wider` ist das Pendant zu `pivot_longer`
+- Manchmal ist es wichtig Datensätze in das `wide` Format zu konvertieren
+  - Wird oft als Zwischenschritt gemacht
+
+```{r}
+wide_data_neu <- tidy_data %>% 
+  pivot_wider(names_from = jahr, values_from = geburtenrate) #<<
+
+wide_data_neu %>%
+  select(country, "1950":"1954")
+```
+
+--
+- names_from: Welche Variable soll als Spaltenname fungieren soll?
+- values_from: Welche Variable soll die Beobachtungen liefern?
+
+
+---
+
+## `pivot_longer()`
+
+Wenn Sie mehre Variablen im Datensatz haben, funktioniert `pivot_longer` nicht mehr:
+
+```{r, message=FALSE}
+#Erste fünf Spalten zeigen
+select(leben_und_geburt, 1:5)
+```
+
+---
+
+## `pivot_longer()`
+
+- Hier ist es nicht mehr möglich den Datensatz nur nach einer Variablen umzustellen
+- Jedoch können Sie eine Platzhaltervariable für den Namen der Variablen einführen (`name`)
+- Weiterhin können Sie sich eine Platzhaltervariable für den `Wert` der Variablen definieren
+
+--
+
+```{r}
+daten <- leben_und_geburt %>% 
+  # man beachte die "" um "name" und "Wert"
+  pivot_longer(names_to = "name", values_to = "Wert", -country) #<<
+
+head(daten,4) # für die ersten 4 Zeilen
+```
+
+---
+
+## `separate()`
+
+- Beide Variablen sind nun in `name` gespeichert
+- Das jeweilige Jahr sollte in einer separaten Variable gespeichert sein
+  - Kann durch den Unterstrich "_" getrennt werden
+- `separate` schafft Abhilfe: 
+    - Spaltenname welche getrennt werden soll, 
+    - Spaltenname der neuen Spalte und 
+    - das Zeichen, nach dem getrennt werden soll
+
+```{r}
+daten %>% separate(name, c("jahr", "variablen_name"), "_") %>%
+  head(2)
+```
+
+---
+
+## `separate()`
+
+- **Problem:** `life_expectancy` wird auch durch "_" getrennt
+- _Lösung:_ Wenn eine zusätzliche Trennung beim Variablennamen vorliegt können Sie diese als letztes getrennten Worte durch `merge` wieder zusammenführen
+
+
+```{r}
+daten %>% 
+  separate(name, c("jahr", "variablen_name"), sep = "_", extra = "merge") %>%
+  head()
+```
+
+---
+
+## `separate()`
+
+- Wir wollen jedoch zwei Spalten mit den Variablennamen anstatt die Variablen in Reihen 
+  - Nutzen der zuvor gelernten `pivot_wider` Funktion
+- Weiterhin sollten die Variablen `life_expectancy` und `fertility` nummerisch sein und keine Zeichenketten
+
+```{r}
+tidy_data_extended <- daten %>% 
+  separate(name, c("jahr", "variablen_name"), 
+           sep = "_", extra = "merge", convert=TRUE) %>%
+  pivot_wider(names_from = variablen_name, values_from =  Wert) %>%
+  mutate( life_expectancy = as.numeric(life_expectancy),
+          fertility = as.numeric(fertility))
+
+head(tidy_data_extended,3)
+
+saveRDS(tidy_data_extended, file= "data/gapminder_life.rds")
+```

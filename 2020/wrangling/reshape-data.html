@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Die Datenaufbereitung</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Die Datenaufbereitung
+
+---
+
+
+
+
+
+class: center, middle
+
+# Daten aufarbeiten mit `tidyr`
+
+&lt;center&gt;
+&lt;a href="https://tidyr.tidyverse.org"&gt;
+&lt;img src="../figs/tidyr.png" style = "width: 400px;"/&gt;
+&lt;/a&gt;
+&lt;/center&gt;
+
+
+---
+
+## Daten aufarbeiten ("tidy")
+
+
+```
+"Tidy datasets are all alike but every messy dataset is messy in its own way." 
+– Hadley Wickham
+```
+
+Damit alle Bearbeitungsschritte innerhalb von R und `tidyverse` funktionieren müssen die Daten in einem bestimmten Format vorliegen:
+
+`\(\rightarrow\)` Die Daten müssen _tidy_ sein
+
+---
+
+## Daten aufarbeiten ("tidy")
+
+&lt;img src="../figs/tidy_data.png" width="100%" style="display: block; margin: auto;" /&gt;
+.small[Quelle: Wickham, H., &amp; Grolemund, G. (2016). R for data science: import, tidy, transform, visualize, and model data." O'Reilly Media, Inc.]
+
+- Jede Variable ist in einer eigenen Spalte repräsentiert
+- Jede Beobachtung ist in einer extra Reihe (repräsentiert eine eigene Beobachtung)
+- Wird auch als "long"-Format bezeichnet
+
+---
+
+## Ist dieser Datensatz `tidy`?
+
+
+
+
+```r
+head(geburtenrate)
+```
+
+```
+# A tibble: 2 x 67
+  country `1950` `1951` `1952` `1953` `1954` `1955` `1956` `1957` `1958` `1959`
+  &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Germany   2.07   2.08   2.11   2.14   2.17   2.21   2.25   2.29   2.33   2.37
+2 South …   4.02   4.33   4.89   5.35   5.73   6.01   6.2    6.31   6.33   6.27
+# … with 56 more variables: `1960` &lt;dbl&gt;, `1961` &lt;dbl&gt;, `1962` &lt;dbl&gt;,
+#   `1963` &lt;dbl&gt;, `1964` &lt;dbl&gt;, `1965` &lt;dbl&gt;, `1966` &lt;dbl&gt;, `1967` &lt;dbl&gt;,
+#   `1968` &lt;dbl&gt;, `1969` &lt;dbl&gt;, `1970` &lt;dbl&gt;, `1971` &lt;dbl&gt;, `1972` &lt;dbl&gt;,
+#   `1973` &lt;dbl&gt;, `1974` &lt;dbl&gt;, `1975` &lt;dbl&gt;, `1976` &lt;dbl&gt;, `1977` &lt;dbl&gt;,
+#   `1978` &lt;dbl&gt;, `1979` &lt;dbl&gt;, `1980` &lt;dbl&gt;, `1981` &lt;dbl&gt;, `1982` &lt;dbl&gt;,
+#   `1983` &lt;dbl&gt;, `1984` &lt;dbl&gt;, `1985` &lt;dbl&gt;, `1986` &lt;dbl&gt;, `1987` &lt;dbl&gt;,
+#   `1988` &lt;dbl&gt;, `1989` &lt;dbl&gt;, `1990` &lt;dbl&gt;, `1991` &lt;dbl&gt;, `1992` &lt;dbl&gt;,
+#   `1993` &lt;dbl&gt;, `1994` &lt;dbl&gt;, `1995` &lt;dbl&gt;, `1996` &lt;dbl&gt;, `1997` &lt;dbl&gt;,
+#   `1998` &lt;dbl&gt;, `1999` &lt;dbl&gt;, `2000` &lt;dbl&gt;, `2001` &lt;dbl&gt;, `2002` &lt;dbl&gt;,
+#   `2003` &lt;dbl&gt;, `2004` &lt;dbl&gt;, `2005` &lt;dbl&gt;, `2006` &lt;dbl&gt;, `2007` &lt;dbl&gt;,
+#   `2008` &lt;dbl&gt;, `2009` &lt;dbl&gt;, `2010` &lt;dbl&gt;, `2011` &lt;dbl&gt;, `2012` &lt;dbl&gt;,
+#   `2013` &lt;dbl&gt;, `2014` &lt;dbl&gt;, `2015` &lt;dbl&gt;
+```
+.small[Quelle: [GapMinder](https://www.gapminder.org/data/)]
+
+---
+
+## Ist dieser Datensatz `tidy`?
+
+- Hier bekommen wir alle von uns gewünschten Werte über die Geburtenrate
+
+**Ein Blick auf die ersten 5 Spalten:**
+
+
+```r
+select(geburtenrate, country, "1950":"1954")
+```
+
+```
+# A tibble: 2 x 6
+  country     `1950` `1951` `1952` `1953` `1954`
+  &lt;chr&gt;        &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Germany       2.07   2.08   2.11   2.14   2.17
+2 South Korea   4.02   4.33   4.89   5.35   5.73
+```
+
+--
+- _Allerdings:_ Der Datensatz ist im `wide`-Format
+    - Jede Reihe beinhaltet mehrere Beobachtungen
+    - Die Variable ist in der Kopfzeile definiert
+
+`\(\rightarrow\)` Daten sind **nicht** tidy
+
+---
+
+class: center, middle, inverse
+
+# Reshaping
+
+---
+
+## Datenformat anpassen
+
+- Daten eingelesen ✅
+
+**To do:**
+- Daten in ein geeignetes Format zur Analyse überführen
+
+`\(\rightarrow\)`  Hier helfen uns die Funktionen des `tidyr` Pakets
+- `pivot_longer` und `separate`
+    
+---
+
+## `pivot_longer()`
+
+- Mit `pivot_longer` können Daten aus dem `wide`-Format in das `long`-Format überführt werden
+
+Allgemeiner Befehl: 
+
+`pivot_longer( names_to = Daten, values_to = Spaltenvariable, cols =  Beobachtungsvariable)`
+
+
+```r
+tidy_data &lt;- geburtenrate %&gt;%
+  pivot_longer(names_to = "jahr", values_to = "geburtenrate", 
+               cols = c("1950":"2015")) 
+```
+--
+
+- cols: Welche Spalten sollen zusammengefasst werden?
+- names_to: Wie soll die neue, zusammengefasste Spalte heißen?
+- values_to: Wo sollen die Werte, welche aktuell in den Spalten stehen abgespeichert werden?
+
+---
+
+## `pivot_longer()`
+
+Alternativ können Sie auch die Spalte spezifizieren, welche **nicht** zusammengefasst werden sollen:
+
+
+```r
+tidy_data &lt;- geburtenrate %&gt;%
+  pivot_longer(names_to = "jahr", 
+               values_to = "geburtenrate", -country)
+```
+
+--
+
+Der neu erzeugte Data Frame ist _tidy_:
+
+
+```r
+head(tidy_data,4)
+```
+
+```
+# A tibble: 4 x 3
+  country jahr  geburtenrate
+  &lt;chr&gt;   &lt;chr&gt;        &lt;dbl&gt;
+1 Germany 1950          2.07
+2 Germany 1951          2.08
+3 Germany 1952          2.11
+4 Germany 1953          2.14
+```
+
+---
+
+## `pivot_longer()`
+
+Problem:
+
+- Die Daten in der Spalte `jahr` sind nicht nummerisch
+  - `pivot_longer` geht davon aus, dass Spaltennamen immer aus Buchstaben bestehen
+
+```r
+class(tidy_data$jahr)
+```
+
+```
+[1] "character"
+```
+
+--
+
+- Können Sie durch ein zusätzliches `mutate` lösen:
+
+
+```r
+tidy_data &lt;- geburtenrate %&gt;%
+  pivot_longer(names_to = "jahr", 
+               values_to = "geburtenrate", -country) %&gt;%
+  mutate( jahr = as.numeric(jahr))
+
+class(tidy_data$jahr)
+```
+
+```
+[1] "numeric"
+```
+
+---
+
+## `pivot_longer()`
+
+Wollen Sie nun die Datenreihen grafisch darstellen ist dies einfach möglich:
+
+
+```r
+tidy_data %&gt;% 
+  ggplot(aes(jahr, geburtenrate, color = country)) +
+  geom_point()
+```
+
+&lt;img src="reshape-data_files/figure-html/unnamed-chunk-9-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## `pivot_longer()`
+
+&lt;center&gt;
+&lt;a href="https://raw.githubusercontent.com/apreshill/teachthat/master/pivot/pivot_longer_smaller.gif"&gt;
+&lt;img src="../figs/pivot_longer_smaller.gif" style = "width: 700px;"/&gt;
+&lt;/a&gt;
+&lt;/center&gt;
+
+.center[
+.small[Quelle: [Erstellt von Apres Hill](https://github.com/apreshill/teachthat/blob/master/pivot/pivot_longer_smaller.gif)]
+]
+
+---
+
+## Die `pivot_wider` Funktion
+
+- `pivot_wider` ist das Pendant zu `pivot_longer`
+- Manchmal ist es wichtig Datensätze in das `wide` Format zu konvertieren
+  - Wird oft als Zwischenschritt gemacht
+
+
+```r
+wide_data_neu &lt;- tidy_data %&gt;% 
+* pivot_wider(names_from = jahr, values_from = geburtenrate)
+
+wide_data_neu %&gt;%
+  select(country, "1950":"1954")
+```
+
+```
+# A tibble: 2 x 6
+  country     `1950` `1951` `1952` `1953` `1954`
+  &lt;chr&gt;        &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 Germany       2.07   2.08   2.11   2.14   2.17
+2 South Korea   4.02   4.33   4.89   5.35   5.73
+```
+
+--
+- names_from: Welche Variable soll als Spaltenname fungieren soll?
+- values_from: Welche Variable soll die Beobachtungen liefern?
+
+
+---
+
+## `pivot_longer()`
+
+Wenn Sie mehre Variablen im Datensatz haben, funktioniert `pivot_longer` nicht mehr:
+
+
+```r
+#Erste fünf Spalten zeigen
+select(leben_und_geburt, 1:5)
+```
+
+```
+# A tibble: 8 x 5
+  country  `1950_life_expec… `1951_life_expec… `1952_life_expe… `1953_life_expe…
+  &lt;chr&gt;    &lt;chr&gt;             &lt;chr&gt;             &lt;chr&gt;            &lt;chr&gt;           
+1 Brazil   50.33             50.59             51.1             51.62           
+2 Canada   68.26             68.53             68.72            69.1            
+3 China    41.04             41.98             42.91            43.85           
+4 Germany  66.91             67.08             67.4             67.7            
+5 India    34.77             35.1              35.76            36.44           
+6 South K… 43.02             40.52             40.02            45.02           
+7 Russia   57.27             57.76             58.16            58.96           
+8 South A… 43.53             43.92             44.67            45.37           
+```
+
+---
+
+## `pivot_longer()`
+
+- Hier ist es nicht mehr möglich den Datensatz nur nach einer Variablen umzustellen
+- Jedoch können Sie eine Platzhaltervariable für den Namen der Variablen einführen (`name`)
+- Weiterhin können Sie sich eine Platzhaltervariable für den `Wert` der Variablen definieren
+
+--
+
+
+```r
+daten &lt;- leben_und_geburt %&gt;% 
+  # man beachte die "" um "name" und "Wert"
+* pivot_longer(names_to = "name", values_to = "Wert", -country)
+
+head(daten,4) # für die ersten 4 Zeilen
+```
+
+```
+# A tibble: 4 x 3
+  country name                 Wert 
+  &lt;chr&gt;   &lt;chr&gt;                &lt;chr&gt;
+1 Brazil  1950_life_expectancy 50.33
+2 Brazil  1951_life_expectancy 50.59
+3 Brazil  1952_life_expectancy 51.1 
+4 Brazil  1953_life_expectancy 51.62
+```
+
+---
+
+## `separate()`
+
+- Beide Variablen sind nun in `name` gespeichert
+- Das jeweilige Jahr sollte in einer separaten Variable gespeichert sein
+  - Kann durch den Unterstrich "_" getrennt werden
+- `separate` schafft Abhilfe: 
+    - Spaltenname welche getrennt werden soll, 
+    - Spaltenname der neuen Spalte und 
+    - das Zeichen, nach dem getrennt werden soll
+
+
+```r
+daten %&gt;% separate(name, c("jahr", "variablen_name"), "_") %&gt;%
+  head(2)
+```
+
+```
+# A tibble: 2 x 4
+  country jahr  variablen_name Wert 
+  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;
+1 Brazil  1950  life           50.33
+2 Brazil  1951  life           50.59
+```
+
+---
+
+## `separate()`
+
+- **Problem:** `life_expectancy` wird auch durch "_" getrennt
+- _Lösung:_ Wenn eine zusätzliche Trennung beim Variablennamen vorliegt können Sie diese als letztes getrennten Worte durch `merge` wieder zusammenführen
+
+
+
+```r
+daten %&gt;% 
+  separate(name, c("jahr", "variablen_name"), sep = "_", extra = "merge") %&gt;%
+  head()
+```
+
+```
+# A tibble: 6 x 4
+  country jahr  variablen_name  Wert 
+  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;           &lt;chr&gt;
+1 Brazil  1950  life_expectancy 50.33
+2 Brazil  1951  life_expectancy 50.59
+3 Brazil  1952  life_expectancy 51.1 
+4 Brazil  1953  life_expectancy 51.62
+5 Brazil  1954  life_expectancy 52.14
+6 Brazil  1955  life_expectancy 52.66
+```
+
+---
+
+## `separate()`
+
+- Wir wollen jedoch zwei Spalten mit den Variablennamen anstatt die Variablen in Reihen 
+  - Nutzen der zuvor gelernten `pivot_wider` Funktion
+- Weiterhin sollten die Variablen `life_expectancy` und `fertility` nummerisch sein und keine Zeichenketten
+
+
+```r
+tidy_data_extended &lt;- daten %&gt;% 
+  separate(name, c("jahr", "variablen_name"), 
+           sep = "_", extra = "merge", convert=TRUE) %&gt;%
+  pivot_wider(names_from = variablen_name, values_from =  Wert) %&gt;%
+  mutate( life_expectancy = as.numeric(life_expectancy),
+          fertility = as.numeric(fertility))
+
+head(tidy_data_extended,3)
+```
+
+```
+# A tibble: 3 x 4
+  country  jahr life_expectancy fertility
+  &lt;chr&gt;   &lt;int&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+1 Brazil   1950            50.3      6.18
+2 Brazil   1951            50.6      6.17
+3 Brazil   1952            51.1      6.15
+```
+
+```r
+saveRDS(tidy_data_extended, file= "data/gapminder_life.rds")
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

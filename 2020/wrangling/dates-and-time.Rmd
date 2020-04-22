@@ -1,0 +1,147 @@
+---
+title: "Datum und Uhrzeit in R"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+      self_contained: true
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(here)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+
+gif_link <- function(link, file, size){
+    knitr::asis_output(
+      paste0('<center>\n<a href="',
+             link,
+             '">\n<img src="',
+             file,
+             '" style = "width: ',
+             size,
+             'px;"/>\n</a>\n</center>'
+      ))
+}
+```
+
+
+## Datum und Uhrzeit in R
+
+Damit R mit Datum und Uhrzeit richtig umgehen kann werden Strings wie `15. Januar 2009` intern in eine Zahl umgewandelt.
+
+- Hierbei wird ein sogenannter Referenztag angelegt (_epoch_), von welchem aus alle Tage berechnet werden
+- In R ist der Referenztag der `1. Januar 1970`
+- Intern wird dadurch der `15. Januar 2009` als 14259 abgespeichert
+- Wie bei Faktorvariablen erscheint ein Datum als String-Variable
+  - Jedoch: Bei der Ausgabe des Datentyps erkennen wir, dass es sich um ein Datum handelt
+
+```{r}
+library(lubridate)
+x <- dmy("15. Januar 2009")
+class(x) # welcher Objekttyp ist hier enthalten
+as.numeric(x) # Von R intern verwendet
+```
+
+---
+
+## Datum und Uhrzeit in R
+
+- `ggplot2` beachtet den Datentyp und kann Datumsformate richtig wiedergeben
+- Mit dem Paket `lubridate` können Sie in R effizient mit dem Datumsformat arbeiten
+- Sie können mit lubridate den Tag, Monat und Jahr einzeln aus einem Datum extrahieren
+
+```{r}
+dates <- c("2010-03-05", "2012-03-09", "2006-01-04",
+       "2002-12-12")
+dates2 <- ymd(dates) # Umwandeln in Datum
+data.frame(Datum = dates2, 
+           Monat = month(dates2),
+           Tag = day(dates2),
+           Jahr = year(dates2))
+```
+
+---
+
+## Datum und Uhrzeit in R 
+
+
+Eine weitere wichtige Funktion um Strings ins Datumsformat zu konvertieren sind die _Parser_
+
+  - Hier ein etwas ausführlicheres Beispiel zu den Möglichkeiten eines _Parsers_ in `lubridate`:
+
+```{r}
+x <- c(20030101, "Geschrieben am 2007 2 9", "2005/01/02", 
+       20090103, "201004 ... 07", "2007-1-14",
+       "2003-1, 5")
+ymd(x)
+```
+
+---
+
+## Datum und Uhrzeit in R 
+
+Problematisch: Wenn das Datum _nicht_ im Format "Jahr, Monat, Tag" vorhanden ist, sondern bspw. in "Monat, Tag, Jahr"
+
+Hierfür bietet `lubridate` alle möglichen Kombinationen von `ymd` als Parser an: 
+- Bspw. `mdy` oder `dmy`
+
+---
+
+## Datum und Uhrzeit in R
+
+.question[Angenommen Sie haben heute mittag um 14:00 Uhr Ortszeit einen Flug nach New York. Die Flugzeit beträgt 9h. Zu welcher Uhrzeit landen Sie in New York (Ortszeit) und wie viel Uhr ist es dann in Frankfurt?]
+
+--
+
+Sie können mit `lubridate` neben dem Tag auch die Uhrzeit auslesen indem Sie `hms` an den Datumsparser anhängen und zusätzlich alle Zeitzonen einpflegen mit den `OlsonNames()`:
+
+--
+
+```{r}
+start <- dmy_hms("6. Mai 2019 14:00:00", tz = "Europe/Berlin")
+```
+
+--
+
+```{r}
+start <- dmy_hms("6. Mai 2019 14:00:00", tz = "Europe/Berlin")
+ankunft <- start + hours(9)
+
+ankunft_ortszeit <- with_tz(ankunft, tz = "America/New_York")
+
+ankunft_ortszeit
+```
+

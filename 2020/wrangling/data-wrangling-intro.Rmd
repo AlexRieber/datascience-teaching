@@ -1,0 +1,471 @@
+---
+title: "Die Datenaufbereitung mit dplyr"
+#author: 'Dr. Alexander Rieber<br> <a href="https://github.com/AlexRieber"><i class="fa fa-github fa-fw"></i>&nbsp; AlexRieber</a><br> <a href="mailto:alexander.rieber@uni-ulm.de"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; alexander.rieber@uni-ulm.de</a><br>'
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+      beforeInit: "https://platform.twitter.com/widgets.js"
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(here)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+
+gif_link <- function(link, file, size){
+    knitr::asis_output(
+      paste0('<center>\n<a href="',
+             link,
+             '">\n<img src="',
+             file,
+             '" style = "width: ',
+             size,
+             'px;"/>\n</a>\n</center>'
+      ))
+}
+```
+
+layout: false
+class: center, middle
+name: wrangling
+
+# Data Wrangling
+
+`r gif_link("https://dplyr.tidyverse.org", "../figs/dplyr.png", 400)`
+
+---
+
+## Das `dplyr` Paket
+
+Mit `dyplr` haben wir innerhalb des `tidyverse` Funktionalitäten an der Hand, mit denen wir Datensätze in R bearbeiten können:
+
+  - Kombination mehrere Operationen durch die _Pipe_: `%>%`
+  - Datensätze verändern (z.B. neue Spalte) mit `mutate`
+  - Datensätze nach bestimmten Variablen sortieren mit `arrange`
+  - Einzelne Reihen herausfiltern mit `filter`
+  - Einzelne Spalten herauspicken mit `select`
+
+Wir konzentrieren uns wieder auf die heruntergeladenen `gapminder` Daten, welche wir bereits in R importiert und in das richtige Format gebracht haben (`tidy`). 
+
+Hier nutzen wir den Datensatz `tidy_data_extended` und laden diesen als `gapminder`:
+
+```{r "Datensätze"}
+gapminder <- readRDS("data/gapminder_life.rds")
+```
+
+---
+
+## Base R versus `tidyverse`
+
+- Durchschnittliche Lebenserwartung weltweit im Jahr 1952 in unserem Datensatz:
+
+--
+
+.pull-left[
+**Base R**
+
+.small[
+```{r, size="small"}
+avg_1952 <- gapminder[gapminder$jahr == 1952, ]
+mean(avg_1952$life_expectancy)
+```
+]
+]
+
+.pull-right[
+
+**Tidyverse**
+
+.small[
+```{r}
+library(dplyr)
+gapminder %>% 
+  filter( jahr == 1952 ) %>%
+  summarize(avg_lifeExp_1952 = mean(life_expectancy)) %>% 
+  pull()
+```
+]
+]
+
+---
+
+## Die Pipe `%>%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+```{r, eval=FALSE}
+gapminder %>% 
+  filter( jahr == 1952 ) %>%
+  summarize(avg_lifeExp_1952 = mean(life_expectancy))
+```
+
+---
+
+## Die Pipe `%>%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+```{r, eval=FALSE}
+gapminder %>% # Zuerst der Datensatz und dann ... #<<
+  filter( jahr == 1952 ) %>%
+  summarize(avg_lifeExp_1952 = mean(life_expectancy))
+```
+
+---
+
+## Die Pipe `%>%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+```{r, eval=FALSE}
+gapminder %>% # Zuerst der Datensatz und dann ... #<<
+  filter( jahr == 1952 ) %>% # nur das Jahr 1952 und dann ... #<<
+  summarize(avg_lifeExp_1952 = mean(life_expectancy))
+```
+
+---
+
+## Die Pipe `%>%`
+
+Sie können eine Serie von Befehlen miteinander verknüpfen:
+
+```{r, eval=FALSE}
+gapminder %>% # Zuerst der Datensatz und dann ... #<<
+  filter( jahr == 1952 ) %>% # nur das Jahr 1952 und dann ... #<<
+  summarize(avg_lifeExp_1952 = mean(life_expectancy)) # die durchschnittliche Lebenserwartung berechnen #<<
+```
+
+```{r, echo=FALSE}
+gapminder %>% 
+  filter( jahr == 1952 ) %>%
+  summarize(avg_lifeExp_1952 = mean(life_expectancy))
+```
+
+---
+
+## Die sieben wichtigsten Befehle für das data wrangling
+
+- `mutate()`
+- `select()`
+- `filter()`
+- `summarize()`
+- `group_by()`
+- `arrange()`
+- `lead()` und `lag()`
+
+---
+
+## `mutate()`
+
+- Mittels `mutate()` können Sie:
+    - <font color="green">eine neue Variable mit einem bestimmten Wert generieren</font> ODER
+    - eine neue Variable auf der Basis anderer Variablen generieren ODER
+    - den Inhalt einer bestehenden Variablen verändern
+
+--
+
+```{r}
+gapminder_new <- gapminder %>% 
+  mutate(eins = 1) #<<
+
+head(gapminder_new, 4)
+```
+
+---
+
+## `mutate()`
+
+- Mittels `mutate()` können Sie:
+    - eine neue Variable mit einem bestimmten Wert generieren ODER
+    - <font color="green">eine neue Variable auf der Basis anderer Variablen generieren</font> ODER
+    - den Inhalt einer bestehenden Variablen verändern
+
+--
+
+```{r}
+gapminder_new <- gapminder %>% 
+  mutate( life_fertility = life_expectancy * fertility ) #<<
+
+head(gapminder_new, 4)
+```
+
+---
+
+## `mutate()`
+
+- Mittels `mutate()` können Sie:
+    - eine neue Variable mit einem bestimmten Wert generieren ODER
+    - eine neue Variable auf der Basis anderer Variablen generieren ODER
+    - <font color="green">den Inhalt einer bestehenden Variablen verändern</font>
+
+--
+
+```{r}
+gapminder_new <- gapminder %>% 
+  mutate( life_expectancy = life_expectancy + 5 ) #<<
+
+head(gapminder_new, 4)
+```
+
+---
+
+## `select()`
+
+Mittels `select()` können Sie:
+
+- <font color="green">einzelne Variablen aus dem Datensatz selektieren</font> ODER
+- einzelne Variablen aus dem Datensatz entfernen
+
+--
+
+```{r}
+gapminder_select <- gapminder %>% 
+  select(country, jahr, fertility) #<<
+
+head(gapminder_select, 4)
+```
+
+---
+
+## `select()`
+
+Mittels `select()` können Sie:
+
+- einzelne Variablen aus dem Datensatz selektieren ODER
+- <font color="green">einzelne Variablen aus dem Datensatz entfernen</font>
+
+--
+
+```{r, eval=FALSE}
+gapminder_select2 <- gapminder %>% 
+  select(`-`c(country, fertility)) #<<
+
+head(gapminder_select2, 4)
+```
+
+```{r, echo=FALSE}
+gapminder_select2 <- gapminder %>% 
+  select(-c(country, fertility)) #<<
+
+head(gapminder_select2, 4)
+```
+
+---
+
+## `filter()`
+
+Wenn Sie nur die Jahre 2000 und größer betrachten möchten nutzen Sie `filter()`:
+
+```{r}
+gapminder_filter <- gapminder %>%
+  filter(jahr >= 2000) #<<
+
+head(gapminder_filter,4)
+```
+
+--
+
+- Mit relationalen Operatoren (bspw. `>=`) können Sie genau spezifizieren, welche Reihen sie herausfiltern möchten.
+
+---
+
+## Relationale Operatoren mit `filter()`
+
+Mit `|` können Sie prüfen, ob _einer_ der Filter wahr ist:
+
+--
+
+```{r, eval=FALSE}
+gapminder %>%
+  filter(jahr >= 2000 `|` country == "Germany") %>%
+  head(4)
+```
+
+```{r, echo=FALSE}
+gapminder %>%
+  filter(jahr >= 2000 | country == "Germany") %>%
+  head(4)
+```
+
+---
+
+## Relationale Operatoren mit `filter()`
+
+Mit `,` können Sie prüfen, ob _alle_ Filter wahr sind:
+
+--
+
+```{r, eval=FALSE}
+gapminder %>%
+  filter(jahr >= 2000 `,` country == "Germany") %>%
+  head(4)
+```
+
+```{r, echo=FALSE}
+gapminder %>%
+  filter(jahr >= 2000 , country == "Germany") %>%
+  head(4)
+```
+
+
+---
+
+## `summarize()`
+
+- `summarize` und `summarise` sind Synonyme und führen beide zum gleichen Ergebnis
+- Berechnung von Zusammenfassungen, z.B. die durchschnittliche Lebenserwartung über alle Länder und Jahre hinweg:
+
+--
+
+```{r}
+lifeExp.avg <- gapminder %>% 
+  summarize(durchschnitt = mean(life_expectancy), #<<
+            abweichung = sd(life_expectancy)) #<<
+
+lifeExp.avg
+```
+
+---
+
+## `summarize()` mit `group_by` kombinieren
+
+Das gleiche Ergebnis für verschiedene Untergruppen erstellen mit `group_by()`:
+
+--
+
+```{r, eval=FALSE}
+gapminder %>% 
+  group_by( country ) %>% #<<
+  summarize(durchschnitt = mean(life_expectancy),
+            abweichung = sd(life_expectancy))
+```
+
+--
+
+Vergessen Sie nicht danach wieder `ungroup()` zu verwenden!
+
+--
+
+```{r}
+grouped_gap <- gapminder %>% 
+  group_by( country ) %>% #<<
+  summarize(durchschnitt = mean(life_expectancy),
+            abweichung = sd(life_expectancy)) %>%
+  ungroup() #<<
+
+head(grouped_gap, 3)
+```
+
+---
+
+## `summarize()` 
+
+Daten werden durch `summarize()` als `data.frame` abgespeichert. 
+
+Zahl als `double` extrahieren:
+
+```{r}
+lifeExp.avg %>% 
+  pull(durchschnitt) #<<
+```
+
+---
+
+## `arrange()`
+
+Ordnet den Datensatz nach einer Variablen
+  - Effizienter als der `order` Befehl aus Base R
+  - **Default:** Aufsteigende Sortierung
+  - Möglichkeit: Absteigende Sortierung mit `arrange(desc(fertility))`
+
+--
+
+```{r}
+gapminder %>% 
+  filter( jahr == 1952 ) %>%
+  arrange( desc(fertility) ) %>% #<<
+  head(4)
+```
+
+---
+
+## `arrange()`
+
+`arrange()` bietet die Möglichkeit einer verschachtelten Sortierung:
+
+- Zuerst wird nach einer bestimmten Variable sortiert
+- Anschließend sortieren wir innerhalb dieser Variable auf eine weitere Variable
+
+.instructions[Sortieren Sie erst nach `life_expectancy` und anschließend nach `fertility`]
+
+--
+
+```{r}
+gapminder %>% 
+  filter( jahr == 1952 ) %>%
+  arrange( desc( life_expectancy, fertility) ) %>% #<<
+  head(4)
+```
+
+---
+
+## `lead()` und `lag()`
+
+- `lead()` liest den vorausgehende Werte einer Variablen aus
+- `lag()` liest den darauffolgenden Werte einer Variablen aus
+- Insbesondere bei der Arbeit mit Zeitreihendaten wichtig
+  - Kann gut mit `group_by` kombiniert werden
+--
+
+```{r, eval=FALSE}
+gapminder %>% 
+  arrange( country, jahr ) %>%
+  mutate(lag_fertility = lag(fertility), #<<
+         lead_fertility = lead(fertility)) %>% #<<
+  select(country, jahr, fertility, lag_fertility, lead_fertility) %>% 
+  head(4)
+```
+
+--
+
+```{r, echo=FALSE}
+gapminder %>% 
+  arrange( country, jahr ) %>%
+  mutate(lag_fertility = lag(fertility), 
+         lead_fertility = lead(fertility)) %>% 
+  select(country, jahr, fertility, lag_fertility, lead_fertility) %>% 
+  head(4)
+```
