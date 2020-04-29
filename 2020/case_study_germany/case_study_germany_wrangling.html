@@ -3283,7 +3283,8 @@ div.tocify {
 <span id="cb20-5"><a href="#cb20-5"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Schulden_gesamt =</span> <span class="kw">as.numeric</span>(Schulden_gesamt),</span>
 <span id="cb20-6"><a href="#cb20-6"></a>         <span class="dt">Einwohner =</span> <span class="kw">as.numeric</span>(Einwohner),</span>
 <span id="cb20-7"><a href="#cb20-7"></a>         <span class="dt">Schulden_pro_kopf =</span> <span class="kw">as.numeric</span>(Schulden_pro_kopf)) <span class="op">%&gt;%</span></span>
-<span id="cb20-8"><a href="#cb20-8"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">landkreis =</span> <span class="kw">str_extract</span>(Regionalschluessel, <span class="st">&quot;^.{5}&quot;</span>))</span></code></pre></div>
+<span id="cb20-8"><a href="#cb20-8"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">landkreis =</span> <span class="kw">str_extract</span>(Regionalschluessel, <span class="st">&quot;^.{5}&quot;</span>),</span>
+<span id="cb20-9"><a href="#cb20-9"></a>         <span class="dt">landkreis =</span> <span class="kw">ifelse</span>(landkreis <span class="op">==</span><span class="st"> &quot;10575&quot;</span>, <span class="st">&quot;01057&quot;</span>, landkreis)) <span class="co">#bei der Gemeinde Selent wurde in der Excel Tabelle die &quot;0&quot; vergessen, dies wird hier behoben</span></span></code></pre></div>
 <p>Es wurden immer noch einige <code>NA</code>s erzeugt. Diese wollen wir uns noch näher anschauen:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">filter</span>(schulden_bereinigt, <span class="kw">is.na</span>(Einwohner))</span></code></pre></div>
 <div data-pagedtable="false">

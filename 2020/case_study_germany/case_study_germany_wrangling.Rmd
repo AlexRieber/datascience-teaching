@@ -5,7 +5,7 @@ mail: "alexander.rieber@uni-ulm.de"
 #github: "AlexRieber"
 logo: "../figs/dplyr.png"
 output: 
-#  pdf_document: default
+  pdf_document: default
   epuRate::epurate:
     toc: TRUE
     number_sections: FALSE
@@ -348,7 +348,8 @@ schulden_bereinigt <- schulden_individuell %>%
   mutate(Schulden_gesamt = as.numeric(Schulden_gesamt),
          Einwohner = as.numeric(Einwohner),
          Schulden_pro_kopf = as.numeric(Schulden_pro_kopf)) %>%
-  mutate(landkreis = str_extract(Regionalschluessel, "^.{5}"))
+  mutate(landkreis = str_extract(Regionalschluessel, "^.{5}"),
+         landkreis = ifelse(landkreis == "10575", "01057", landkreis)) #bei der Gemeinde Selent wurde in der Excel Tabelle die "0" vergessen, dies wird hier behoben
 
 ```
 
