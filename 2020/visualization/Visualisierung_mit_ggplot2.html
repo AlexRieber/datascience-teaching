@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Datenvisualisierung</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Datenvisualisierung
+
+---
+
+
+
+
+
+# Roslings Bubble Chart
+
+&lt;iframe width="800" height="450" src="https://www.youtube.com/embed/Z8t4k0Q8e8Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;
+
+.small[Quelle: Hans Rosling auf Youtube: https://youtu.be/Z8t4k0Q8e8Y]
+
+
+
+---
+
+## Roslings Bubble Chart
+
+
+
+![Hans Roslings Bubble Chart](../figs/rosling.gif)
+
+---
+
+## Einführung in ggplot2
+
+- Grafiken nutzen zur Veranschaulichung von Sachverhalten
+- Explorative Datenanalyse um die Daten kennen zu lernen
+    - wird häufig vernachlässigt
+    - Fehler oder unerwartete Probleme können häufig durch eingehende visuelle Datenanalyse vermieden werden
+- Nutzen des Pakets [`ggplot2`](http://ggplot2.org) und `dplyr`
+- Das [Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) zu ggplot2
+  - Ein deutsches [Cheat Sheet](https://www.rstudio.com/wp-content/uploads/2015/06/ggplot2-german.pdf)
+
+---
+
+## Komponenten in ggplot2
+
+- **Daten**: In unserem Beispiel bisher immer der `Datensatz` Datensatz 
+- **Geometry**: Verschiedene Arten von Grafiken, z.B. Streudiagramm, Boxplot, Histogramm, Kerndichteschätzung
+- **Aesthetic**: Definieren was die x-Achse und was die y-Achse zeigen soll. Weiterhin können wir Farben und Formen unserer Grafik bestimmen, alles abhängig von der **Geometry**, welche wir wählen
+- **scale**: Definieren wie die Skalierung unserer x-Achse und y-Achse sein soll (eventuell logarithmisch?)
+
+Mittels der nächsten Folien wollen wir eine Grafik Schritt für Schritt erzeugen
+
+---
+
+## Generierung eines leeren `ggplot` Objekts
+
+
+Zuerst generieren wir uns ein leeres `ggplot` Objekt, in welchem wir definieren, welche Daten wir zeigen wollen.
+
+- Dadurch erhalten wir eine graue Box, welche von ggplot gerendet wurde
+
+
+```r
+Datensatz &lt;- readRDS("data/Gapminder_1800-2020.rds")
+ggplot(data = Datensatz)
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/ggplot-example-1-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Layer
+
+In diese graue Box können wir nun eine Grafik einbetten
+
+Es gibt verschiedene Layer (Grafikarten) die wir verwenden können (hier einige Beispiele):
+
+  - geom_bar, geom_point, geom_line, geom_smooth, geom_histogram, geom_boxpolot, geom_density
+
+Um einen Layer hinzuzufügen nutzen wir das `+` Symbol.
+Code könnte entsprechend so aussehen:
+
+
+&gt;&gt; DATENSATZ %&gt;% `ggplot()` + LAYER 1 + LAYER 2 + ...
+
+---
+
+## Layer
+
+
+Angenommen Sie wollen ein Streudiagramm erzeugen, dann können Sie schauen, welcher Layer dafür geeignet ist. Das Cheat Sheet sagt uns, dass `geom_point` dafür geeignet ist.
+
+Anschließend sollten Sie wissen, wie viele Argumente ihre Grafik benötigt um dargestellt werden zu können:
+
+  - Gehen Sie zu der Hilfeseite von `?geom_point` und scrollen Sie zu der Überschrift `Aesthetics` um mehr darüber zu erfahren
+  - Ein Streudiagramm benötigt mindestens zwei Argumente `x` und `y`
+
+---
+
+## Die Aesthetics Funktion `aes`
+ 
+Mittels der Funktion `aes` kann anschließend die Grafik auf Grundlage der Daten erstellt werden
+- `aes` wird oft als Argument einer Geometry Funktion verwendet
+
+Beispiel für ein Streudiagramm mit Einkommen und Lebenserwartung für das Jahr 1800: 
+
+
+```r
+Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung))
+```
+
+- `x =` und `y =` können wir hier auch weg lassen
+  - Die ersten zwei Argumente werden von ggplot automatisch als `x` und `y` aufgefasst
+- Skalierung und Benennung erfolgen automatisch, wenn nicht anders spezifiziert
+
+---
+
+## Die Aesthetics Funktion `aes`
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-4-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Zusätzliche Layer 
+
+In manchen Fällen möchten wir gerne einen zusätzlichen Layer in unsere Grafik einfügen.
+Beispielsweise wollen wir jedem Datenpunkt ein Label geben, welches genau beziffert um welchen Wert es sich handelt.
+
+- Möglich mit `geom_label` and `geom_text`
+- Durch den `label` Befehl in `aes` können wir dies umsetzen
+- **Beachten:** Das `label` Argument muss innerhalb von `aes` aufgerufen werden, ansonsten bekommen Sie einen Fehler
+
+Ein Beispiel auf der nächsten Folie
+
+
+```r
+library(ggthemes)
+library(ggrepel)
+Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  ggplot() + 
+  geom_point(aes(Einkommen, Lebenserwartung)) +
+  geom_text(aes(Einkommen, Lebenserwartung, label=country))
+```
+
+---
+
+## Zusätzliche Layer
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Weitere Argumente
+
+
+- Jede Geometry Funktion hat ihre individuellen Argumente neben `aes` und `data`
+- Beispielsweise kann über `size` die Größe der Punkte im Streudiagramm verändert werden
+
+
+```r
+Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  ggplot() +
+  geom_point(aes(Einkommen, Lebenserwartung), size = 3) +
+  geom_text(aes(Einkommen, Lebenserwartung, label=country))
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-7-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Weitere Argumente
+
+- `size` betrifft hier alle Punkte im Streudiagramm und ist nicht in der `aes` enthalten
+- Sie können `size` jedoch auch auf der Basis einer anderen Variable definieren, z.B. der Bevölkerungszahl
+- Nun muss die Definition von `size` jedoch innerhalb der `aes` erfolgen, da auf den Datensatz zurückgegriffen werden soll
+
+
+```r
+Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  ggplot() +
+  geom_point(aes(Einkommen, Lebenserwartung, size = Bevoelkerung)) +
+  geom_text(aes(Einkommen, Lebenserwartung, label=country))
+```
+
+---
+
+## Weitere Argumente
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-9-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Weitere Argumente
+
+- Leider können wir durch größere Punkte die Labels nicht mehr lesen
+- Aus der Hilfeseite von `?geom_text` erfahren wir, wie die Labels verändert werden können:
+  - Durch `nudge_x` können die Labels etwas nach rechts abgesetzt werden
+  - Durch `nudge_y` können die Labels etwas nach oben abgesetzt werden
+
+---
+
+## Weitere Argumente
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-10-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Globale `aes` Abbildungen
+
+- Im vorherigen Beispiel hatten wir `aes(Einkommen, Lebenserwartung)` doppelt verwendet
+- Wir können statt dessen auch eine _globale_ aesthetic Abbildung erstellen
+- Dies wird erreicht, indem wir als erstes eine _Grafikvorlage_ erstellen und uns eine _globale_ `aes` definieren
+
+Wir speichern unsere _Grafikvorlage_ in `p`:
+
+.small[
+
+```r
+p &lt;- Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  ggplot(aes(x = Einkommen, y = Lebenserwartung, label = country, size = Bevoelkerung))
+```
+]
+
+---
+
+## Globale `aes` Abbildungen
+
+Anschließend verändern wir unser Vorlage `p` wie wir es wünschen
+- Hier verändern wir nur die Größe der Punkte und Position der Labels
+
+
+```r
+p + geom_point() + 
+  geom_text(nudge_y = 2)
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Lokale `aes` überschreiben globale `aes`
+
+- Wir können diese _globalen_ Abbildungen durch _lokale_ überschreiben
+- Beispielsweise können wir den Text _Die Menschen damals wurden nicht alt!_ auf Höhe der x-Achse bei 1500 und der y-Achse bei 50 platzieren:
+
+
+```r
+p + geom_point(size = 3) +   
+  geom_text(aes(x = 1500, y = 46, 
+  label = "Die Menschen damals wurden nicht alt!"))
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-13-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Skalierung
+
+- Falls eine andere Skalierung gewünscht wird
+  - durch `scale_x_continous` verändern wir die x-Achse
+  - durch `scale_y_continous` verändern wir die y-Achse
+  - durch `scale_x_log10()` verändern wir die x-Achse zu logarithmierter Skala
+  - durch `scale_y_log10()` verändern wir die y-Achse zu logarithmierter Skala
+
+---
+
+## Skalierung
+
+
+```r
+p + geom_point() +  
+  geom_text(nudge_y = 0.1) + 
+  scale_x_log10()
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Titel und Label
+
+- Titel oder Label können wir durch `ggtitle` bzw. `xlab`, `ylab` verändern:
+
+
+```r
+p + geom_point() +  
+  geom_text(nudge_y = 2) +
+  scale_x_log10() +
+  xlab("Einkommen") + 
+  ylab("Lebenserwartung") +
+  ggtitle("Roslings Bubble Chart für das Jahr 1800")
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-15-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Farben
+
+- Durch das Argument `col` innerhalb von `geom_point` kann die Farbe der Punkte verändert werden
+- Erstellen wir uns der einfachheit halber eine neue Grafikvorlage:
+
+.small[
+
+```r
+p &lt;- Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  ggplot(aes(x = Einkommen, y = Lebenserwartung, 
+             label = country, size = Bevoelkerung)) +
+  geom_text(nudge_y = 5) +
+  scale_x_log10() +
+  xlab("Einkommen") + 
+  ylab("Lebenserwartung") +
+  ggtitle("Roslings Bubble Chart für das Jahr 1800")
+```
+]
+
+---
+
+## Farben
+
+- Nun sollen alle Punkte blau sein
+
+
+```r
+p + geom_point(color = "blue")
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-17-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Farben
+
+- Nicht unbedingt unser Ziel
+- _Besser:_ Bestimmte Farben für bestimmte Gruppen
+- **Schön bei `ggplot2`:** Wir können `ggplot2` eine katogoriale Variable angeben:
+  - nun werden automatisch unterschiedliche Farben für alle Gruppen dieser Variablen zugeteilt
+  - es wird automatisch eine Legende erzeugt
+
+---
+
+## Farben
+
+
+```r
+p + geom_point(aes(color=continent)) 
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Nur bestimmte Länder beschriften
+
+- Es sollen nun nicht alle Ländern, sondern nur China, Somalia, Deutschland und die USA beschriftet werden.
+
+.small[
+
+```r
+p &lt;- Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  mutate(annotation = case_when(
+    country %in% c("China", "Somalia", "Germany", "United States") ~ "yes")
+  ) %&gt;%
+  ggplot(aes(x = Einkommen, y = Lebenserwartung, 
+             label = country, size = Bevoelkerung)) +
+  geom_point(aes(color=continent)) +
+  geom_text(data = . %&gt;% filter(annotation=="yes"), aes(label=country), size=4) +
+  scale_x_log10() +
+  xlab("Einkommen") + 
+  ylab("Lebenserwartung") +
+  ggtitle("Roslings Bubble Chart für das Jahr 1800")
+
+p
+```
+]
+
+---
+
+## Nur bestimmte Länder beschriften
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-20-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Die Größe der Länderpunkte
+
+- Nun können Sie noch die Größe der Kreise etwas besser skalieren.
+- Hier soll die Bevölkerung des größten Landes 20 mal so groß dargestellt werden wie das kleineste Land
+
+
+```r
+p &lt;- p + scale_size(range = c(1, 20))
+
+p
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-21-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Farbpalette und Legende
+
+- Es gibt in ggplot verschiedenste Farbpaletten, hier soll die Farbpalette von viridis verwendet werden
+
+```r
+library(viridis)
+p + scale_color_viridis(discrete=TRUE) + theme(legend.position="none")
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-22-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Code für die Grafik aus dem Jahr 1800
+
+- Gesamter Code für die Grafik
+
+.small[
+
+```r
+Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;%
+  mutate(annotation = case_when(
+    country %in% c("China", "Somalia", "Germany", "United States") ~ "yes")
+  ) %&gt;%
+  ggplot(aes(x = Einkommen, y = Lebenserwartung, 
+             label = country, size = Bevoelkerung)) +
+  geom_point(aes(color=continent)) +
+  geom_text(data = . %&gt;% filter(annotation=="yes"), aes(label=country), size=4) +
+  scale_x_log10() +
+  xlab("Einkommen") + 
+  ylab("Lebenserwartung") +
+  ggtitle("Roslings Bubble Chart für das Jahr 1800") +
+  scale_size(range = c(1, 20)) +
+  scale_color_viridis(discrete=TRUE) + 
+  theme(legend.position="none")
+```
+]
+
+---
+
+## Code für die Grafik aus dem Jahr 1800
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-24-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Animation für mehrere Jahre
+
+![Hans Roslings Bubble Chart](../figs/rosling.gif)
+
+---
+
+## Zusätzliche Pakete
+
+- Weiterhin gibt es bei `ggplot2` Zusatzpakete, durch welche wir noch einige Dinge verändern können
+- Durch die zusätzlichen Pakete `ggthemes` und `ggrepel` können wir unserer Grafik noch final bearbeiten
+- Beispielsweise können wir unsere Grafik mit einem anderen Grundlayout ausstatten
+  - Hier dem Thema `theme_fivethirtyeight()`
+  - [Hier](https://github.com/jrnold/ggthemes) finden Sie weitere Themen für ihre Grafik
+
+---
+
+## Zusätzliche Pakete
+
+- Das Paket `ggrepel` stellt sicher, dass die Label eines Punktes nicht übereinander gezeigt werden
+- In unserem Beispiel schwer umzusetzen, da hier sehr viele Labels vorhanden sind
+- Grundsätzlich kann dies jedoch durch das laden des Pakets `ggrepel` erreicht werden
+  - In der Grafik muss dann nur noch `geom_text` durch `geom_text_repel` ersetzt werden
+
+---
+
+## Mehrere Grafiken nebeneinander
+
+
+Sie wollen mehrere Grafiken nebeneinander platzieren
+- Hier hilft ihnen das Paket `gridExtra`
+- Mit der Funktion `grid.arrange` aus `gridExtra` werden die Schaubilder nebeneinander gezeigt:
+
+.small[
+
+```r
+p1 &lt;- Datensatz %&gt;% 
+  filter(Jahr == 1800) %&gt;% 
+  ggplot(aes(x = Einkommen, y = Lebenserwartung, size=Bevoelkerung, color=continent)) + 
+  geom_point() + 
+  theme(legend.position="none")
+
+p2 &lt;- Datensatz %&gt;% 
+  filter(Jahr == 2018) %&gt;% 
+  ggplot(aes(x = Einkommen, y = Lebenserwartung, size=Bevoelkerung, color=continent)) + 
+  geom_point() + 
+  theme(legend.position="none")
+```
+]
+
+---
+
+## Mehrere Grafiken nebeneinander
+
+
+```r
+library(gridExtra)
+grid.arrange(p1,p2, ncol = 2)
+```
+
+&lt;img src="Visualisierung_mit_ggplot2_files/figure-html/unnamed-chunk-26-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+**Achtung:** Hier sind die Achsen für beide Grafiken nicht gleich! Diese müssen bei vergleichenden Schaubildern immer einheitlich formatiert sein!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

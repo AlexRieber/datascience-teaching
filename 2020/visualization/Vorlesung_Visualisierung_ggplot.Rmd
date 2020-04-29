@@ -1,0 +1,108 @@
+---
+title: "Vorlesung Visualisierung mit ggplot2"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+Datensatz <- readRDS("data/Gapminder_1800-2020.rds")
+Datensatz %>% ggplot()
+```
+
+Erster Plot:
+```{r}
+Datensatz <- readRDS("data/Gapminder_1800-2020.rds")
+Datensatz %>% 
+  filter(Jahr == 1800) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung))
+```
+
+Anpassung der Größe der Kreise:
+
+```{r}
+Datensatz %>% 
+  filter(Jahr == 1800) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung, size=Bevoelkerung))
+```
+
+Im jar 1970:
+
+```{r}
+Datensatz %>% 
+  filter(Jahr == 1970) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung, size=Bevoelkerung))
+```
+
+Logarithmierte x-Achse:
+
+```{r}
+Datensatz %>% 
+  filter(Jahr == 1970) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung, size=Bevoelkerung)) +
+  scale_x_log10()
+```
+
+Einfärben der Kontinente:
+
+```{r}
+Datensatz %>% 
+  filter(Jahr == 1970) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung, size=Bevoelkerung, color = continent)) +
+  scale_x_log10()
+```
+
+Beschriften der Kontinente:
+
+```{r}
+Datensatz %>% 
+  filter(Jahr == 1970) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung, 
+                 size = Bevoelkerung, color = continent, label=country)) +
+  scale_x_log10() +
+  geom_text(aes(x = Einkommen, 
+                 y = Lebenserwartung, label=country))
+```
+
+Nur einige Kontinente beschriften (mit filter die heraussuchen, welche für uns interessant sind):
+
+```{r}
+Datensatz %>% 
+  filter(Jahr == 1970) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung, 
+                 size = Bevoelkerung, color = continent, label=country)) +
+  scale_x_log10() +
+  geom_text(data = . %>% filter( country %in% c("China", "Eritrea", "India", "Germany") ), aes(x = Einkommen, 
+                 y = Lebenserwartung, label=country))
+```
+
+Titel und Achsenbeschriftungen hinzufügen:
+
+```{r}
+Datensatz %>% 
+  filter(Jahr == 1970) %>%
+  ggplot() + 
+  geom_point(aes(x = Einkommen, 
+                 y = Lebenserwartung, 
+                 size = Bevoelkerung, color = continent, label=country)) +
+  scale_x_log10() +
+  geom_text(data = . %>% filter( country %in% c("China", "Eritrea", "India", "Germany") ), aes(x = Einkommen, 
+                 y = Lebenserwartung, label=country)) +
+  labs(title = "Roslings Bubble Chart für das Jahr 1970",
+       x = "Einkommen",
+       y = "Lebenserwartung",
+       caption = "Quelle: Daten von Gapminder")
+```

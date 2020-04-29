@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Guidelines für die Visualisierung von Daten [Dataviz]</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Guidelines für die Visualisierung von Daten [Dataviz]
+
+---
+
+
+
+
+## Prinzipien der Datenvisualisierung
+
+- Bisher hatten wir uns hauptsächlich auf die technische Seite der Visualisierung mit `ggplot2` konzentriert
+- Hier sollen allgemeine Prinzipien und Guidelines zur Datenvisualisierung vorgestellt werden
+- Diese Vorlesungseinheit orientiert sich an einem Vortrag von [Karl Broman](http://kbroman.org/) mit dem Titel: ["Creating effective figures and tables"](https://www.biostat.wisc.edu/~kbroman/presentations/graphs2017.pdf), Vorlesungsfolien von Peter Aldhous [Introduction to Data Visualization course](http://paldhous.github.io/ucb/2016/dataviz/index.html) und dem Buch [Introduction to Data Science](https://rafalab.github.io/dsbook/) (Kapitel 10)
+
+---
+
+## Prinzipien der Datenvisualisierung
+
+Aufbau der Vorlesungseinheit:
+  - Beispiele unvorteilhafter Grafiken aufzeigen
+  - Vorschläge machen, wie diese verbessert werden können
+  - Allgemeine Prinzipien zur Visualisierung aus diesen Beispielen ableiten
+
+Sie sollten bei der Visualisierung von Daten immer ihr Ziel im Auge behalten:
+  - Explorative Grafiken nur für Sie selbst können niedrigeren Standards genügen
+  - Grafiken in einer Präsentation oder Ausarbeitung sind für den Zuhörer/Leser und müssen diesen überzeugen
+
+---
+
+## Prinzipien der Datenvisualisierung
+
+Wir verwenden diese Pakete:
+
+
+```r
+library(tidyverse)
+library(readxl)
+library(gridExtra)
+library(ggthemes)
+library(gganimate)
+library(pander)
+```
+
+
+
+
+---
+
+## Möglichkeiten der Visualisierung
+
+&lt;img src="../figs/choosing-a-good-chart.png" width="80%" style="display: block; margin: auto;" /&gt;
+.small[Quelle: https://extremepresentation.typepad.com/blog/2006/09/choosing_a_good.html]
+
+--- 
+
+## Typen von Grafiken
+
+Eine sehr schöne Übersicht über Grafiken mit Codebeispielen bietet auch die Seite von [R Graph Gallery](http://r-graph-gallery.com/)
+
+
+---
+
+## Möglichkeiten der Visualisierung
+
+Neben den verschiedenen Typen von Grafiken stehen uns viele weitere Möglichkeiten zur Verfügung wie wir Daten visualisieren können. Bspw. durch Wahl der:
+
+- Position
+- Ausrichtung
+- Winkel
+- Fläche
+- Helligkeit
+- Farbgebung
+
+
+---
+
+## Möglichkeiten der Visualisierung
+
+.question[**Beispiel:** Nutzung von Internet-Browsern für Januar 2000 und Januar 2018]
+
+- Daten zur Nutzung von Internet-Browsers können Sie unter [StatCounter](http://gs.statcounter.com/browser-market-share/desktop/worldwide/#monthly-200901-201809) einsehen
+- In vielen Präsentation wird für diese Fragestellung ein Kuchendiagramm verwendet:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/Kuchen2-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Möglichkeiten der Visualisierung
+
+- Die **Fläche und der Winkel** im Kuchendiagramm werden verwendet um den Anteil jedes Browsers am Gesamtmarkt aufzuzeigen
+- Diese Darstellungsweise ist **suboptimal**, da Menschen nicht gut darin sind Winkel abzuschätzen und sogar noch schlechter bei Flächen
+
+---
+
+## Kuchendiagramme
+
+Beantworten Sie sich beispielsweise folgende Fragen:
+
+.question[Um wie viel verändert sich der Marktanteil jedes Browsers von 2000 zu 2018?]
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-4-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Kuchendiagramme
+
+- Es wäre in diesem Fall einfacher und verständlicher die nackten Zahlen zu präsentieren:
+
+
+| Browser | 2000 | 2018 |
+|:-------:|:----:|:----:|
+|  Opera  |  2   |  3   |
+| Safari  |  4   |  6   |
+| Firefox |  32  |  12  |
+|   IE    |  56  |  13  |
+| Chrome  |  6   |  66  |
+
+---
+
+## Balkendiagramm
+
+
+- Mit einem Balkendiagrammen kommen Sie der menschlichen Wahrnehmung besser entgegen
+- Das menschliche Gehirn ist deutlich besser im Abschätzen von Längen als von Winkeln
+- Durch Hilfslinien (hier für jede 10%) können Sie den Leser zusätzlich beim schnellen Verständnis unterstützen:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/barplot0-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Balkendiagramm
+
+Ein Vergleich zwischen Kuchen und Balkendiagramm:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/vergleich-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Kuchendiagramm vs. Balkendiagramm
+
+- Durch das Balkendiagramm können Sie prozentuale Unterschiede direkt ablesen
+- Sollten Sie dennoch ein Kuchendiagramm nutzen, dann sollten Sie die prozentualen Anteile in das Diagramm mit aufnehmen um Abschätzungen der Fläche oder Winkel zu umgehen:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Balkendiagramme
+
+.instructions[Es gilt: Balkendiagrammen **immer** bei Null beginnen]
+
+--
+- Durch die Verwendung eines Balkendiagramms wird automatisch impliziert, dass die Länge des Balkens proportional zur gezeigten Stückzahl ist
+--
+
+- Wenn Sie die Null nicht in ihr Balkendiagramm aufnehmen können kleine Differenzen viel größer erscheinen, als sie eigentlich sind
+--
+
+- Dies wird oft in der Politik oder den Medien verwendet um sich besser darzustellen
+
+---
+
+## Balkendiagramme
+
+Hier ein Beispiel aus den FOX News:
+
+![](../figs/Fox-News-bar-chart.jpeg)
+
+
+.small[Quelle: Fox News; https://flowingdata.com/2015/08/11/real-chart-rules-to-follow/]
+
+---
+
+## Balkendiagramme
+
+- In der Grafik erscheint es so als ob Obamacare zum Ziele hatte drei mal so viele Personen zu versichern als aktuell versichert sind
+- Jedoch ist das Ziel Ende März nur um 17,8% höher als die tatsächlich eingeschriebene Zahl an Versicherten
+- Eine Grafik, welche bei Null beginnt macht den Unterschied deutlich:
+
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-7-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Balkendiagramme
+
+.instructions[Angenommen Sie vergleichen die Körpergrößen von Vater (175 cm) und Sohn (110 cm) auf gleiche Weise]
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-8-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+--
+
+Hier wird deutlich, warum es wichtig ist ein Balkendiagramm bei Null zu beginnen
+
+---
+
+## Schaubilder immer bei Null beginnen?
+
+.alert[Nein!]
+
+--
+
+Wenn Sie die Position im Schaubild und nicht die Länge (von Balken) verwenden, dann ist es **nicht nötig** das Schaubild bei Null beginnen zu lassen
+
+- Liniendiagramme
+- Punktediagramme
+- Bubble Grafiken 
+- ...
+
+müssen alle **nicht** bei Null beginnen.
+
+---
+
+## Zeigen Sie ihre Daten
+
+.instruction[Gegeben Sie wollen das BIP aller Kontinente in 2018 einander gegenüberstellen]
+
+- Standardmäßig wird hierfür eine Grafik gezeigt, welche den Mittelwert als Balken mit den dazugehörigen Standardfehlern zeigt
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-9-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Zeigen Sie ihre Daten
+
+- Sie können allgemeine Trends in ihren Daten aufzeigen, z.B. ist das durchschnittliche BIP in Afrika am geringsten und Europa am höchsten
+- Allerdings können Sie nichts zur Variabilität innerhalb der Kontinente sagen
+    - Die Verteilung des BIPs ist hier schwer zu beurteilen
+- Zwei einfache Fragen, welche mit dem Balkendiagramm nicht beantwortet werden können:
+  - Haben alle Länder in Afrika ein geringeres BIP als in Ozeanien?
+  - Wie ist die Verteilung auf den jeweiligen Kontinenten?
+
+--
+
+.instructions[Diesen Fragen können Sie sich nähern indem Sie alle Datenpunkte zeigen]
+
+---
+
+## Zeigen Sie ihre Daten
+
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-10-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Zeigen Sie ihre Daten
+
+
+- Hier bekommen Sie eine Idee davon, in welchem Bereich das BIP für die einzelnen Kontinente liegen 
+- Diese Grafik ist immer noch problematisch, da Sie nicht das BIP eines jeden Landes sehen können; viele Datenpunkte liegen übereinander
+
+Möglichkeiten um die Punktewolke etwas zu entzerren:
+
+- Mit _jitter_ können Sie jeden Datenpunkt zufällig um einen kleinen Bereich horizontal verschieben
+  - In unserem Beispiel können wir dadurch die übereinander liegenden Punkte etwas voneinander abgrenzen
+- Mit _alpha blending_ können Sie die Datenpunkte transparent machen
+  - Wenn mehrere Punkte aufeinander fallen erscheint dieser Bereich dunkler
+  
+Durch _jitter_ und _alpha blending_ bekommen Sie ein besseres Gefühl für die Verteilung der Daten
+
+---
+
+## Zeigen Sie ihre Daten
+
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Zeigen Sie ihre Daten
+
+
+- Nun sehen Sie, dass die meisten Länder Afrikas deutlich ärmer sind als die Europas, aber das viele Länder Americas ein ähnliches BIP aufweisen wie die Asiens
+- Weiterhin ist die Verteilung der Länder pro Kontinent recht ähnlich, mit Ausnahme von Europa
+
+--
+
+.question[**Überlgegung:** Ist es hier eventuell sinnvoller die komplette Verteilung anstatt einzelne Datenpunkte zu zeigen?]
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-12-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Verwenden Sie einheitliche Achsgrößen
+
+- **Problem:** Hier wird nicht auf den ersten Blick ersichtlich, dass afrikanische Länder zum Großteil ein geringeres BIP haben als europäische Länder
+- Dies liegt daran, dass die x-Achse in beiden Schaubildern unterschiedliche Zahlenbereiche umfasst
+
+Daher ist es wichtig zu beachten:
+
+.instructions[**Verwenden Sie immer einheitliche Achsgrößen** wenn Sie Daten über mehrere Grafiken vergleichen]
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-13-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Verwenden Sie einheitliche Achsgrößen  
+
+- Wenn Sie ihren Fokus auf vertikale Änderungen legen wollen, dann ordnen Sie ihre Grafiken horizontal zueinander an
+- Wenn Sie ihren Fokus auf horizontale Änderungen legen wollen, dann ordnen Sie ihre Grafiken vertikal zueinander an
+- In unserem Beispiel wollen Sie herausfinden, ob Kontinente und deren Länder sich im Hinblick auf deren BIP voneinander unterscheiden. Somit interessieren uns Veränderungen auf der x-Achse, d.h. horizontale Veränderungen
+
+--
+
+.question[Ordnen Sie die Grafiken vertikal an]
+
+---
+
+## Verwenden Sie einheitliche Achsgrößen  
+
+Hier sehen Sie die unterschiede innerhalb der einzelnen Gruppen sehr schnell (wir klammern die Außreiser bei Europa aus und betrachten nur die Länder &lt; $100 000 BIP pro Kopf:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Verwenden Sie einheitliche Achsgrößen
+
+- Eine weitere Möglichkeit die Information über das BIP kompakt darzustellen bieten Boxplots. 
+- Hier können Sie auch alle Datenpunkte zeigen um die Informationsdichte der Boxplots zu erhöhen:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-15-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Verwenden Sie einheitliche Achsgrößen
+
+- Ein Vergleich unserer Darstellungsmethoden:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-16-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Transformieren Sie ihre Daten, falls nötig
+
+- Für Daten bei denen ein Wert deutlich über allen anderen Werten liegt sollten Sie sich Gedanken darüber machen, ob es nicht besser ist die Daten zu logarithmieren und dadurch vergleichbarer zu machen
+
+.question[Visualisieren Sie die Bevölkerungszahl pro Kontinent (in 2018)]
+
+---
+
+## Transformieren Sie ihre Daten, falls nötig
+
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-17-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+--
+
+.alert[Schlussfolgerung: In asiatischen Länder wohnen im Durchschnitt deutlich mehr Menschen als in andere Teile der Welt]
+
+---
+
+## Transformieren Sie ihre Daten, falls nötig
+
+Wenn Sie jedoch alle Datenpunkte darstellen, dann ergibt sich ein anderes Bild:
+  - Es gibt zwei Ausreiser in unseren Daten, d.h. zwei besonders bevölkerungsreiche Länder, speziell auf dem asiatischen Kontinent: vermutlich Indien und China
+
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-18-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Transformieren Sie ihre Daten, falls nötig
+
+.instructions[Logarithmieren Sie die Daten!]
+
+--
+
+- Durch die Logarithmierung erhalten Sie eine viel bessere Einschätzung der tatsächlichen Bevölkerungszahlen auf den einzelnen Kontinenten
+- Ein Vergleich der Grafiken macht dies besonders deutlich
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-19-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Transformieren Sie ihre Daten, falls nötig
+
+- Länder in Amerika haben **im Median** eine größere Bevölkerung als in Afrika, jedoch sind asiatische Länder am bevölkerungsreichsten
+
+.alert[Die zwei Ausreiser China und Indien verzerren die erste Grafik!]
+
+
+---
+
+## Sortierung des Outputs
+
+- Wenn Sie in `ggplot` ein Balkendiagramm erstellen und mit Kategorien (z.B. Ländern) oder Faktorvariablen (z.B. Anzahl der Geschwister) arbeiten, dann sortiert `ggplot` immer nach diesen Kategorien oder Faktorvariablen
+- Oft ist dies nicht gewünscht und Sie sollten nach geeigneteren Variablen für die Sortierung suchen
+- Sie können die Funktion `reorder` verwenden um eine Sortierung nach ihren Wünschen zu erreichen
+
+.question[Zeigen Sie die Lebenserwartung im Jahr 1960 für alle Länder mit mehr als 15 Mio. Einwohnern auf]
+
+---
+
+## Sortierung des Outputs
+
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-20-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Zeigen Sie Daten die zusammen gehören auch zusammen
+
+- Gegeben Sie wollen das durchschnittliche tägliche Einkommen (Aufs Jahr mit 365 Tagen gerechnet) auf jedem Kontinent in 1960 dem Einkommen in 2010 gegenüberstellen
+- `ggplot` sortiert hier per Default alphabetisch, wodurch alle Werte von 1960 _vor_ allen Werten von 2010 kommen
+  - Diese Darstellung erschwert den Vergleich zwischen den Gruppen
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-21-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Zeigen Sie Daten die zusammen gehören auch zusammen
+
+- Der Vergleich wird einfacher, wenn die relevanten Informationen nebeneinander gezeigt werden:
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-22-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Die Verwendung von Farbe
+
+- Der Vergleich wird noch einfacher, wenn wir verschiedene Farben für die einzelnen Jahre verwenden:
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-23-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Eine dritte Variable aufnehmen
+
+- Wenn Sie in ihrer Grafik mehr Informationen, d.h. eine dritte Variable, aufnehmen möchten können Sie dies bspw. folgendermaßen erreichen.
+- Hier wird die Region, Bevoelkerung und OPEC Mitgliedschaft mehrerer Länder aus `gapminder` veranschaulicht
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-24-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Eine dritte Variable aufnehmen
+
+- Faktorvariablen können durch den Farbton und die Form dargestellt werden
+- Sie können diese mit dem Paramter `shape` anpassen
+- Hier die Formen, welche in R verfügbar sind:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-25-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+## Farbpaletten
+
+Die Farbverläufe welche in R vorhanden sind:
+
+
+```r
+library(RColorBrewer)
+display.brewer.all(type="seq")
+```
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-26-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Farbpaletten
+
+- Divergente Farbverläufe werden verwendet, wenn Farben weg von einem Zentrum definiert werden sollen
+- Dieser Farbverlauf legt auf beide Enden der Spanne gleichen Wert
+
+
+```r
+library(RColorBrewer)
+display.brewer.all(type="div")
+```
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-27-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Karten
+
+Eine weitere Möglichkeit Daten zu visualisieren, welche geografische Informationen beinhalten ist über Karten.
+
+Wenn Sie sich die Lebenserwartung in 2018 für unterschiedliche Länder anschauen möchten, dann können Sie dies auch auf einer Karte effektiv darstellen:
+
+--
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-28-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Karten
+
+Um die Aussage der Karte zu erhöhen können Sie eine andere Farbpalette wählen und die Grafik noch entsprechend beschriften:
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-29-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: center, middle, inverse
+
+# Abschreckende Beispiele
+
+---
+
+## Vermeiden Sie pseudo 3D-Grafiken
+
+![](../figs/Pseudo_3d.png)
+
+---
+
+## Vermeiden Sie pseudo 3D-Grafiken
+
+- Die pseude 3D-Grafik auf der vorherigen Folie trägt drei unterschiedliche Dimensionen ab und wurde so in einem wissenschaftlichen Artikel veröffentlicht. 
+- Dargestellt wird hier: Die Höhe der verabreichten Dosis eines Medikaments, die Art des Medikaments und die Überlebenswahrscheinlichkeit der Patienten
+- Die Grafik versucht einen Eindruck von Dreidimensionalität zu simulieren, doch dies will nicht so recht funktionieren!
+
+.question[Wo treffen sich die violette und rote Linie?]
+
+---
+
+Wenn Sie die pseudo 3D-Grafik etwas umgestalten ist die Frage leichter zu beantworten:
+
+
+&lt;img src="Visualisierung-Guidelines_files/figure-html/unnamed-chunk-30-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Vermeiden Sie pseudo 3D-Grafiken
+
+Grafiken bei welchen nicht ersichtlich ist, warum überhaupt auf 3D gesetzt wird, vewirren den Leser unnötig und sollten grundsätzlich vermieden werden:
+
+![](../figs/3d_Grafik.png)
+
+---
+
+## Tabellen: Vermeiden Sie zu viele Nachkommastellen
+
+.pull-left[
+**Zu viele Nachkommastellen:**
+
+
+| country | Jahr | einkommen |
+|:-------:|:----:|:---------:|
+| Germany | 1970 |   59.44   |
+| Germany | 1980 |   76.67   |
+| Germany | 1990 |   85.72   |
+| Germany | 2000 |   100.7   |
+| Germany | 2010 |   110.8   |
+]
+
+--
+
+.pull_right[
+
+**Passende Nachkommastellen:**
+
+
+| country | Jahr | einkommen |
+|:-------:|:----:|:---------:|
+| Germany | 1970 |   59.44   |
+| Germany | 1980 |   76.67   |
+| Germany | 1990 |   85.72   |
+| Germany | 2000 |   100.7   |
+| Germany | 2010 |   110.8   |
+]
+
+--
+
+- R gibt ihnen standardmäßig immer sieben Nachkommastellen aus (falls diese vorhanden sind)
+- Diese Genauigkeit ist unnötig und verunstaltet ihre Tabellen. Dadurch _erschweren_ Sie es dem Leser die wichtigsten Informationen schnell aufzunehmen
+--
+- Die Tabelle trägt das Tageseinkommen in Deutschland zu verschiedenen Zeitpunkten ab
+- Wir können keine 0,005 Cent verdienen, deshalb ist es hier nicht wichtig und verwirrt den Leser nur
+- Zwei Nachkommastellen sind hier mehr als genug und zeigt gut auf, dass das Einkommensniveau steigt
+
+
+---
+
+## Zielgruppe definieren
+
+Sie können Grafiken für 
+
+- sich selbst erstellen um ein Gefühl für die Daten zu bekommen (explorativ)
+- Experten erstellen, um ihre Analyse/Ergebnisse zu verdeutlichen
+- eine größere Gruppe erstellen, um einen allgemeinen Sachverhalt darzustellen
+
+.instructions[Überlegen Sie wer ihre Zielgruppe und designen Sie ihre Grafik so, dass sie von dieser Zielgruppe verstanden wird!]
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
