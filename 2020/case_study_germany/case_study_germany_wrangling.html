@@ -12,7 +12,7 @@
 
 
 
-<meta name="author" content="Alexander Rieber - 27 April 2020" />
+<meta name="author" content="Alexander Rieber - 29 April 2020" />
 
 
 <title>Case Study für Deutschland</title>
@@ -2986,7 +2986,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Case Study für Deutschland</h1>
-<h4 class="author" style="text-align: center;"><em><a href="https://github.com/AlexRieber">Alexander Rieber</a> - 27 April 2020 - </em></h4>
+<h4 class="author" style="text-align: center;"><em><a href="https://github.com/AlexRieber">Alexander Rieber</a> - 29 April 2020 - </em></h4>
 
 </div>
 
@@ -3504,7 +3504,7 @@ div.tocify {
 </div>
 <div id="bruttoinlandsprodukt" class="section level1">
 <h1>Bruttoinlandsprodukt</h1>
-<p>Im nächsten Schritt wollen wir uns die Daten zum Bruttoinlandsprodukt einzelner Landkreise anschauen und diese in R einlesen. Da diese wieder als ZIP-Archiv heruntergeladen wurden können wir unser vorheriges Schema auch auf diese Daten anwenden.</p>
+<p>Im nächsten Schritt wollen wir uns die Daten zum Bruttoinlandsprodukt einzelner Landkreise anschauen und diese in R einlesen. Da diese wieder als ZIP-Archiv heruntergeladen wurden können wir unser vorheriges Schema auch auf diese Daten anwenden. Weiterhin beziehen wir aus diesem Excel-File die Anzahl an Erwerbstätigen, mit dem wir später die Arbeitslosenquote berechnen können und die Anzahl an Einwohner, mit denen wir das BIP-pro-Kopf anrechnen können.</p>
 <div id="zip-archiv-entpacken-und-nur-einzelne-spalten-einlesen" class="section level2">
 <h2>ZIP-Archiv entpacken und nur einzelne Spalten einlesen</h2>
 <p>Folgende Schritte wollen wir in einem Chunk erledigen:</p>
@@ -3513,91 +3513,128 @@ div.tocify {
 <ul>
 <li>Tabellenblatt “1.1” ist für unsere Analyse ausschlaggebend (für das BIP)</li>
 <li>Tabellenblatt “3.1” ist für die Anzahl an Erwerbstätigen ausschlaggebend</li>
+<li>Tabellenblatt “5.” ist für die Anzahl an Einwohnern ausschlaggebend</li>
 </ul></li>
 <li>Die ersten vier Zeilen benötigen wir nicht</li>
 <li>Die letzte Zeile enthält eine kurze Beschreibung die wir nicht benötigen -&gt; Behalte alle Zeilen, welche bei der <code>Lfd. Nr.</code> numerisch sind</li>
 <li>Die folgenden Variablen benötigen wir nicht für unsere Analyse und können entfernt werden: <code>Lfd. Nr.</code>, <code>EU-Code</code>, <code>NUTS 1</code>, <code>NUTS 2</code>, <code>NUTS 3</code>, <code>Land</code>, <code>Gebietseinheit</code></li>
 </ul>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co">#Anzahl der Erwerbstätigen</span></span></code></pre></div>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="co"># Einlesen der Daten mit anschließendem aufräumen</span></span>
-<span id="cb29-2"><a href="#cb29-2"></a>bip_name &lt;-<span class="st"> </span><span class="kw">as.character</span>(<span class="kw">unzip</span>(<span class="st">&quot;./data/BIP_2017.xlsx.zip&quot;</span>, <span class="dt">list =</span> <span class="ot">TRUE</span>)<span class="op">$</span>Name)</span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="kw">unzip</span>(<span class="st">&quot;./data/BIP_2017.xlsx.zip&quot;</span>, bip_name)</span>
-<span id="cb29-4"><a href="#cb29-4"></a></span>
-<span id="cb29-5"><a href="#cb29-5"></a><span class="co"># Blatt 1.1 einlesen und die ersten 4 Zeilen skippen</span></span>
-<span id="cb29-6"><a href="#cb29-6"></a>bip &lt;-<span class="st"> </span><span class="kw">read_xlsx</span>(bip_name, <span class="dt">sheet=</span><span class="st">&quot;1.1&quot;</span>, <span class="dt">skip =</span> <span class="dv">4</span>)</span>
-<span id="cb29-7"><a href="#cb29-7"></a>erwerb &lt;-<span class="st"> </span><span class="kw">read_xlsx</span>(bip_name, <span class="dt">sheet=</span><span class="st">&quot;3.1&quot;</span>, <span class="dt">skip =</span> <span class="dv">4</span>)</span>
-<span id="cb29-8"><a href="#cb29-8"></a><span class="kw">unlink</span>(bip_name)</span>
-<span id="cb29-9"><a href="#cb29-9"></a></span>
-<span id="cb29-10"><a href="#cb29-10"></a><span class="co"># Zeile löschen in der die `Lfd. Nr.` nicht nummerisch ist</span></span>
-<span id="cb29-11"><a href="#cb29-11"></a><span class="co"># Zusätzliche Spalten löschen</span></span>
-<span id="cb29-12"><a href="#cb29-12"></a>bip_wide &lt;-<span class="st"> </span>bip <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb29-13"><a href="#cb29-13"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(<span class="kw">as.numeric</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>))<span class="op">==</span><span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
-<span id="cb29-14"><a href="#cb29-14"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>, <span class="st">`</span><span class="dt">EU-Code</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 1</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 2</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 3</span><span class="st">`</span>, Land, Gebietseinheit)) <span class="op">%&gt;%</span></span>
-<span id="cb29-15"><a href="#cb29-15"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">Regionalschluessel =</span> <span class="st">`</span><span class="dt">Regional-schlüssel</span><span class="st">`</span>)</span>
-<span id="cb29-16"><a href="#cb29-16"></a></span>
-<span id="cb29-17"><a href="#cb29-17"></a><span class="co"># Zeile löschen in der die `Lfd. Nr.` nicht nummerisch ist</span></span>
-<span id="cb29-18"><a href="#cb29-18"></a><span class="co"># Zusätzliche Spalten löschen</span></span>
-<span id="cb29-19"><a href="#cb29-19"></a>erwerb_wide &lt;-<span class="st"> </span>erwerb <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb29-20"><a href="#cb29-20"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(<span class="kw">as.numeric</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>))<span class="op">==</span><span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
-<span id="cb29-21"><a href="#cb29-21"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>, <span class="st">`</span><span class="dt">EU-Code</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 1</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 2</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 3</span><span class="st">`</span>, Land, Gebietseinheit)) <span class="op">%&gt;%</span></span>
-<span id="cb29-22"><a href="#cb29-22"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">Regionalschluessel =</span> <span class="st">`</span><span class="dt">Regional-schlüssel</span><span class="st">`</span>)</span>
-<span id="cb29-23"><a href="#cb29-23"></a></span>
-<span id="cb29-24"><a href="#cb29-24"></a><span class="kw">head</span>(bip_wide)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># Einlesen der Daten mit anschließendem aufräumen</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>bip_name &lt;-<span class="st"> </span><span class="kw">as.character</span>(<span class="kw">unzip</span>(<span class="st">&quot;./data/BIP_2017.xlsx.zip&quot;</span>, <span class="dt">list =</span> <span class="ot">TRUE</span>)<span class="op">$</span>Name)</span>
+<span id="cb28-3"><a href="#cb28-3"></a><span class="kw">unzip</span>(<span class="st">&quot;./data/BIP_2017.xlsx.zip&quot;</span>, bip_name)</span>
+<span id="cb28-4"><a href="#cb28-4"></a></span>
+<span id="cb28-5"><a href="#cb28-5"></a><span class="co"># Blatt 1.1 einlesen und die ersten 4 Zeilen skippen</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a>bip &lt;-<span class="st"> </span><span class="kw">read_xlsx</span>(bip_name, <span class="dt">sheet=</span><span class="st">&quot;1.1&quot;</span>, <span class="dt">skip =</span> <span class="dv">4</span>)</span>
+<span id="cb28-7"><a href="#cb28-7"></a>erwerb &lt;-<span class="st"> </span><span class="kw">read_xlsx</span>(bip_name, <span class="dt">sheet=</span><span class="st">&quot;3.1&quot;</span>, <span class="dt">skip =</span> <span class="dv">4</span>)</span>
+<span id="cb28-8"><a href="#cb28-8"></a>einwohner &lt;-<span class="st"> </span><span class="kw">read_xlsx</span>(bip_name, <span class="dt">sheet =</span> <span class="st">&quot;5.&quot;</span>, <span class="dt">skip =</span> <span class="dv">4</span>)</span>
+<span id="cb28-9"><a href="#cb28-9"></a><span class="kw">unlink</span>(bip_name)</span>
+<span id="cb28-10"><a href="#cb28-10"></a></span>
+<span id="cb28-11"><a href="#cb28-11"></a><span class="co"># Zeile löschen in der die `Lfd. Nr.` nicht nummerisch ist</span></span>
+<span id="cb28-12"><a href="#cb28-12"></a><span class="co"># Zusätzliche Spalten löschen</span></span>
+<span id="cb28-13"><a href="#cb28-13"></a>bip_wide &lt;-<span class="st"> </span>bip <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb28-14"><a href="#cb28-14"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(<span class="kw">as.numeric</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>))<span class="op">==</span><span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
+<span id="cb28-15"><a href="#cb28-15"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>, <span class="st">`</span><span class="dt">EU-Code</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 1</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 2</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 3</span><span class="st">`</span>, Land, Gebietseinheit)) <span class="op">%&gt;%</span></span>
+<span id="cb28-16"><a href="#cb28-16"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">Regionalschluessel =</span> <span class="st">`</span><span class="dt">Regional-schlüssel</span><span class="st">`</span>)</span>
+<span id="cb28-17"><a href="#cb28-17"></a></span>
+<span id="cb28-18"><a href="#cb28-18"></a><span class="co"># Zeile löschen in der die `Lfd. Nr.` nicht nummerisch ist</span></span>
+<span id="cb28-19"><a href="#cb28-19"></a><span class="co"># Zusätzliche Spalten löschen</span></span>
+<span id="cb28-20"><a href="#cb28-20"></a>erwerb_wide &lt;-<span class="st"> </span>erwerb <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb28-21"><a href="#cb28-21"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(<span class="kw">as.numeric</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>))<span class="op">==</span><span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
+<span id="cb28-22"><a href="#cb28-22"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>, <span class="st">`</span><span class="dt">EU-Code</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 1</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 2</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 3</span><span class="st">`</span>, Land, Gebietseinheit)) <span class="op">%&gt;%</span></span>
+<span id="cb28-23"><a href="#cb28-23"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">Regionalschluessel =</span> <span class="st">`</span><span class="dt">Regional-schlüssel</span><span class="st">`</span>)</span>
+<span id="cb28-24"><a href="#cb28-24"></a></span>
+<span id="cb28-25"><a href="#cb28-25"></a>einwohner_wide &lt;-<span class="st"> </span>einwohner <span class="op">%&gt;%</span></span>
+<span id="cb28-26"><a href="#cb28-26"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(<span class="kw">as.numeric</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>))<span class="op">==</span><span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
+<span id="cb28-27"><a href="#cb28-27"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(<span class="st">`</span><span class="dt">Lfd. Nr.</span><span class="st">`</span>, <span class="st">`</span><span class="dt">EU-Code</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 1</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 2</span><span class="st">`</span>, <span class="st">`</span><span class="dt">NUTS 3</span><span class="st">`</span>, Land, Gebietseinheit)) <span class="op">%&gt;%</span></span>
+<span id="cb28-28"><a href="#cb28-28"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">Regionalschluessel =</span> <span class="st">`</span><span class="dt">Regional-schlüssel</span><span class="st">`</span>)</span>
+<span id="cb28-29"><a href="#cb28-29"></a></span>
+<span id="cb28-30"><a href="#cb28-30"></a><span class="kw">head</span>(bip_wide)</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["Regionalschluessel"],"name":[1],"type":["chr"],"align":["left"]},{"label":["1992"],"name":[2],"type":["chr"],"align":["left"]},{"label":["1994"],"name":[3],"type":["chr"],"align":["left"]},{"label":["1995"],"name":[4],"type":["chr"],"align":["left"]},{"label":["1996"],"name":[5],"type":["chr"],"align":["left"]},{"label":["1997"],"name":[6],"type":["chr"],"align":["left"]},{"label":["1998"],"name":[7],"type":["chr"],"align":["left"]},{"label":["1999"],"name":[8],"type":["chr"],"align":["left"]},{"label":["2000"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["2001"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["2002"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["2003"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["2004"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["2005"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["2006"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["2007"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["2008"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["2009"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["2010"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["2011"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["2012"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["2013"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["2014"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["2015"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["2016"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["2017"],"name":[26],"type":["dbl"],"align":["right"]}],"data":[{"1":"08","2":"254933.03599999999","3":"262748.99300000002","4":"272401.95400000003","5":"277454.179","6":"283105.929","7":"291677.68","8":"301388.38099999999","9":"309550.222","10":"323510.871","11":"325817.946","12":"328748.524","13":"332697.391","14":"336268.560","15":"356956.434","16":"377126.811","17":"381485.624","18":"355496.127","19":"384912.953","20":"405955.137","21":"413689.127","22":"424263.832","23":"440626.429","24":"463709.153","25":"475812.426","26":"495148.536"},{"1":"081","2":"109854.75599999999","3":"110868.36900000001","4":"114745.16099999999","5":"116240.28200000001","6":"120409.49800000001","7":"123210.43799999999","8":"127147.046","9":"129806.788","10":"137148.995","11":"137077.768","12":"139236.805","13":"139367.485","14":"138940.099","15":"149239.953","16":"158946.405","17":"157437.084","18":"144872.959","19":"159984.549","20":"169277.885","21":"173825.928","22":"178044.467","23":"185508.051","24":"197701.719","25":"200838.629","26":"209451.997"},{"1":"08111","2":"32014.381000000001","3":"30887.921999999999","4":"31479.096000000001","5":"31988.062000000002","6":"33589.646999999997","7":"32711.758000000002","8":"34128.165999999997","9":"34271.512","10":"37259.226","11":"38469.214","12":"39645.644","13":"39213.373","14":"38392.525","15":"41295.843","16":"43095.217","17":"40411.600","18":"37712.143","19":"42065.753","20":"44182.602","21":"45458.043","22":"46062.994","23":"47149.042","24":"51000.107","25":"51094.350","26":"53065.815"},{"1":"08115","2":"11977.21","3":"11750.939","4":"11867.928","5":"12025.593999999999","6":"13820.067999999999","7":"13545.587","8":"14308.878000000001","9":"13753.348","10":"15148.254","11":"14572.413","12":"14865.796","13":"14356.648","14":"12849.903","15":"14704.724","16":"17725.113","17":"17115.110","18":"14733.627","19":"18403.371","20":"19777.597","21":"19507.687","22":"20549.425","23":"21848.747","24":"24710.360","25":"25242.992","26":"25861.060"},{"1":"08116","2":"12212.272000000001","3":"12462.454","4":"12748.133","5":"13166.955","6":"13291.102999999999","7":"13937.165000000001","8":"14189.823","9":"14404.735","10":"15440.484","11":"14814.152","12":"15197.849","13":"15164.298","14":"15213.322","15":"16189.224","16":"17183.255","17":"17588.857","18":"15533.293","19":"17019.708","20":"18113.700","21":"18635.785","22":"18590.378","23":"19425.605","24":"20613.727","25":"20826.243","26":"22132.764"},{"1":"08117","2":"5119.5529999999999","3":"5264.9319999999998","4":"5546.5290000000005","5":"5746.7","6":"5775.7439999999997","7":"5944.8069999999998","8":"6032.4560000000001","9":"6119.063","10":"6164.443","11":"6218.688","12":"6320.541","13":"6257.565","14":"6180.212","15":"6457.367","16":"6797.122","17":"6972.486","18":"6294.134","19":"6720.163","20":"7003.959","21":"7154.972","22":"7553.849","23":"7959.158","24":"8549.057","25":"8550.687","26":"8732.092"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>Dieser Datensatz ist ein sogenanntes Panel. In den vorherigen Datensätzen zur Anzahl der Arbeitslosen und der Pro-Kopf-Verschuldung hatten wir nur das Jahr 2017 gegeben. Nun haben wir die Entwicklung des BIP seit 1992 bis 2017 für alle Landkreise in Deutschland.</p>
+<p>Dieser Datensatz ist ein sogenanntes Panel. In den vorherigen Datensätzen zur Anzahl der Arbeitslosen und der Pro-Kopf-Verschuldung hatten wir nur das Jahr 2017 gegeben. Nun haben wir die Entwicklung des BIP, die Anzahl an Erwerbstätigen und die Anzahl an Einwohnern seit 1992 bis 2017 für alle Landkreise in Deutschland.</p>
 </div>
 <div id="daten-in-das-long-format-überführen" class="section level2">
 <h2>Daten in das <code>long</code>-Format überführen</h2>
-<p>Allerdings ist der Datensatz im <code>wide</code>-Format, d.h. nicht <code>tidy</code> und damit nicht so, wie wir ihn gerne hätten. Erinnern wir uns noch an die Bedingungen damit ein Datensätzen <code>tidy</code> ist?</p>
+<p>Allerdings sind die Datensätze im <code>wide</code>-Format, d.h. nicht <code>tidy</code> und damit nicht so, wie wir ihn gerne hätten. Erinnern wir uns noch an die Bedingungen damit ein Datensätzen <code>tidy</code> ist?</p>
 <p>Im nächsten Schritt wollen wir den Datensatz nun ins <code>long</code>-Format überführen und nutzen hierfür die Funktion <code>pivot_longer</code>:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>bip_long &lt;-<span class="st"> </span><span class="kw">pivot_longer</span>(bip_wide, <span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">&quot;1992&quot;</span><span class="op">:</span><span class="st">&quot;2017&quot;</span>) , <span class="dt">names_to =</span> <span class="st">&quot;Jahr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;BIP&quot;</span>)</span>
-<span id="cb30-2"><a href="#cb30-2"></a></span>
-<span id="cb30-3"><a href="#cb30-3"></a><span class="co"># Produziert den folgenden Fehler:</span></span>
-<span id="cb30-4"><a href="#cb30-4"></a><span class="co"># Fehler: No common type for `1992` &lt;character&gt; and `2000` &lt;double&gt;.</span></span></code></pre></div>
-<p>Leider ist es hier nicht möglich den Datensatz direkt in das <code>long</code>-Format zu überführen, insbesondere da die Klassen der Variablen 1992 bis 1999 <code>character</code> sind und ab 2000 dann <code>double</code>. Dies sagt uns die erscheinende Fehlermeldung:</p>
-<p>Da wir wissen, dass das BIP normalerweise numerisch wiedergegeben wird, ist wohl die Klasse <code>double</code> korrekt und wir sollten die Spalten von 1992 bis 1999 entsprechend umformatieren.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="co">#BIP von 1992 - 1999 umformen (als numerische Variable)</span></span>
-<span id="cb31-2"><a href="#cb31-2"></a>bip_double &lt;-<span class="st"> </span>bip_wide <span class="op">%&gt;%</span></span>
-<span id="cb31-3"><a href="#cb31-3"></a><span class="st">  </span><span class="kw">select</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>) <span class="op">%&gt;%</span></span>
-<span id="cb31-4"><a href="#cb31-4"></a><span class="st">  </span><span class="kw">mutate_if</span>(is.character, as.double)</span>
-<span id="cb31-5"><a href="#cb31-5"></a></span>
-<span id="cb31-6"><a href="#cb31-6"></a><span class="co"># Erwerbstätige von 1992 - 1999 umformen (als numerische Variable)</span></span>
-<span id="cb31-7"><a href="#cb31-7"></a>erwerb_double &lt;-<span class="st"> </span>erwerb_wide <span class="op">%&gt;%</span></span>
-<span id="cb31-8"><a href="#cb31-8"></a><span class="st">  </span><span class="kw">select</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>) <span class="op">%&gt;%</span></span>
-<span id="cb31-9"><a href="#cb31-9"></a><span class="st">  </span><span class="kw">mutate_if</span>(is.character, as.double)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>bip_long &lt;-<span class="st"> </span><span class="kw">pivot_longer</span>(bip_wide, <span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">&quot;1992&quot;</span><span class="op">:</span><span class="st">&quot;2017&quot;</span>) , <span class="dt">names_to =</span> <span class="st">&quot;Jahr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;BIP&quot;</span>)</span>
+<span id="cb29-2"><a href="#cb29-2"></a></span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="co"># Produziert den folgenden Fehler:</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a><span class="co"># Fehler: No common type for `1992` &lt;character&gt; and `2000` &lt;double&gt;.</span></span></code></pre></div>
+<p>Leider ist es hier nicht möglich die Datensätze direkt in das <code>long</code>-Format zu überführen, insbesondere da die Klassen der Variablen 1992 bis 1999 <code>character</code> sind und ab 2000 dann <code>double</code>. Dies sagt uns die erscheinende Fehlermeldung:</p>
+<p>Da wir wissen, dass das BIP, die Anzahl an Erwerbstätigen und die Anzahl an Einwohnern normalerweise numerisch wiedergegeben wird, ist wohl die Klasse <code>double</code> korrekt und wir sollten die Spalten von 1992 bis 1999 entsprechend umformatieren.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="co">#BIP von 1992 - 1999 umformen (als numerische Variable)</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>bip_double &lt;-<span class="st"> </span>bip_wide <span class="op">%&gt;%</span></span>
+<span id="cb30-3"><a href="#cb30-3"></a><span class="st">  </span><span class="kw">select</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>) <span class="op">%&gt;%</span></span>
+<span id="cb30-4"><a href="#cb30-4"></a><span class="st">  </span><span class="kw">mutate_if</span>(is.character, as.double)</span>
+<span id="cb30-5"><a href="#cb30-5"></a></span>
+<span id="cb30-6"><a href="#cb30-6"></a><span class="co"># Erwerbstätige von 1992 - 1999 umformen (als numerische Variable)</span></span>
+<span id="cb30-7"><a href="#cb30-7"></a>erwerb_double &lt;-<span class="st"> </span>erwerb_wide <span class="op">%&gt;%</span></span>
+<span id="cb30-8"><a href="#cb30-8"></a><span class="st">  </span><span class="kw">select</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>) <span class="op">%&gt;%</span></span>
+<span id="cb30-9"><a href="#cb30-9"></a><span class="st">  </span><span class="kw">mutate_if</span>(is.character, as.double)</span>
+<span id="cb30-10"><a href="#cb30-10"></a></span>
+<span id="cb30-11"><a href="#cb30-11"></a><span class="co"># Einwohner von 1992 - 1999 umformen (als numerische Variable)</span></span>
+<span id="cb30-12"><a href="#cb30-12"></a>einwohner_double &lt;-<span class="st"> </span>einwohner_wide <span class="op">%&gt;%</span></span>
+<span id="cb30-13"><a href="#cb30-13"></a><span class="st">  </span><span class="kw">select</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>) <span class="op">%&gt;%</span></span>
+<span id="cb30-14"><a href="#cb30-14"></a><span class="st">  </span><span class="kw">mutate_if</span>(is.character, as.double)</span></code></pre></div>
 <p>Wir bekommen hier eine Warnmeldung das <code>NA</code>s bei der Umwandlung erzeugt wurden. Derartige Warnungen sollten wir beachten und auf den Grund gehen. Nur so wissen wir, ob die Warnung für uns später unbeabsichtigte Auswirkungen hat.</p>
 <p>Hierfür verbinden wir den neuen Datensatz <code>bip_double</code> mit unserem bisher bestehenden <code>bip_wide</code> und betrachten die Spalten in denen <code>bip_double</code> <code>NA</code>s enthält:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>bip_wide_test &lt;-<span class="st"> </span>bip_wide <span class="op">%&gt;%</span></span>
-<span id="cb32-2"><a href="#cb32-2"></a><span class="st">  </span><span class="kw">bind_cols</span>(bip_double)</span>
-<span id="cb32-3"><a href="#cb32-3"></a></span>
-<span id="cb32-4"><a href="#cb32-4"></a><span class="kw">head</span>(<span class="kw">filter</span>(bip_wide_test, <span class="kw">is.na</span>(<span class="st">`</span><span class="dt">19921</span><span class="st">`</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>bip_wide_test &lt;-<span class="st"> </span>bip_wide <span class="op">%&gt;%</span></span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="st">  </span><span class="kw">bind_cols</span>(bip_double)</span>
+<span id="cb31-3"><a href="#cb31-3"></a></span>
+<span id="cb31-4"><a href="#cb31-4"></a><span class="kw">head</span>(<span class="kw">filter</span>(bip_wide_test, <span class="kw">is.na</span>(<span class="st">`</span><span class="dt">19921</span><span class="st">`</span>)))</span></code></pre></div>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["Regionalschluessel"],"name":[1],"type":["chr"],"align":["left"]},{"label":["1992"],"name":[2],"type":["chr"],"align":["left"]},{"label":["1994"],"name":[3],"type":["chr"],"align":["left"]},{"label":["1995"],"name":[4],"type":["chr"],"align":["left"]},{"label":["1996"],"name":[5],"type":["chr"],"align":["left"]},{"label":["1997"],"name":[6],"type":["chr"],"align":["left"]},{"label":["1998"],"name":[7],"type":["chr"],"align":["left"]},{"label":["1999"],"name":[8],"type":["chr"],"align":["left"]},{"label":["2000"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["2001"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["2002"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["2003"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["2004"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["2005"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["2006"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["2007"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["2008"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["2009"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["2010"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["2011"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["2012"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["2013"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["2014"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["2015"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["2016"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["2017"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["19921"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["19941"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["19951"],"name":[29],"type":["dbl"],"align":["right"]},{"label":["19961"],"name":[30],"type":["dbl"],"align":["right"]},{"label":["19971"],"name":[31],"type":["dbl"],"align":["right"]},{"label":["19981"],"name":[32],"type":["dbl"],"align":["right"]},{"label":["19991"],"name":[33],"type":["dbl"],"align":["right"]}],"data":[{"1":"13003","2":".","3":".","4":".","5":".","6":".","7":".","8":".","9":"4908.726","10":"4760.329","11":"4806.335","12":"4779.963","13":"5035.583","14":"5167.415","15":"5093.714","16":"5507.242","17":"5855.211","18":"5797.674","19":"6128.371","20":"6112.636","21":"6283.962","22":"6746.761","23":"7079.753","24":"7184.344","25":"7176.594","26":"7775.205","27":"NA","28":"NA","29":"NA","30":"NA","31":"NA","32":"NA","33":"NA"},{"1":"13004","2":".","3":".","4":".","5":".","6":".","7":".","8":".","9":"2542.254","10":"2631.275","11":"2681.026","12":"2735.295","13":"2777.622","14":"2879.761","15":"2850.834","16":"2883.185","17":"2924.977","18":"2932.020","19":"2946.886","20":"3061.861","21":"3128.235","22":"3167.584","23":"3390.207","24":"3478.137","25":"3587.297","26":"3707.421","27":"NA","28":"NA","29":"NA","30":"NA","31":"NA","32":"NA","33":"NA"},{"1":"13071","2":".","3":".","4":".","5":".","6":".","7":".","8":".","9":"5153.853","10":"5247.756","11":"5241.649","12":"5469.232","13":"5566.547","14":"5432.629","15":"5704.082","16":"5884.487","17":"5822.432","18":"5801.074","19":"5819.374","20":"5931.452","21":"6088.659","22":"6188.518","23":"6356.691","24":"6509.354","25":"6657.831","26":"7051.762","27":"NA","28":"NA","29":"NA","30":"NA","31":"NA","32":"NA","33":"NA"},{"1":"13072","2":".","3":".","4":".","5":".","6":".","7":".","8":".","9":"3529.271","10":"3565.028","11":"3590.517","12":"3534.858","13":"3536.798","14":"3554.545","15":"3660.907","16":"3851.957","17":"4014.425","18":"3973.743","19":"4180.935","20":"4609.017","21":"4454.819","22":"4636.732","23":"4788.756","24":"4861.460","25":"5023.475","26":"5326.758","27":"NA","28":"NA","29":"NA","30":"NA","31":"NA","32":"NA","33":"NA"},{"1":"13073","2":".","3":".","4":".","5":".","6":".","7":".","8":".","9":"3610.681","10":"3629.849","11":"3757.323","12":"3809.043","13":"3922.907","14":"3925.251","15":"3970.209","16":"4263.918","17":"4537.171","18":"4489.846","19":"4518.801","20":"4672.285","21":"4631.265","22":"4733.136","23":"4870.186","24":"5048.822","25":"5156.058","26":"5395.237","27":"NA","28":"NA","29":"NA","30":"NA","31":"NA","32":"NA","33":"NA"},{"1":"13074","2":".","3":".","4":".","5":".","6":".","7":".","8":".","9":"2363.054","10":"2420.090","11":"2476.903","12":"2464.870","13":"2501.807","14":"2578.804","15":"2822.964","16":"2939.374","17":"2950.821","18":"2827.115","19":"2859.575","20":"3053.369","21":"3040.551","22":"3231.173","23":"3355.050","24":"3420.756","25":"3436.840","26":"3577.015","27":"NA","28":"NA","29":"NA","30":"NA","31":"NA","32":"NA","33":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>Hier sehen wir bereits warum die Klasse der Variablen <code>1992</code> bis <code>1999</code> <code>character</code> war und nicht <code>double</code>. Für diese Jahre gab es für einige Regionen keine Angaben zum BIP und daher wurden in der Excel Tabelle <code>-</code> eingefügt. Daher ist für uns die Umwandlung zu <code>NA</code> folgerichtig und wir können die Warnmeldung ignorieren und nur die transformierten Variablen mit der Klasse <code>double</code> verwenden:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>bip_wide &lt;-<span class="st"> </span>bip_wide <span class="op">%&gt;%</span></span>
-<span id="cb33-2"><a href="#cb33-2"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb33-3"><a href="#cb33-3"></a><span class="st">  </span><span class="kw">bind_cols</span>(bip_double) </span>
-<span id="cb33-4"><a href="#cb33-4"></a></span>
-<span id="cb33-5"><a href="#cb33-5"></a>erwerb_wide &lt;-<span class="st"> </span>erwerb_wide <span class="op">%&gt;%</span></span>
-<span id="cb33-6"><a href="#cb33-6"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb33-7"><a href="#cb33-7"></a><span class="st">  </span><span class="kw">bind_cols</span>(erwerb_double) </span></code></pre></div>
-<p>Nun können wir den Datensatz ins <code>long</code>-Format transferieren und nach dem Jahr sortieren:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>bip_long &lt;-<span class="st"> </span><span class="kw">pivot_longer</span>(bip_wide, <span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">&quot;2000&quot;</span><span class="op">:</span><span class="st">&quot;1999&quot;</span>) , <span class="dt">names_to =</span> <span class="st">&quot;Jahr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;bip&quot;</span>) <span class="op">%&gt;%</span></span>
-<span id="cb34-2"><a href="#cb34-2"></a><span class="st">  </span><span class="kw">mutate</span>( <span class="dt">Jahr =</span> <span class="kw">as.numeric</span>(Jahr),</span>
-<span id="cb34-3"><a href="#cb34-3"></a>          <span class="dt">bip =</span> bip <span class="op">*</span><span class="st"> </span><span class="dv">1000000</span>) <span class="op">%&gt;%</span></span>
-<span id="cb34-4"><a href="#cb34-4"></a><span class="st">  </span><span class="kw">arrange</span>( Jahr )</span>
+<p>Hier sehen wir bereits warum die Klasse der Variablen <code>1992</code> bis <code>1999</code> <code>character</code> war und nicht <code>double</code>. Für diese Jahre gab es für einige Regionen (Mecklenburg-Vorpommern und Niedersachen) keine Angaben zum BIP, den Erwerbstätigen oder den Einwohnern und daher wurden in der Excel Tabelle <code>-</code> eingefügt. Daher ist für uns die Umwandlung zu <code>NA</code> folgerichtig und wir können die Warnmeldung ignorieren und nur die transformierten Variablen mit der Klasse <code>double</code> verwenden:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>bip_wide &lt;-<span class="st"> </span>bip_wide <span class="op">%&gt;%</span></span>
+<span id="cb32-2"><a href="#cb32-2"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb32-3"><a href="#cb32-3"></a><span class="st">  </span><span class="kw">bind_cols</span>(bip_double) </span>
+<span id="cb32-4"><a href="#cb32-4"></a></span>
+<span id="cb32-5"><a href="#cb32-5"></a>erwerb_wide &lt;-<span class="st"> </span>erwerb_wide <span class="op">%&gt;%</span></span>
+<span id="cb32-6"><a href="#cb32-6"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb32-7"><a href="#cb32-7"></a><span class="st">  </span><span class="kw">bind_cols</span>(erwerb_double) </span>
+<span id="cb32-8"><a href="#cb32-8"></a></span>
+<span id="cb32-9"><a href="#cb32-9"></a>einwohner_wide &lt;-<span class="st"> </span>einwohner_wide <span class="op">%&gt;%</span></span>
+<span id="cb32-10"><a href="#cb32-10"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>(<span class="st">`</span><span class="dt">1992</span><span class="st">`</span><span class="op">:</span><span class="st">`</span><span class="dt">1999</span><span class="st">`</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb32-11"><a href="#cb32-11"></a><span class="st">  </span><span class="kw">bind_cols</span>(einwohner_double) </span></code></pre></div>
+<p>Nun können wir den Datensatz ins <code>long</code>-Format transferieren und nach dem Jahr sortieren. Da die Einwohner und Erwerbstätigen in 1000 Personen angegeben sind multiplizieren wir unsere Erwerbstätigen und Einwohner mit 1000. Das BIP ist in 1 Mio. Euro angegeben, daher die Multiplikation mit 1 Mio.:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="co"># BIP ins long-Format</span></span>
+<span id="cb33-2"><a href="#cb33-2"></a>bip_long &lt;-<span class="st"> </span><span class="kw">pivot_longer</span>(bip_wide, <span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">&quot;2000&quot;</span><span class="op">:</span><span class="st">&quot;1999&quot;</span>) , <span class="dt">names_to =</span> <span class="st">&quot;Jahr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;bip&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="st">  </span><span class="kw">mutate</span>( <span class="dt">Jahr =</span> <span class="kw">as.numeric</span>(Jahr),</span>
+<span id="cb33-4"><a href="#cb33-4"></a>          <span class="dt">bip =</span> bip <span class="op">*</span><span class="st"> </span><span class="dv">1000000</span>) <span class="op">%&gt;%</span></span>
+<span id="cb33-5"><a href="#cb33-5"></a><span class="st">  </span><span class="kw">arrange</span>( Jahr )</span>
+<span id="cb33-6"><a href="#cb33-6"></a></span>
+<span id="cb33-7"><a href="#cb33-7"></a><span class="co"># Anzahl der Erwerbstätigen ins long-Format</span></span>
+<span id="cb33-8"><a href="#cb33-8"></a>erwerb_long &lt;-<span class="st"> </span><span class="kw">pivot_longer</span>(erwerb_wide, <span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">&quot;2000&quot;</span><span class="op">:</span><span class="st">&quot;1999&quot;</span>) , <span class="dt">names_to =</span> <span class="st">&quot;Jahr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;erw&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb33-9"><a href="#cb33-9"></a><span class="st">  </span><span class="kw">mutate</span>( <span class="dt">Jahr =</span> <span class="kw">as.numeric</span>(Jahr),</span>
+<span id="cb33-10"><a href="#cb33-10"></a>          <span class="dt">erw =</span> erw <span class="op">*</span><span class="st"> </span><span class="dv">1000</span>) <span class="op">%&gt;%</span></span>
+<span id="cb33-11"><a href="#cb33-11"></a><span class="st">  </span><span class="kw">arrange</span>( Jahr )</span>
+<span id="cb33-12"><a href="#cb33-12"></a></span>
+<span id="cb33-13"><a href="#cb33-13"></a><span class="co"># Anzahl der Einwohner ins long-Format</span></span>
+<span id="cb33-14"><a href="#cb33-14"></a>einwohner_long &lt;-<span class="st"> </span><span class="kw">pivot_longer</span>(einwohner_wide, <span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">&quot;2000&quot;</span><span class="op">:</span><span class="st">&quot;1999&quot;</span>) , <span class="dt">names_to =</span> <span class="st">&quot;Jahr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;einwohner&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb33-15"><a href="#cb33-15"></a><span class="st">  </span><span class="kw">mutate</span>( <span class="dt">Jahr =</span> <span class="kw">as.numeric</span>(Jahr),</span>
+<span id="cb33-16"><a href="#cb33-16"></a>          <span class="dt">einwohner =</span> einwohner <span class="op">*</span><span class="st"> </span><span class="dv">1000</span>) <span class="op">%&gt;%</span></span>
+<span id="cb33-17"><a href="#cb33-17"></a><span class="st">  </span><span class="kw">arrange</span>( Jahr )</span></code></pre></div>
+</div>
+<div id="konsistenzchecks" class="section level2">
+<h2>Konsistenzchecks</h2>
+<p>Wir haben die bereits in dem Abschnitt “Pro-Kopf Verschuldung” die Einwohner zur Berechnung der Pro-Kopf-Verschuldung für 2017 eingelesen. Für eine längerfristige Betrachtung haben wir in diesem Kapitel dann die Anzahl der Einwohner seit 1992 bis 2017 eingelesen. In diesem Konsistenzcheck wollen wir untersuchen ob die Anzahl der Einwohner aus beiden Datenquellen identisch ist. Hierbei ist es natürlich wichtig, wann die Daten zur Einwohnerzahl erhoben wurden und deshalb könnten diese auch geringfügig abweichen. Aber dem gehen wir nun auf den Grund:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>schulden_check &lt;-<span class="st"> </span>schulden_bereinigt <span class="op">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="st">  </span><span class="kw">group_by</span>(landkreis) <span class="op">%&gt;%</span></span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="st">  </span><span class="kw">summarise</span>( <span class="dt">Schulden_pro_kopf_lk =</span> <span class="kw">sum</span>(Schulden_gesamt)<span class="op">/</span><span class="kw">sum</span>(Einwohner), <span class="dt">Einwohner =</span> <span class="kw">sum</span>(Einwohner), <span class="dt">Schulden_gesamt =</span> <span class="kw">sum</span>(Schulden_gesamt)) <span class="op">%&gt;%</span></span>
+<span id="cb34-4"><a href="#cb34-4"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">Regionalschluessel =</span> landkreis)</span>
 <span id="cb34-5"><a href="#cb34-5"></a></span>
-<span id="cb34-6"><a href="#cb34-6"></a>erwerb_long &lt;-<span class="st"> </span><span class="kw">pivot_longer</span>(erwerb_wide, <span class="dt">cols =</span> <span class="kw">c</span>(<span class="st">&quot;2000&quot;</span><span class="op">:</span><span class="st">&quot;1999&quot;</span>) , <span class="dt">names_to =</span> <span class="st">&quot;Jahr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;erw&quot;</span>) <span class="op">%&gt;%</span></span>
-<span id="cb34-7"><a href="#cb34-7"></a><span class="st">  </span><span class="kw">mutate</span>( <span class="dt">Jahr =</span> <span class="kw">as.numeric</span>(Jahr),</span>
-<span id="cb34-8"><a href="#cb34-8"></a>          <span class="dt">erw =</span> erw <span class="op">*</span><span class="st"> </span><span class="dv">1000</span>) <span class="op">%&gt;%</span></span>
-<span id="cb34-9"><a href="#cb34-9"></a><span class="st">  </span><span class="kw">arrange</span>( Jahr )</span></code></pre></div>
+<span id="cb34-6"><a href="#cb34-6"></a>einwohner_check &lt;-<span class="st"> </span><span class="kw">left_join</span>(schulden_check, <span class="kw">filter</span>(einwohner_long, Jahr <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>), <span class="dt">by=</span><span class="kw">c</span>(<span class="st">&quot;Regionalschluessel&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">diff =</span> Einwohner <span class="op">-</span><span class="st"> </span>einwohner) <span class="op">%&gt;%</span></span>
+<span id="cb34-8"><a href="#cb34-8"></a><span class="st">  </span><span class="kw">arrange</span>(<span class="kw">desc</span>(diff))</span></code></pre></div>
+<p>Die Differenz liegt immer bei +/- 2000 Einwohnern, was im Toleranzbereich bei den großen Städte mit mehr als 120.000 Einwohnern ist. Der einzige extreme Ausreiser ist die Landeshauptstadt München. Hier gehen die Einwohnerzahlen um 10 181 Personen auseinander. Laut <a href="https://de.wikipedia.org/wiki/Einwohnerentwicklung_von_M%C3%BCnchen">Wikipedia</a> hat sich jedoch auch die Einwohnerzahl zwischen dem 31.12.2017 und dem 31.12.2018 um 15 000 Personen erhöht. Wenn die erste Quelle die Einwohnerzahlen von Anfang/Mitte 2018 hat und die zweite eher von Anfang/Mitte 2017 dann ist diese Abweichung also durchaus denkbar. Schauen wir uns hierzu die Quellen etwas näher an: Veröffentlichungsdatum der BIP Zahlen war August 2018, die Zahlen zu den Einkommen aus dem Report zu den Integrierten Schulden der Gemeinden stammen vom 30.06.2017, d.h. die Abweichungen in den Einwohnerzahlen könnten gut im Zeitpunkt der Erhebung der Einwohnerzahlen begründet sein. Daher werden wir den Differenzen nicht weiter nachgehen.</p>
+<p>Um die langfristigen Entwicklungen des BIP pro Kopf zu visualisieren werden wir die dazugehörigen Einwohnerzahlen aus der Datenquelle zum BIP verwenden. Für die Pro-Kopf-Verschuldung jedoch die in der “Integrierten Schulden der Gemeinden” angegebenen Einwohnerzahl.</p>
 </div>
 </div>
 <div id="kartenmaterial-hinzufügen-optional" class="section level1">
@@ -3636,51 +3673,61 @@ div.tocify {
 <span id="cb36-4"><a href="#cb36-4"></a><span class="st">  </span><span class="kw">summarise</span>( <span class="dt">Schulden_pro_kopf_lk =</span> <span class="kw">sum</span>(Schulden_gesamt)<span class="op">/</span><span class="kw">sum</span>(Einwohner), <span class="dt">Einwohner =</span> <span class="kw">sum</span>(Einwohner), <span class="dt">Schulden_gesamt =</span> <span class="kw">sum</span>(Schulden_gesamt)) <span class="op">%&gt;%</span></span>
 <span id="cb36-5"><a href="#cb36-5"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">Regionalschluessel =</span> landkreis)</span>
 <span id="cb36-6"><a href="#cb36-6"></a></span>
-<span id="cb36-7"><a href="#cb36-7"></a><span class="co"># BIP auf Landkreisebene im Jahr 2017</span></span>
-<span id="cb36-8"><a href="#cb36-8"></a>bip_kombi &lt;-<span class="st"> </span>bip_long <span class="op">%&gt;%</span></span>
-<span id="cb36-9"><a href="#cb36-9"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">nchar</span>(Regionalschluessel) <span class="op">==</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>Jahr <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>) <span class="op">%&gt;%</span></span>
-<span id="cb36-10"><a href="#cb36-10"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>Jahr)</span>
-<span id="cb36-11"><a href="#cb36-11"></a></span>
-<span id="cb36-12"><a href="#cb36-12"></a><span class="co"># Anzahl an Erwerbstätigen für das Jahr 2017</span></span>
-<span id="cb36-13"><a href="#cb36-13"></a>erwerb_kombi &lt;-<span class="st"> </span>erwerb_long <span class="op">%&gt;%</span></span>
-<span id="cb36-14"><a href="#cb36-14"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">nchar</span>(Regionalschluessel) <span class="op">==</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>Jahr <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>) <span class="op">%&gt;%</span></span>
-<span id="cb36-15"><a href="#cb36-15"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>Jahr)</span>
-<span id="cb36-16"><a href="#cb36-16"></a></span>
-<span id="cb36-17"><a href="#cb36-17"></a><span class="co"># Namen der Landkreise</span></span>
-<span id="cb36-18"><a href="#cb36-18"></a>landkreis_name &lt;-<span class="st"> </span>landkreise <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb36-19"><a href="#cb36-19"></a><span class="st">  </span><span class="kw">st_drop_geometry</span>() <span class="op">%&gt;%</span></span>
-<span id="cb36-20"><a href="#cb36-20"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>RS) <span class="op">%&gt;%</span></span>
-<span id="cb36-21"><a href="#cb36-21"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">bundesland =</span> <span class="kw">str_extract</span>(Regionalschluessel, <span class="st">&quot;^.{2}&quot;</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb36-22"><a href="#cb36-22"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">landkreis_name =</span> GEN)</span>
-<span id="cb36-23"><a href="#cb36-23"></a></span>
-<span id="cb36-24"><a href="#cb36-24"></a><span class="co"># Namen der Bundesländer</span></span>
-<span id="cb36-25"><a href="#cb36-25"></a>bundesland_name &lt;-<span class="st"> </span>bundesland <span class="op">%&gt;%</span></span>
-<span id="cb36-26"><a href="#cb36-26"></a><span class="st">  </span><span class="kw">st_drop_geometry</span>() <span class="op">%&gt;%</span></span>
-<span id="cb36-27"><a href="#cb36-27"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>RS) <span class="op">%&gt;%</span></span>
-<span id="cb36-28"><a href="#cb36-28"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">bundesland =</span> Regionalschluessel,</span>
-<span id="cb36-29"><a href="#cb36-29"></a>         <span class="dt">bundesland_name =</span> GEN)</span>
-<span id="cb36-30"><a href="#cb36-30"></a></span>
-<span id="cb36-31"><a href="#cb36-31"></a><span class="co"># Datensätze zusammenführen</span></span>
-<span id="cb36-32"><a href="#cb36-32"></a></span>
-<span id="cb36-33"><a href="#cb36-33"></a><span class="co"># Basisdatensatz -&gt; Arbeitslosenzahlen pro Landkreis</span></span>
-<span id="cb36-34"><a href="#cb36-34"></a><span class="co"># Name der Landkreise zumergen</span></span>
-<span id="cb36-35"><a href="#cb36-35"></a>daten1 &lt;-<span class="st"> </span><span class="kw">left_join</span>(alo_landkreis, landkreis_name, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
-<span id="cb36-36"><a href="#cb36-36"></a><span class="co"># Namen der Bundesländer zumergen</span></span>
-<span id="cb36-37"><a href="#cb36-37"></a>daten1 &lt;-<span class="st"> </span>daten1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">bundesland =</span> <span class="kw">str_extract</span>(Regionalschluessel, <span class="st">&quot;^.{2}&quot;</span>))</span>
-<span id="cb36-38"><a href="#cb36-38"></a>daten1 &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten1, bundesland_name, <span class="dt">by =</span> <span class="st">&quot;bundesland&quot;</span>)</span>
-<span id="cb36-39"><a href="#cb36-39"></a><span class="co"># Schulden zumergen</span></span>
-<span id="cb36-40"><a href="#cb36-40"></a>daten2 &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten1, schulden_kombi, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
-<span id="cb36-41"><a href="#cb36-41"></a><span class="co"># BIP zumergen</span></span>
-<span id="cb36-42"><a href="#cb36-42"></a>daten3 &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten2, bip_kombi, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
-<span id="cb36-43"><a href="#cb36-43"></a><span class="co"># Zahl der Erwerbstätigen zumergen</span></span>
-<span id="cb36-44"><a href="#cb36-44"></a>gesamtdaten &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten3, erwerb_kombi, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
-<span id="cb36-45"><a href="#cb36-45"></a></span>
-<span id="cb36-46"><a href="#cb36-46"></a><span class="kw">saveRDS</span>(gesamtdaten, <span class="st">&quot;data/gesamtdaten.rds&quot;</span>)</span>
-<span id="cb36-47"><a href="#cb36-47"></a><span class="kw">saveRDS</span>(schulden_bereinigt, <span class="st">&quot;data/schulden_bereinigt.rds&quot;</span>)</span>
-<span id="cb36-48"><a href="#cb36-48"></a><span class="kw">saveRDS</span>(bip_long, <span class="st">&quot;data/bip_long.rds&quot;</span>)</span>
-<span id="cb36-49"><a href="#cb36-49"></a><span class="kw">saveRDS</span>(bundesland, <span class="st">&quot;data/bundesland.rds&quot;</span>)</span>
-<span id="cb36-50"><a href="#cb36-50"></a><span class="kw">saveRDS</span>(gemeinden, <span class="st">&quot;data/gemeinden.rds&quot;</span>)</span>
-<span id="cb36-51"><a href="#cb36-51"></a><span class="kw">saveRDS</span>(landkreise, <span class="st">&quot;data/landkreise.rds&quot;</span>)</span></code></pre></div>
+<span id="cb36-7"><a href="#cb36-7"></a></span>
+<span id="cb36-8"><a href="#cb36-8"></a><span class="co"># Anzahl an Erwerbstätigen für das Jahr 2017</span></span>
+<span id="cb36-9"><a href="#cb36-9"></a>erwerb_kombi &lt;-<span class="st"> </span>erwerb_long <span class="op">%&gt;%</span></span>
+<span id="cb36-10"><a href="#cb36-10"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">nchar</span>(Regionalschluessel) <span class="op">==</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>Jahr <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>) <span class="op">%&gt;%</span></span>
+<span id="cb36-11"><a href="#cb36-11"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>Jahr)</span>
+<span id="cb36-12"><a href="#cb36-12"></a></span>
+<span id="cb36-13"><a href="#cb36-13"></a><span class="co"># Anzahl an Einwohner für das Jahr 2017</span></span>
+<span id="cb36-14"><a href="#cb36-14"></a>einwohner_kombi &lt;-<span class="st"> </span>einwohner_long <span class="op">%&gt;%</span></span>
+<span id="cb36-15"><a href="#cb36-15"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">nchar</span>(Regionalschluessel) <span class="op">==</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>Jahr <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>) <span class="op">%&gt;%</span></span>
+<span id="cb36-16"><a href="#cb36-16"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>Jahr)</span>
+<span id="cb36-17"><a href="#cb36-17"></a></span>
+<span id="cb36-18"><a href="#cb36-18"></a><span class="co"># Namen der Landkreise</span></span>
+<span id="cb36-19"><a href="#cb36-19"></a>landkreis_name &lt;-<span class="st"> </span>landkreise <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb36-20"><a href="#cb36-20"></a><span class="st">  </span><span class="kw">st_drop_geometry</span>() <span class="op">%&gt;%</span></span>
+<span id="cb36-21"><a href="#cb36-21"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>RS) <span class="op">%&gt;%</span></span>
+<span id="cb36-22"><a href="#cb36-22"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">bundesland =</span> <span class="kw">str_extract</span>(Regionalschluessel, <span class="st">&quot;^.{2}&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb36-23"><a href="#cb36-23"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">landkreis_name =</span> GEN)</span>
+<span id="cb36-24"><a href="#cb36-24"></a></span>
+<span id="cb36-25"><a href="#cb36-25"></a><span class="co"># Namen der Bundesländer</span></span>
+<span id="cb36-26"><a href="#cb36-26"></a>bundesland_name &lt;-<span class="st"> </span>bundesland <span class="op">%&gt;%</span></span>
+<span id="cb36-27"><a href="#cb36-27"></a><span class="st">  </span><span class="kw">st_drop_geometry</span>() <span class="op">%&gt;%</span></span>
+<span id="cb36-28"><a href="#cb36-28"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>RS) <span class="op">%&gt;%</span></span>
+<span id="cb36-29"><a href="#cb36-29"></a><span class="st">  </span><span class="kw">rename</span>(<span class="dt">bundesland =</span> Regionalschluessel,</span>
+<span id="cb36-30"><a href="#cb36-30"></a>         <span class="dt">bundesland_name =</span> GEN)</span>
+<span id="cb36-31"><a href="#cb36-31"></a></span>
+<span id="cb36-32"><a href="#cb36-32"></a><span class="co"># Anzahl der Einwohner mit dem BIP verbinden um das BIP pro Kopf berechnen zu können</span></span>
+<span id="cb36-33"><a href="#cb36-33"></a>bip_zeitreihe &lt;-<span class="st"> </span><span class="kw">left_join</span>(bip_long, einwohner_long, <span class="dt">by=</span><span class="kw">c</span>(<span class="st">&quot;Regionalschluessel&quot;</span>, <span class="st">&quot;Jahr&quot;</span>)) <span class="op">%&gt;%</span></span>
+<span id="cb36-34"><a href="#cb36-34"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">bip_pro_kopf =</span> bip <span class="op">/</span><span class="st"> </span>einwohner)</span>
+<span id="cb36-35"><a href="#cb36-35"></a></span>
+<span id="cb36-36"><a href="#cb36-36"></a><span class="co"># BIP auf Landkreisebene im Jahr 2017</span></span>
+<span id="cb36-37"><a href="#cb36-37"></a>bip_kombi &lt;-<span class="st"> </span>bip_zeitreihe <span class="op">%&gt;%</span></span>
+<span id="cb36-38"><a href="#cb36-38"></a><span class="st">  </span><span class="kw">filter</span>(<span class="kw">nchar</span>(Regionalschluessel) <span class="op">==</span><span class="st"> </span><span class="dv">5</span> <span class="op">&amp;</span><span class="st"> </span>Jahr <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>) <span class="op">%&gt;%</span></span>
+<span id="cb36-39"><a href="#cb36-39"></a><span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(Jahr, einwohner))</span>
+<span id="cb36-40"><a href="#cb36-40"></a></span>
+<span id="cb36-41"><a href="#cb36-41"></a><span class="co"># Datensätze zusammenführen</span></span>
+<span id="cb36-42"><a href="#cb36-42"></a></span>
+<span id="cb36-43"><a href="#cb36-43"></a><span class="co"># Basisdatensatz -&gt; Arbeitslosenzahlen pro Landkreis</span></span>
+<span id="cb36-44"><a href="#cb36-44"></a><span class="co"># Name der Landkreise zumergen</span></span>
+<span id="cb36-45"><a href="#cb36-45"></a>daten1 &lt;-<span class="st"> </span><span class="kw">left_join</span>(alo_landkreis, landkreis_name, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
+<span id="cb36-46"><a href="#cb36-46"></a><span class="co"># Namen der Bundesländer zumergen</span></span>
+<span id="cb36-47"><a href="#cb36-47"></a>daten1 &lt;-<span class="st"> </span>daten1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">bundesland =</span> <span class="kw">str_extract</span>(Regionalschluessel, <span class="st">&quot;^.{2}&quot;</span>))</span>
+<span id="cb36-48"><a href="#cb36-48"></a>daten1 &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten1, bundesland_name, <span class="dt">by =</span> <span class="st">&quot;bundesland&quot;</span>)</span>
+<span id="cb36-49"><a href="#cb36-49"></a><span class="co"># Schulden zumergen</span></span>
+<span id="cb36-50"><a href="#cb36-50"></a>daten2 &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten1, schulden_kombi, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
+<span id="cb36-51"><a href="#cb36-51"></a><span class="co"># BIP zumergen</span></span>
+<span id="cb36-52"><a href="#cb36-52"></a>daten3 &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten2, bip_kombi, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
+<span id="cb36-53"><a href="#cb36-53"></a><span class="co"># Zahl der Erwerbstätigen zumergen</span></span>
+<span id="cb36-54"><a href="#cb36-54"></a>gesamtdaten &lt;-<span class="st"> </span><span class="kw">left_join</span>(daten3, erwerb_kombi, <span class="dt">by =</span> <span class="st">&quot;Regionalschluessel&quot;</span>)</span>
+<span id="cb36-55"><a href="#cb36-55"></a></span>
+<span id="cb36-56"><a href="#cb36-56"></a><span class="kw">saveRDS</span>(gesamtdaten, <span class="st">&quot;data/gesamtdaten.rds&quot;</span>)</span>
+<span id="cb36-57"><a href="#cb36-57"></a><span class="kw">saveRDS</span>(schulden_bereinigt, <span class="st">&quot;data/schulden_bereinigt.rds&quot;</span>)</span>
+<span id="cb36-58"><a href="#cb36-58"></a><span class="kw">saveRDS</span>(bip_zeitreihe, <span class="st">&quot;data/bip_zeitreihe.rds&quot;</span>)</span>
+<span id="cb36-59"><a href="#cb36-59"></a><span class="kw">saveRDS</span>(bundesland, <span class="st">&quot;data/bundesland.rds&quot;</span>)</span>
+<span id="cb36-60"><a href="#cb36-60"></a><span class="kw">saveRDS</span>(gemeinden, <span class="st">&quot;data/gemeinden.rds&quot;</span>)</span>
+<span id="cb36-61"><a href="#cb36-61"></a><span class="kw">saveRDS</span>(landkreise, <span class="st">&quot;data/landkreise.rds&quot;</span>)</span></code></pre></div>
 </div>
 <div id="übungsaufgaben" class="section level1">
 <h1>Übungsaufgaben</h1>
@@ -3700,7 +3747,7 @@ div.tocify {
  
 <br><br><br><br>
 <hr />
-<p style="text-align: center;">A work by <a href="https://github.com/"><a href="https://github.com/AlexRieber">Alexander Rieber</a> - 27 April 2020</a></p>
+<p style="text-align: center;">A work by <a href="https://github.com/"><a href="https://github.com/AlexRieber">Alexander Rieber</a> - 29 April 2020</a></p>
 <p style="text-align: center;"><span style="color: #808080;"><em><a href="mailto:alexander.rieber@uni-ulm.de" class="email">alexander.rieber@uni-ulm.de</a></em></span></p>
 
 <!-- Add icon library -->

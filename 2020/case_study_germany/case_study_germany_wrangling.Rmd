@@ -5,7 +5,7 @@ mail: "alexander.rieber@uni-ulm.de"
 #github: "AlexRieber"
 logo: "../figs/dplyr.png"
 output: 
-  pdf_document: default
+#  pdf_document: default
   epuRate::epurate:
     toc: TRUE
     number_sections: FALSE
@@ -457,6 +457,7 @@ Die Differenzen liegen auch hier zwischen +/- 50 Cent und können vermutlich auf
 # Bruttoinlandsprodukt
 
 Im nächsten Schritt wollen wir uns die Daten zum Bruttoinlandsprodukt einzelner Landkreise anschauen und diese in R einlesen. Da diese wieder als ZIP-Archiv heruntergeladen wurden können wir unser vorheriges Schema auch auf diese Daten anwenden. 
+Weiterhin beziehen wir aus diesem Excel-File die Anzahl an Erwerbstätigen, mit dem wir später die Arbeitslosenquote berechnen können und die Anzahl an Einwohner, mit denen wir das BIP-pro-Kopf anrechnen können.
 
 ## ZIP-Archiv entpacken und nur einzelne Spalten einlesen
 
@@ -465,13 +466,10 @@ Folgende Schritte wollen wir in einem Chunk erledigen:
 - Betrachten der entzippten Daten 
   - Tabellenblatt "1.1" ist für unsere Analyse ausschlaggebend (für das BIP)
   - Tabellenblatt "3.1" ist für die Anzahl an Erwerbstätigen ausschlaggebend
+  - Tabellenblatt "5." ist für die Anzahl an Einwohnern ausschlaggebend
 - Die ersten vier Zeilen benötigen wir nicht
 - Die letzte Zeile enthält eine kurze Beschreibung die wir nicht benötigen -> Behalte alle Zeilen, welche bei der `Lfd. Nr.` numerisch sind
 - Die folgenden Variablen benötigen wir nicht für unsere Analyse und können entfernt werden: `Lfd. Nr.`, `EU-Code`, `NUTS 1`, `NUTS 2`, `NUTS 3`, `Land`, `Gebietseinheit`
-
-```{r}
-#Anzahl der Erwerbstätigen
-```
 
 ```{r, warning=FALSE, message=FALSE}
 # Einlesen der Daten mit anschließendem aufräumen
@@ -481,6 +479,7 @@ unzip("./data/BIP_2017.xlsx.zip", bip_name)
 # Blatt 1.1 einlesen und die ersten 4 Zeilen skippen
 bip <- read_xlsx(bip_name, sheet="1.1", skip = 4)
 erwerb <- read_xlsx(bip_name, sheet="3.1", skip = 4)
+einwohner <- read_xlsx(bip_name, sheet = "5.", skip = 4)
 unlink(bip_name)
 
 # Zeile löschen in der die `Lfd. Nr.` nicht nummerisch ist
@@ -497,14 +496,19 @@ erwerb_wide <- erwerb %>%
   select(-c(`Lfd. Nr.`, `EU-Code`, `NUTS 1`, `NUTS 2`, `NUTS 3`, Land, Gebietseinheit)) %>%
   rename(Regionalschluessel = `Regional-schlüssel`)
 
+einwohner_wide <- einwohner %>%
+  filter(is.na(as.numeric(`Lfd. Nr.`))==FALSE) %>%
+  select(-c(`Lfd. Nr.`, `EU-Code`, `NUTS 1`, `NUTS 2`, `NUTS 3`, Land, Gebietseinheit)) %>%
+  rename(Regionalschluessel = `Regional-schlüssel`)
+
 head(bip_wide)
 ```
 
-Dieser Datensatz ist ein sogenanntes Panel. In den vorherigen Datensätzen zur Anzahl der Arbeitslosen und der Pro-Kopf-Verschuldung hatten wir nur das Jahr 2017 gegeben. Nun haben wir die Entwicklung des BIP seit 1992 bis 2017 für alle Landkreise in Deutschland.
+Dieser Datensatz ist ein sogenanntes Panel. In den vorherigen Datensätzen zur Anzahl der Arbeitslosen und der Pro-Kopf-Verschuldung hatten wir nur das Jahr 2017 gegeben. Nun haben wir die Entwicklung des BIP, die Anzahl an Erwerbstätigen und die Anzahl an Einwohnern seit 1992 bis 2017 für alle Landkreise in Deutschland.
 
 ## Daten in das `long`-Format überführen
 
-Allerdings ist der Datensatz im `wide`-Format, d.h. nicht `tidy` und damit nicht so, wie wir ihn gerne hätten. Erinnern wir uns noch an die Bedingungen damit ein Datensätzen `tidy` ist?
+Allerdings sind die Datensätze im `wide`-Format, d.h. nicht `tidy` und damit nicht so, wie wir ihn gerne hätten. Erinnern wir uns noch an die Bedingungen damit ein Datensätzen `tidy` ist?
 
 Im nächsten Schritt wollen wir den Datensatz nun ins `long`-Format überführen und nutzen hierfür die Funktion `pivot_longer`:
 
@@ -515,13 +519,13 @@ bip_long <- pivot_longer(bip_wide, cols = c("1992":"2017") , names_to = "Jahr", 
 # Fehler: No common type for `1992` <character> and `2000` <double>.
 ```
 
-Leider ist es hier nicht möglich den Datensatz direkt in das `long`-Format zu überführen, insbesondere da die Klassen der Variablen 1992 bis 1999 `character` sind und ab 2000 dann `double`. Dies sagt uns die erscheinende Fehlermeldung:
+Leider ist es hier nicht möglich die Datensätze direkt in das `long`-Format zu überführen, insbesondere da die Klassen der Variablen 1992 bis 1999 `character` sind und ab 2000 dann `double`. Dies sagt uns die erscheinende Fehlermeldung:
 
 ---
 Fehler: No common type for `1992` <character> and `2000` <double>.
 ---
 
-Da wir wissen, dass das BIP normalerweise numerisch wiedergegeben wird, ist wohl die Klasse `double` korrekt und wir sollten die Spalten von 1992 bis 1999 entsprechend umformatieren. 
+Da wir wissen, dass das BIP, die Anzahl an Erwerbstätigen und die Anzahl an Einwohnern normalerweise numerisch wiedergegeben wird, ist wohl die Klasse `double` korrekt und wir sollten die Spalten von 1992 bis 1999 entsprechend umformatieren. 
 
 ```{r, message=FALSE, warning=FALSE}
 #BIP von 1992 - 1999 umformen (als numerische Variable)
@@ -531,6 +535,11 @@ bip_double <- bip_wide %>%
 
 # Erwerbstätige von 1992 - 1999 umformen (als numerische Variable)
 erwerb_double <- erwerb_wide %>%
+  select(`1992`:`1999`) %>%
+  mutate_if(is.character, as.double)
+
+# Einwohner von 1992 - 1999 umformen (als numerische Variable)
+einwohner_double <- einwohner_wide %>%
   select(`1992`:`1999`) %>%
   mutate_if(is.character, as.double)
 ```
@@ -546,7 +555,7 @@ bip_wide_test <- bip_wide %>%
 head(filter(bip_wide_test, is.na(`19921`)))
 ```
 
-Hier sehen wir bereits warum die Klasse der Variablen `1992` bis `1999` `character` war und nicht `double`. Für diese Jahre gab es für einige Regionen keine Angaben zum BIP und daher wurden in der Excel Tabelle `-` eingefügt. Daher ist für uns die Umwandlung zu `NA` folgerichtig und wir können die Warnmeldung ignorieren und nur die transformierten Variablen mit der Klasse `double` verwenden:
+Hier sehen wir bereits warum die Klasse der Variablen `1992` bis `1999` `character` war und nicht `double`. Für diese Jahre gab es für einige Regionen (Mecklenburg-Vorpommern und Niedersachen) keine Angaben zum BIP, den Erwerbstätigen oder den Einwohnern und daher wurden in der Excel Tabelle `-` eingefügt. Daher ist für uns die Umwandlung zu `NA` folgerichtig und wir können die Warnmeldung ignorieren und nur die transformierten Variablen mit der Klasse `double` verwenden:
 
 ```{r}
 bip_wide <- bip_wide %>%
@@ -556,21 +565,55 @@ bip_wide <- bip_wide %>%
 erwerb_wide <- erwerb_wide %>%
   select(-(`1992`:`1999`)) %>%
   bind_cols(erwerb_double) 
+
+einwohner_wide <- einwohner_wide %>%
+  select(-(`1992`:`1999`)) %>%
+  bind_cols(einwohner_double) 
 ```
 
-Nun können wir den Datensatz ins `long`-Format transferieren und nach dem Jahr sortieren:
+Nun können wir den Datensatz ins `long`-Format transferieren und nach dem Jahr sortieren.
+Da die Einwohner und Erwerbstätigen in 1000 Personen angegeben sind multiplizieren wir unsere Erwerbstätigen und Einwohner mit 1000. Das BIP ist in 1 Mio. Euro angegeben, daher die Multiplikation mit 1 Mio.:
 
 ```{r}
+# BIP ins long-Format
 bip_long <- pivot_longer(bip_wide, cols = c("2000":"1999") , names_to = "Jahr", values_to = "bip") %>%
   mutate( Jahr = as.numeric(Jahr),
           bip = bip * 1000000) %>%
   arrange( Jahr )
 
+# Anzahl der Erwerbstätigen ins long-Format
 erwerb_long <- pivot_longer(erwerb_wide, cols = c("2000":"1999") , names_to = "Jahr", values_to = "erw") %>%
   mutate( Jahr = as.numeric(Jahr),
           erw = erw * 1000) %>%
   arrange( Jahr )
+
+# Anzahl der Einwohner ins long-Format
+einwohner_long <- pivot_longer(einwohner_wide, cols = c("2000":"1999") , names_to = "Jahr", values_to = "einwohner") %>%
+  mutate( Jahr = as.numeric(Jahr),
+          einwohner = einwohner * 1000) %>%
+  arrange( Jahr )
 ```
+
+## Konsistenzchecks
+
+Wir haben die bereits in dem Abschnitt "Pro-Kopf Verschuldung" die Einwohner zur Berechnung der Pro-Kopf-Verschuldung für 2017 eingelesen.
+Für eine längerfristige Betrachtung haben wir in diesem Kapitel dann die Anzahl der Einwohner seit 1992 bis 2017 eingelesen.
+In diesem Konsistenzcheck wollen wir untersuchen ob die Anzahl der Einwohner aus beiden Datenquellen identisch ist. Hierbei ist es natürlich wichtig, wann die Daten zur Einwohnerzahl erhoben wurden und deshalb könnten diese auch geringfügig abweichen. Aber dem gehen wir nun auf den Grund:
+
+```{r}
+schulden_check <- schulden_bereinigt %>%
+  group_by(landkreis) %>%
+  summarise( Schulden_pro_kopf_lk = sum(Schulden_gesamt)/sum(Einwohner), Einwohner = sum(Einwohner), Schulden_gesamt = sum(Schulden_gesamt)) %>%
+  rename(Regionalschluessel = landkreis)
+
+einwohner_check <- left_join(schulden_check, filter(einwohner_long, Jahr == 2017), by=c("Regionalschluessel")) %>%
+  mutate(diff = Einwohner - einwohner) %>%
+  arrange(desc(diff))
+```
+
+Die Differenz liegt immer bei +/- 2000 Einwohnern, was im Toleranzbereich bei den großen Städte mit mehr als 120.000 Einwohnern ist. Der einzige extreme Ausreiser ist die Landeshauptstadt München. Hier gehen die Einwohnerzahlen um 10 181 Personen auseinander. Laut [Wikipedia](https://de.wikipedia.org/wiki/Einwohnerentwicklung_von_M%C3%BCnchen) hat sich jedoch auch die Einwohnerzahl zwischen dem 31.12.2017 und dem 31.12.2018 um 15 000 Personen erhöht. Wenn die erste Quelle die Einwohnerzahlen von Anfang/Mitte 2018 hat und die zweite eher von Anfang/Mitte 2017 dann ist diese Abweichung also durchaus denkbar. Schauen wir uns hierzu die Quellen etwas näher an: Veröffentlichungsdatum der BIP Zahlen war August 2018, die Zahlen zu den Einkommen aus dem Report zu den Integrierten Schulden der Gemeinden stammen vom 30.06.2017, d.h. die Abweichungen in den Einwohnerzahlen könnten gut im Zeitpunkt der Erhebung der Einwohnerzahlen begründet sein. Daher werden wir den Differenzen nicht weiter nachgehen.
+
+Um die langfristigen Entwicklungen des BIP pro Kopf zu visualisieren werden wir die dazugehörigen Einwohnerzahlen aus der Datenquelle zum BIP verwenden. Für die Pro-Kopf-Verschuldung jedoch die in der "Integrierten Schulden der Gemeinden" angegebenen Einwohnerzahl.
 
 # Kartenmaterial hinzufügen (optional)
 
@@ -654,13 +697,14 @@ schulden_kombi <- schulden_bereinigt %>%
   summarise( Schulden_pro_kopf_lk = sum(Schulden_gesamt)/sum(Einwohner), Einwohner = sum(Einwohner), Schulden_gesamt = sum(Schulden_gesamt)) %>%
   rename(Regionalschluessel = landkreis)
 
-# BIP auf Landkreisebene im Jahr 2017
-bip_kombi <- bip_long %>%
-  filter(nchar(Regionalschluessel) == 5 & Jahr == 2017) %>%
-  select(-Jahr)
 
 # Anzahl an Erwerbstätigen für das Jahr 2017
 erwerb_kombi <- erwerb_long %>%
+  filter(nchar(Regionalschluessel) == 5 & Jahr == 2017) %>%
+  select(-Jahr)
+
+# Anzahl an Einwohner für das Jahr 2017
+einwohner_kombi <- einwohner_long %>%
   filter(nchar(Regionalschluessel) == 5 & Jahr == 2017) %>%
   select(-Jahr)
 
@@ -677,6 +721,15 @@ bundesland_name <- bundesland %>%
   select(-RS) %>%
   rename(bundesland = Regionalschluessel,
          bundesland_name = GEN)
+
+# Anzahl der Einwohner mit dem BIP verbinden um das BIP pro Kopf berechnen zu können
+bip_zeitreihe <- left_join(bip_long, einwohner_long, by=c("Regionalschluessel", "Jahr")) %>%
+  mutate(bip_pro_kopf = bip / einwohner)
+
+# BIP auf Landkreisebene im Jahr 2017
+bip_kombi <- bip_zeitreihe %>%
+  filter(nchar(Regionalschluessel) == 5 & Jahr == 2017) %>%
+  select(-c(Jahr, einwohner))
 
 # Datensätze zusammenführen
 
@@ -695,7 +748,7 @@ gesamtdaten <- left_join(daten3, erwerb_kombi, by = "Regionalschluessel")
 
 saveRDS(gesamtdaten, "data/gesamtdaten.rds")
 saveRDS(schulden_bereinigt, "data/schulden_bereinigt.rds")
-saveRDS(bip_long, "data/bip_long.rds")
+saveRDS(bip_zeitreihe, "data/bip_zeitreihe.rds")
 saveRDS(bundesland, "data/bundesland.rds")
 saveRDS(gemeinden, "data/gemeinden.rds")
 saveRDS(landkreise, "data/landkreise.rds")
