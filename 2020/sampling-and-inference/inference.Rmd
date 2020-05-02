@@ -1,0 +1,462 @@
+---
+title: "Inferenzstatistik"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+library(gridExtra)
+library(ggthemes)
+library(pander)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+
+gif_link <- function(link, file, size){
+    knitr::asis_output(
+      paste0('<center>\n<a href="',
+             link,
+             '">\n<img src="',
+             file,
+             '" style = "width: ',
+             size,
+             'px;"/>\n</a>\n</center>'
+      ))
+}
+```
+
+## Randomisiertes Experiment
+
+.question[Wann können wir aus einer Stichprobe Rückschlüsse auf die Grundgesamtheit ziehen?]
+
+- Optimalzustand ist ein tatsächliches randomisiertes Experiment
+- Der zu untersuchende Effekt kann _unverzerrt_ geschätzt werden
+    - D.h. anderen Einflussgrößen, welche dazu führen könnten, dass ihr Effekt systematisch falsch geschätzt wird können ausgeschlossen werden
+
+**Problem:** In der ökonomischen Forschung ist es sehr schwer oder teuer randomisierte Experimente durchzuführen
+
+---
+
+## Randomisiertes Experiement
+
+.instructions[Beispiel für ein randomisiertes Experiment und wie Sie daraus Hypothesen testen können]
+
+--
+
+Wie rational und konsistent ist die Verhaltensweise des typischen amerikanischen College Studenten?
+
+--
+
+.question[Hat es einen Effekt, wenn Sie einen College Studenten daran erinnern, dass er Geld für später sparen kann?]
+
+--
+
+**Studie durchführt von:**
+
+Frederick S, Novemsky N, Wang J, Dhar R, Nowlis S. 2009. Opportunity Cost Neglect. Journal of Consumer Research 36: 553-561.
+
+---
+
+## Teilnehmer und Durchführung
+
+- 150 Teilnehmer
+- Zufällig Zuteilung in Treatment und Kontroll-Gruppe
+
+--
+
+Alle Teilnehmer bekamen folgenden Text vorgelegt:
+
+.instructions[Imagine that you have been saving some extra money on the side to make some
+purchases, and on your most recent visit to the video store you come across a
+special sale on a new video. This video is one with your favorite actor or actress,
+and your favorite type of movie (such as a comedy, drama, thriller, etc.). This
+particular video that you are considering is one you have been thinking about
+buying for a long time. It is available for a special sale price of $14.99.
+
+What would you do in this situation? Please circle one of the options below.]
+
+
+---
+
+## Entscheidungsmöglichkeiten
+
+.pull-left[
+Entscheidungsmöglichkeiten der Kontrollgruppe:
+.midi[
+- Buy this entertaining video.
+- Not buy this entertaining video.
+]
+]
+
+--
+
+.pull-right[
+Entscheidungsmöglichkeiten der Treatment-Gruppe:
+.midi[
+- Buy this entertaining video
+- Not buy this entertaining video. Keep the $14.99 for other purchases.
+]
+]
+
+---
+
+## Ergebnis
+
+Hat die Nennung des Offensichtlichen, d.h. das die $14.99 für andere Einkäufe berücksichtigt werden können, eine Konsequenz für die Studenten?
+
+--
+.pull-left[
+**In absoluten Zahlen:**
+
+```{r, echo = FALSE, results='asis'}
+library(pander)
+experiment <- as.tibble(rep( c("treatment", "kontrolle"), times = c(75,75))) 
+experiment <- experiment %>% 
+  mutate(id = rownames(experiment)) %>%
+  rename(gruppe = value) %>%
+  group_by(gruppe) %>%
+  mutate( dvd = ifelse(gruppe == "treatment", rep(c("kaufen", "nicht kaufen"), times = c(41,34)), rep(c("kaufen", "nicht kaufen"), times = c(56,19)))) %>%
+  ungroup()
+
+dt <- experiment %>%
+  group_by(gruppe, dvd) %>%
+  summarise(length(id))
+
+table <- dt %>% pivot_wider(names_from = "dvd", values_from = "length(id)")
+pander(table, style="rmarkdown")
+
+```
+]
+
+--
+
+.pull-right[
+**Als Prozentwerte:**
+
+```{r, echo = FALSE, results='asis'}
+dt_proz <- data.frame("kaufen" = c(0.747, 0.547), "nicht kaufen" = c(0.253, 0.453))
+row.names(dt_proz) <- c("Kontrolle", "Treatment")
+pander(dt_proz, style="rmarkdown")
+
+```
+]
+
+---
+
+## Ergebnis
+
+Definition von **Erfolg** in diesem Experiement: Studenten, welche die DVD _nicht_ gekauft haben.
+
+--
+
+Der Unterschied zwischen Kontroll- und Treatment Gruppe ergibt sich dann als:
+
+$\hat{p}_{treatment} - \hat{p}_{kontrolle} = 0.453 - 0.253 = 0.200$
+
+--
+
+.alert[Ergebnis: Bestätigt!]
+
+---
+
+class: inverse, center, middle
+
+.large[Ist der Unterschied zwischen der Kontrollgruppe und Treatment Gruppe signifikant?]
+
+---
+
+## Hypothesentest
+
+Bei dem Ergebnis der Studenten ist Skepsis angebracht. 
+
+Bedenken Sie, dass Sie die Studenten _zufällig zu einer Gruppe zugeordnet haben_, daher unterliegt dieses Ergebnis auch einem _Zufallsprozess_. 
+
+--
+
+Wenn:
+
+$H_0: \hat{p}_{treatment} = \hat{p}_{kontrolle}$
+
+**wahr ist**, dann besteht kein Zusammenhang zwischen dem Erinnerungstext und den Handlungen der Studenten.
+
+.alert[**Achtung:** Sie könnten aus Zufall mehr Studenten in ihrer Treatment Gruppe haben, welche die DVD sowieso nicht kaufen wollten. Diesen Sachverhalt nennen wir die _Nullhypothese_.]
+
+
+---
+
+## Hypothesentest
+
+Hypothesen werden meist explizit benannt um sie testen zu können.
+Hierbei beschreibt $H_0$ die Nullhypothese und $H_1$ die Alternativhypothese.
+
+In unserem Fall ergibt sich:
+
+--
+
+**Null Hypothese ( $H_0$ ):** 
+
+Studenten daran zu erinnern, dass Sie Geld für späteren Konsum sparen können hat keinen Einfluss auf ihre Ausgabenentscheidung.
+
+**Alternativhypothese ( $H_1$ ):**
+
+Studenten daran zu erinnern, dass Sie Geld für späteren Konsum sparen können reduziert die Wahrscheinlichkeit das diese mit einem Einkauf fortfahren.
+
+---
+
+# Hypothesentest
+
+Sie testen folglich:
+
+$H_0 : p_{treatment} - p_{control} = 0$
+
+$H_1 : p_{treatment} - p_{control} > 0$
+
+--
+
+Nullhypothesen werden als Gegenteil der Alternativhypothese formuliert (häufig in dem Sinn, dass _kein_ Effekt vorliegt). Teststatistiken sind so konzipiert, dass die Nullhypothese abgelehnt werden kann und die Alternativhypothese als Erklärung übrig bleibt.
+
+.alert[**Achtung:** Wenn die Nullhypothese nicht abgelehnt werden kann, so bedeutet dies _nicht_ das sie zutrifft!]
+
+
+---
+
+## Hypothesentest
+
+Stellen Sie sich ein Paralleluniversum vor, in dem die Erinnerung für die Studenten bzgl. der $14.99 keinen Effekt auf deren Kaufentscheidung hat. Wie müsste hier die Verteilung innerhalb der Gruppen aussehen?
+
+Wenn die Gruppenzugehörigkeit nicht relevant wäre, dann könnten Sie die Kaufentscheidung zufällig den jeweiligen Gruppen zuteilen, und diese neue Zuteilung hatte keine Konsequenz für ihre Ergebnisse!
+
+--
+
+.instructions[Lassen Sie uns dies einmal machen und die Auswirkungen betrachten]
+
+---
+
+## Hypothesentest
+
+```{r compare-six1, echo=FALSE, fig.height=5}
+library(infer)
+set.seed(2019)
+
+# Pick out 6 rows
+experiment_sample <- experiment %>%
+  mutate(shuffle_kauf = sample(dvd)) %>% 
+  select(-id) %>% 
+  mutate(lebenslauf = 1:n()) %>% 
+  select(lebenslauf, everything())
+
+library(ggpubr)
+ex_original <- ggplot(experiment_sample, aes(x = dvd, fill = gruppe)) +
+  geom_bar() +
+  labs(y = "Anzahl an Personen", x="") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank()) +
+  ggtitle("Original")
+
+ex_shuffle <- ggplot(experiment_sample, aes(x = shuffle_kauf, fill = gruppe)) +
+  geom_bar() +
+  labs(y = "", x="") +
+  theme(legend.position = "none") +
+  ggtitle("Zufällige Auswahl")
+
+ggarrange(ex_original, ex_shuffle, ncol=2, common.legend = TRUE, legend="bottom")
+```
+
+--
+
+.alert[Die zufällige Zuteilung sieht deutlich homogener aus, als die, welche durch das Experiment gemessen wurde.]
+
+---
+
+### Hypothesentest mit dem `infer` Paket
+
+```{r, echo=FALSE}
+include_graphics("../figs/hypothese.png")
+```
+
+.small[Quelle: Bild von https://moderndive.com/index.html]
+
+---
+
+## Hypothesentest
+
+Nun haben Sie die Zuteilung zu den Gruppen _einmal_ randomisiert.
+Jedoch möchten Sie gerne eine Verteilung erhalten, wie bei unserem Beispiel der Stichprobe und dem Bootstrap, die sogenannte _Nullverteilung_ 
+
+Anhand dieser Verteilung können Sie abschätzen, wie wahrscheinlich der gemessene Effekt rein statistisch ist, d.h. wie oft dieser Effekt allein durch Zufall auftritt:
+
+--
+
+```{r, echo=FALSE, fig.height=5}
+null_distribution <- experiment %>% 
+  specify(formula = dvd ~ gruppe, success = "nicht kaufen") %>%
+  hypothesize(null = "independence") %>% 
+  generate(reps = 1000, type = "permute") %>% 
+  calculate(stat = "diff in props", order = c("treatment", "kontrolle"))
+
+obs_diff_prop <- experiment %>% 
+  specify(dvd ~ gruppe, success = "nicht kaufen") %>% 
+  calculate(stat = "diff in props", order = c("treatment", "kontrolle"))
+
+visualize(null_distribution, binwidth = 0.1) + 
+  shade_p_value(obs_stat = obs_diff_prop, direction = "right")
+```
+
+---
+
+## Eingefärbte Fläche
+
+Die eingefärbte Fläche in der vorherigen Grafik zeigt, wo der tatsächlich gemessene Wert in unserer Verteilung liegt.
+
+- Visualisierung wie wahrscheinlich die beobachtete Differenz von 0.2 rein zufällig gemessen wurde
+- Effekt ist sehr unwahrscheinlich nur durch Zufall gemessen worden, d.h. wir können $H_0$ verwerfen
+
+Durch den sogenannten p-Wert können Sie abschätzen, wie wahrscheinlich es ist eine solchen Wert nur durch Zufall zu erhalten, gegeben das die Nullhypothese zutrifft.
+
+---
+
+## p-Werte
+
+.alert[Der p-Wert quantifiziert die Evidenz gegen die Nullhypothese.]
+
+--
+
+**Exakter p-Wert:**
+```{r}
+null_distribution %>% 
+  get_p_value(obs_stat = obs_diff_prop, direction = "right")
+```
+
+**Statistische Signifikanz:** Das Signifikanzlevel zu dem wir eine Hypothese testen wird meist mit $\alpha$ abgekürzt. Wir sprechen von einer Signifikanz zum x% Level, wenn der p-Wert geringer ist als x.
+
+--
+
+.instructions[Ein Effekt wird meist als statistischer Signifikanz angesehen, wenn der p-Wert kleiner als $\alpha$ = 0.05 ]
+
+---
+
+
+## Zusammenhang von Konfidenzintervallen und p-Werten
+
+Die Verbindung von p-Werten zu Konfidenzintervallen ergibt sich indirekt. 
+
+Wenn das Konfidenzintervall von 95% _nicht_ die 0 beinhaltet, dann muss der p-Wert kleiner als 0,05 sein.
+
+Die t-Statistik des Koeffizienten ist in diesem Fall größer als 1,96 (ergibt sich aus der Normalverteilung).
+
+---
+
+## Probleme des p-Wertes 
+
+.instructions[Sie sollten sich **nicht** allein auf den p-Wert verlassen!]
+
+p-Werte sind ein Indikator dafür, in wie fern die Daten zu einem spezifischen statistischen Modell passen
+
+--
+
+- Ein p-Wert ist _nicht_ die Wahrscheinlichkeit das die Nullhypothese war ist, oder die Alternativhypothese falsch
+    - Der p-Wert zeigt an, wie kompatibel die Daten mit einer bestimmten Hypothese sind
+- Der p-Wert gibt an, ob die Ergebnisse durch Zufall erklärt werden können, er gibt jedoch keine Auskunft über die Korrektheit der Hypothese
+- Das Signifikanzlevel von 0.05 ist eine Konvention
+    - Gerade noch signifikante sind qualitativ nicht besser wie gerade noch insignifikante Resultate, auch wenn diese Grenze in der Literatur oft verwendet wird
+- Der p-Wert sagt nichts über die ökonomische Bedeutung eines Effekts aus.
+
+--
+
+.alert[Je größer die Stichprobe, desto einfacher finden wir statistisch signifikante Effekte.]
+
+---
+
+## Fehlertypen
+
+Sie können die Nullhypothese auf Grund von statistischen Tests auf einem bestimmten Signifikanzniveau entweder ablehnen oder auch nicht.
+
+Hierbei können Sie jedoch Fehler begehen:
+
+
+Entscheidung | $H_0$ ist korrekt | $H_1$ ist korrekt 
+---|---|---
+Entscheidung für $H_0$ | Korrekte (Spezifität) | Fehler 2. Art 
+Entscheidung für $H_1$ | Fehler 1. Art | Korrekte (Sensitivität) 
+
+Fehler 1. Art: Sie lehnen die Nullhypothese ab, obwohl sie korrekt ist.
+
+Fehler 2. Art: Sie lehnen die Nullhypothese _nicht_ ab, obwohl sie falsch ist
+
+---
+
+## Fehlertypen
+
+Beispiel zu Fehler 1. Art: 
+
+- Im Beispiel mit den Studenten würde ein Fehler 1. Art bedeuten, das Sie schlussfolgern die Erinnerung der Studenten an die Sparmöglichkeit hat keinen Einfluss auf deren Verhalten, trotz des Ergebnisses aus den Daten.
+- Eine Bank vergibt einen Kredit an einen eigentlich nicht kreditwürdigen Kunden. Der Kredit fällt aus und die Bank hat einen Fehler 1. Art begangen. (Tatsächlicher Verlust)
+
+--
+
+Beispiel zu Fehler 2. Art:
+
+- Wenn die Erinnerung der Studenten an die Sparmöglichkeit in Wirklichkeit keine Auswirkung auf ihre Entscheidung hat, wir jedoch auf Grund der Daten die Nullhypothese verwerfen begehen wir einen Fehler 2. Art.
+- Eine Bank kommt nach ihrer Analyse zu dem Schluss, dass der Kunde nicht kreditwürdig ist und vergibt somit den Kredit nicht. Hätte die Bank jedoch besser hin geschaut, dann hätte Sie erkannt, dass der Kunde kreditwürdig gewesen ist Die Bank beging hier einen Fehler 2. Art. (Opportunitätskosten)
+
+---
+
+## Fehlertypen
+
+.alert[Ziel ist es ein Testverfahren mit hoher Sensitivität und hoher Spezifität zu erhalten.
+Die Konsequenzen eines Fehlers 1. Art sind meist größer als die eines Fehlers 2. Art.]
+
+---
+
+## Signifikanzlevel und Fehler 1. und 2. Art
+
+- Wenn Sie besonders über den Fehler 1. Art besorgt sind, dann sollten Sie ein hohes Signifikanzniveau wählen, z.B. $\alpha$ < 0.01 .
+    - In dem Fall wollen Sie besonders vorsichtig sein die Nullhypothese zu verwerfen. D.h. Sie brauchen sehr starke Evidenz für $H_1$ um $H_0$ zu verwerfen
+- Wenn Sie eher darüber besorgt sind einen Fehler 2. Art zu machen, dann sollten Sie ein niedriges Signifikanzniveau wählen, z.B. $\alpha$ = 0.10
+    - Hier wollen Sie vorsichtig sein $H_0$ _nicht_ zu verwerfen, wenn die Nullhypothese eigentlich falsch ist
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,332 @@
+---
+title: "Stichprobe vs. Grundgesamtheit"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+library(gridExtra)
+library(ggthemes)
+library(pander)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+
+gif_link <- function(link, file, size){
+    knitr::asis_output(
+      paste0('<center>\n<a href="',
+             link,
+             '">\n<img src="',
+             file,
+             '" style = "width: ',
+             size,
+             'px;"/>\n</a>\n</center>'
+      ))
+}
+```
+
+## Die Stichprobe
+
+.question[**Schätzen Sie:** wie viele rote Kugeln sind in dieser Urne]
+
+```{r, echo=FALSE}
+include_graphics("../figs/sampling_bowl_2.jpg")
+```
+.small[Quelle: https://moderndive.com/7-sampling.html]
+
+---
+
+## Die Stichprobe
+
+Gibt es eine Möglichkeit auf die Anzahl der Kugeln zu kommen **ohne** alle Kugeln zu zählen?
+
+--
+
+.instructions[Ja! Nehmen Sie eine Stichprobe aus der Urne (hier 50 Kugeln).]
+
+```{r, echo=FALSE}
+include_graphics("../figs/sampling_bowl_3.jpg")
+```
+
+.small[Quelle: https://moderndive.com/7-sampling.html]
+
+---
+
+## Die Stichprobe
+
+Lassen Sie uns hier die Urne virtuell nachbauen:
+- **Design:** 38% rote, 62% weiße Kugeln
+
+```{r}
+urne <- as.tibble(rep( c("rot", "weiß"), times = c(760,1240)))
+urne <- urne %>% mutate(id = rownames(urne))
+colnames(urne) <- c("farbe", "id")
+```
+--
+
+Nun können Sie eine Stichprobe von 50 Bällen entnehmen:
+
+```{r}
+library(infer)
+set.seed(1234)
+probe1 <- urne %>%
+  sample_n(size = 50) #<<
+```
+
+---
+
+## Wie viele sind rot?
+
+```{r}
+probe1 %>%
+  summarize(anteil_rot = mean(farbe=="rot")) %>%
+  pull
+```
+--
+
+.question[Ist dies der tatsächliche Anteil an roten Kugeln in der Urne?]
+
+---
+
+## Stichprobenvarianz
+
+Wie sieht es aus, wenn Sie mehrere Stichproben aus der Urne entnehmen, sagen wir **50**?
+
+```{r}
+N <- 50
+proben50 <- urne %>%
+  rep_sample_n(size=50, reps = N)
+```
+
+Mit welcher Wahrscheinlichkeit erhalten Sie nun eine rote Kugel?
+
+--
+
+```{r}
+urne_anteil50 <- proben50 %>% 
+  group_by(replicate) %>% 
+  summarize(anteil_rot = mean(farbe == "rot"))
+
+mean(urne_anteil50$anteil_rot)
+```
+
+---
+
+## Plotten der Stichprobenverteilung
+
+```{r, fig.height=5}
+urne_anteil50 %>%
+  ggplot(aes(x = anteil_rot)) +
+  geom_histogram(binwidth = 0.02, farbe = "rot")
+```
+
+---
+
+## Stichprobenvarianz
+
+- Manchmal ist der Anteil an roten Kugeln kleiner als 30%
+- Manchmal ist der Anteil an roten Kugeln größer als 45%
+
+**Jedoch:** Der häufigste Anteil liegt jedoch zwischen 35% und 45%.
+
+.alert[Diese Unterschiede in der Anzahl an roten Kugeln erhalten wir auf Grund der _Stichprobenvarianz_]
+
+---
+
+## Stichprobenvarianz
+
+Was passiert, wenn Sie die Anzahl an Stichproben erhöhen?
+
+.instructions[Ziehen Sie 1000, 5000 und 10000 mal aus der Urne]
+
+--
+
+```{r, echo=FALSE}
+proben1000 <- urne %>%
+  rep_sample_n(size=50, reps = 1000)
+
+proben5000 <- urne %>%
+  rep_sample_n(size=50, reps = 5000)
+
+proben10000 <- urne %>%
+  rep_sample_n(size=50, reps = 10000)
+```
+
+Wie groß ist hier der Anteil an roten Kugeln?
+
+--
+
+```{r, echo=FALSE, fig.height=5}
+urne_anteil1000 <- proben1000 %>% 
+  group_by(replicate) %>% 
+  summarize(anteil_rot = mean(farbe == "rot"))
+
+urne_anteil5000 <- proben5000 %>% 
+  group_by(replicate) %>% 
+  summarize(anteil_rot = mean(farbe == "rot"))
+
+urne_anteil10000 <- proben10000 %>% 
+  group_by(replicate) %>% 
+  summarize(anteil_rot = mean(farbe == "rot"))
+
+g1000 <- urne_anteil1000 %>%
+  ggplot(aes(x = anteil_rot)) +
+  geom_histogram(binwidth = 0.02, farbe = "rot") +
+  xlim(0.2, 0.6) +
+  ggtitle("1000 Züge")
+
+g5000 <- urne_anteil5000 %>%
+  ggplot(aes(x = anteil_rot)) +
+  geom_histogram(binwidth = 0.02, farbe = "rot") +
+  xlim(0.2, 0.6) +
+  ggtitle("5000 Züge")
+
+g10000 <- urne_anteil10000 %>%
+  ggplot(aes(x = anteil_rot)) +
+  geom_histogram(binwidth = 0.02, farbe = "rot") +
+  xlim(0.2, 0.6) +
+  ggtitle("10000 Züge")
+
+grid.arrange(g1000, g5000, g10000, nrow = 3)
+```
+
+---
+
+## Unterschiedliche Stichprobengrößen
+
+.instructions[Sie können auch die Stichprobengröße variieren.]
+
+--
+
+- Nutzen Sie einen Cacher mit 25, 50 und 100 Kugeln
+- Anzahl der Entnahmen konstant bei 1000
+
+--
+
+```{r, echo=FALSE, fig.height=5}
+cache25 <- urne %>%
+  rep_sample_n(size=25, reps = 1000)
+
+urne_anteil25 <- cache25 %>% 
+  group_by(replicate) %>% 
+  summarize(anteil_rot = mean(farbe == "rot"))
+
+g25 <- urne_anteil25 %>%
+  ggplot(aes(x = anteil_rot)) +
+  geom_histogram(binwidth = 0.02, farbe = "rot") +
+  xlim(0.2, 0.6) +
+  ggtitle("Cacher mit 25 Kugeln")
+
+cache50 <- urne %>%
+  rep_sample_n(size=50, reps = 1000)
+
+urne_anteil50 <- cache50 %>% 
+  group_by(replicate) %>% 
+  summarize(anteil_rot = mean(farbe == "rot"))
+
+g50 <- urne_anteil50 %>%
+  ggplot(aes(x = anteil_rot)) +
+  geom_histogram(binwidth = 0.02, farbe = "rot") +
+  xlim(0.2, 0.6) +
+  ggtitle("Cacher mit 50 Kugeln")
+
+cache100 <- urne %>%
+  rep_sample_n(size=100, reps = 1000)
+
+urne_anteil100 <- cache100 %>% 
+  group_by(replicate) %>% 
+  summarize(anteil_rot = mean(farbe == "rot"))
+
+g100 <- urne_anteil100 %>%
+  ggplot(aes(x = anteil_rot)) +
+  geom_histogram(binwidth = 0.02, farbe = "rot") +
+  xlim(0.2, 0.6) +
+  ggtitle("Cacher mit 100 Kugeln")
+
+grid.arrange(g25, g50, g100, nrow = 3)
+```
+
+---
+
+## Stichprobe
+
+- Je größer die Stichprobe, desto geringer die Varianz zwischen den einzelnen Stichproben
+- Verteilung ist zentrierter um den gleichen Wert
+- Alle Verteilungen zentriert um etwa 40%
+
+Sie können die die Variation in ihren Daten mittels der Standardabweichung quantifizieren:
+
+--
+
+```{r, echo=FALSE, results='asis'}
+urne_anteil25 <- urne_anteil25 %>%
+  mutate(n = 25)
+
+urne_anteil50 <- urne_anteil50 %>%
+  mutate(n = 50)
+
+urne_anteil100 <- urne_anteil100 %>%
+  mutate(n = 100)
+
+total <- rbind(urne_anteil25, urne_anteil50, urne_anteil100)
+
+x1 <- total %>%
+  group_by(n) %>%
+  summarize(sd = sd(anteil_rot)) %>%
+  rename(`Anzahl der Kugeln` = n, `Standardabweichung` = sd) 
+
+pander(x1, style="rmarkdown")
+```
+
+---
+
+## Stichprobe
+
+- Stichproben als Grundlage für Schätzungen hilfreich
+- Stichproben werden häufig genutzt da Grundgesamtheit nicht verfügbar oder zu umfangreich
+
+Sie sollten bzgl. Stichproben zwei Grundkonzepte verinnerlichen:
+
+- Welchen Effekt hat die Stichprobenvariation auf ihre Schätzer
+- Welchen Effekt hat die Stichprobengröße auf ihre Stichprobenvariation
+
+
+
+
+
+

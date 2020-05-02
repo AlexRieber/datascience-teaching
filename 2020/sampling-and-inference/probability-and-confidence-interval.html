@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wahrscheinlichkeiten und Verteilungen</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wahrscheinlichkeiten und Verteilungen
+
+---
+
+
+
+
+
+## Wahrscheinlichkeit
+
+.question[Was sind Wahrscheinlichkeiten?]
+
+--
+
+Wenn Sie ein Experiement unabhängig voneinander und unter den selben Bedingungen sehr oft wiederholen können Sie bestimmen mit welchem Anteil ein bestimmtes Ereignis eintritt. Hier sprichen wir von der Wahrscheinlichkeit das dieses Ereignis eintritt.
+
+
+
+
+---
+
+## Monte Carlo Simulation
+
+.question[Können Sie am Computer Experiemnte simulieren um aus diesen Wahrscheinlichkeiten für ein Ereignis zu berechnen?]
+
+Durch Monte Carlo Simulationen können Sie am Computer bestimmte Aktionen beliebig oft durchspielen
+  - Theoretisch optimal wäre es das Experiment unendlich oft zu wiederholen
+  - Praktisch sollte es so oft wiederholt werden, dass eine weitere Wiederholung das Ergebnis nur noch unwesentlich verändert -&gt; Ergebnis konvergiert zum _wahren_ Wert
+  - Statistisch gesehen nähern Sie sich der tatsächlichen Wahrscheinlichkeit mit steigendem `\(N\)` an
+
+--
+
+Bei einer Simulation sollten Sie _immer_ einen sogenannten "seed" setzen!
+
+- Generierung von Zufallszahlen **allerdings** werden durch den "seed" immer die gleichen Zufallszahlen generiert
+
+---
+
+## Grundbegriffe
+
+- **Grundgesamtheit**: Alle Individuen oder Beobachtungen die für uns interessant sind. Die Grundgesamtheit wird oft mit _N_ abgekürzt. Im vorherigen Urnenbeispiel wäre _N_ = 2400.
+- **Parameter in der Grundgesamtheit**: Parameter welchen wir gerne kennen würden, jedoch nicht kennen. Bspw. den _Mittelwert der Grundgesamtheit_, welchen wir mathematisch als `\(\mu\)` deklarieren. Oder in unserem Beispiel den Anteil roter Kugeln ( _Anteil der Grundgesamtheit_ ), welches mathematisch `\(p\)` wäre.
+- **Zensus**: Eine Zählung aller Individuen in unserer Grundgesamtheit
+- **Stichprobe**: Untersuchung nur einer bestimmten Anzahl _n_ von Individuen der Grundgesamtheit. In unserem Beispiel war `\(n \epsilon [25,50,100]\)`
+- **Punktschätzer**: Geschätzter Parameter auf Basis einer Stichprobe _n_. Mit dem Punktschätzer soll der unbekannte Parameter der Grundgesamtheit geschätzt werden. In unserem Beispiel der Anteil an roten Kugeln. Den Punktschätzer den wir hier erhalten würde mathematisch als `\(\hat{p}\)` definiert anzuzeigen, dass er auf Basis einer Stichprobe geschätzt wurde.
+- **Repräsentative Stichprobe**: Eine Stichprobe ist repräsentativ, wenn diese der Grundgesamtheit sehr ähnlich sieht, d.h. wenn deren Charakteristika derer der Grundgesamtheit entsprechen
+
+---
+
+## Grundbegriffe
+
+- **Verallgemeinerbar**: Eine Stichprobe ist verallgemeinerbar, wenn Resultate aus der Stichprobe auch auf die Grundgesamtheit zutreffen. Ist `\(\hat{p}\)` eine gute Abschätzung für `\(p\)`?
+- **Stichprobenverzerrung**: Entsteht, wenn einige Individuen oder Beobachtungen in der Gesamtpopulation eine höhere Wahrscheinlichkeit haben in der Stichprobe repräsentiert zu sein. Eine Stichprobe ist _unverzerrt_ wenn alle Individuen die gleiche Chance haben in die Stichprobe aufgenommen zu werden
+- **Zufällige Stichprobe**: Wenn zufällig und nicht verzerrt aus der Grundgesamtheit gezogen wird
+
+---
+
+## Grundbegriffe
+
+Wenn ihre Stichprobe mit der Größe _n_ zufällig gezogen wird, dann ist ihre Stichprobe
+
+- _unverzerrt_ und _repräsentativ_ für ihre Grundgesamtheit _N_
+- alle Resultate aus der Stichprobe sind _verallgemeinerbar_ für die Grundgesamtheit
+- die _Punktschätzer_ sind eine gute Abschätzung des Parameters der Population
+
+Somit müssen Sie keinen Zensus durchführen um Aussagen über die Grundgesamtheit machen zu können.
+
+
+
+---
+
+## Eine Stichprobe
+
+Was, wenn Sie nur eine Stichprobe haben?
+
+
+```r
+set.seed(123)
+urne &lt;- as.tibble(rep( c("rot", "weiß"), times = c(760,1240)))
+urne &lt;- urne %&gt;% mutate(id = rownames(urne))
+colnames(urne) &lt;- c("farbe", "id")
+
+stichprobe &lt;- sample_n(urne, 50)
+
+stichprobe %&gt;% count(farbe)
+```
+
+```
+# A tibble: 2 x 2
+  farbe     n
+  &lt;chr&gt; &lt;int&gt;
+1 rot      17
+2 weiß     33
+```
+
+--
+
+Können Sie hiermit etwas über die Stichprobenvarianz (Verteilung mehrerer Stichproben) aussagen?
+
+---
+
+## Stichprobenvarianz
+
+
+```r
+library(infer)
+stichprobe %&gt;% 
+  specify(formula = farbe ~ NULL, success = "rot")
+```
+
+```
+Response: farbe (factor)
+# A tibble: 50 x 1
+   farbe
+   &lt;fct&gt;
+ 1 rot  
+ 2 rot  
+ 3 rot  
+ 4 rot  
+ 5 rot  
+ 6 weiß 
+ 7 weiß 
+ 8 weiß 
+ 9 weiß 
+10 weiß 
+# … with 40 more rows
+```
+
+---
+
+## Stichprobenvarianz
+
+
+```r
+bootstrap &lt;- stichprobe %&gt;% 
+  specify(formula = farbe ~ NULL, success = "rot") %&gt;% 
+  generate(reps = 48, type = "bootstrap")
+
+bootstrap
+```
+
+```
+Response: farbe (factor)
+# A tibble: 2,400 x 2
+# Groups:   replicate [48]
+   replicate farbe
+       &lt;int&gt; &lt;fct&gt;
+ 1         1 weiß 
+ 2         1 rot  
+ 3         1 rot  
+ 4         1 rot  
+ 5         1 weiß 
+ 6         1 weiß 
+ 7         1 weiß 
+ 8         1 rot  
+ 9         1 weiß 
+10         1 weiß 
+# … with 2,390 more rows
+```
+
+--
+
+- **farbe** = welche Farbe der Ball hat
+- **replicate** = aus welchem Zug der Ball stammt (insgesamt 48 Züge)
+
+---
+
+## Bootstrap
+
+**Ausgangslage:**
+- Eine Stichprobe von 20 roten und 30 weiße Kugeln
+- Was Sie gerne hätten wäre die Grundgesamtheit:
+
+--
+
+&lt;img src="../figs/sampling_bowl_2.jpg" width="70%" style="display: block; margin: auto;" /&gt;
+
+.small[Quelle: https://moderndive.com/7-sampling.html]
+
+---
+
+## Bootstrap
+
+Können Sie diese Grundgesamtheit durch häufiges Ziehen mit Zurücklegen aus ihrer Stichprobe replizieren?
+Dieses ziehen mit Zurücklegen wird hier _bootstrap_ genannt.
+
+--
+
+Bootstrap bedeutet frei übersetzt "sich selbst an seinem Schopf aus dem Sumpf ziehen", was soviel heißt wie "auf Grund seiner eigenen Fähigkeiten Erfolg haben".
+
+- Statistisch gesehen meint dies die Effekte der Stichprobenvarianz nur auf der Basis einer einzelnen Stichprobe herauszufinden
+- Besser: Sie können mit dem Bootstrap approximativ eine Stichprobenverteilung konstruieren, nur auf Basis einer einzelnen Stichprobe
+
+---
+
+## Bootstrap Verteilung
+
+
+```r
+bootstrap1 &lt;- stichprobe %&gt;% 
+  specify(formula = farbe ~ NULL, success = "rot") %&gt;% 
+  generate(reps = 48, type = "bootstrap") %&gt;% 
+  calculate(stat = "prop")
+```
+.question[Können Sie aus ihren Daten ein Gefühl für die Stichprobenvarianz in der Gesamtpopulation erhalten?]
+
+--
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Bootstrap Verteilung (mit 10 000 Ziehungen)
+
+.question[Wie sieht es aus, wenn Sie die Anzahl der Ziehungen erhöhen?]
+
+--
+
+
+```r
+bootstrap2 &lt;- stichprobe %&gt;% 
+  specify(formula = farbe ~ NULL, success = "rot") %&gt;% 
+  generate(reps = 10000, type = "bootstrap") %&gt;% 
+  calculate(stat = "prop")
+```
+
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-8-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+## Verteilungen
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-9-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Verteilungen
+
+**Bootstrap Verteilung:**
+
+- Die Bootstrap Verteilung hat nicht den gleichen Mittelwert wie unsere Stichprobenverteilung. D.h. Sie können durch den Bootstrap die Qualität ihres Punktschätzers nicht verbessern
+- **Jedoch:** Die Bootstrap Verteilung hat eine sehr ähnliche Form und Schwankungsbreite wie die Stichprobenverteilung. D.h. Bootstrapping kann dazu genutzt werden eine sehr genaue Abschätzung des Standardfehlers zu erhalten
+
+`\(\rightarrow\)` Sie können die Bootstrap Verteilung nutzen um Konfidenzintervalle zu berechnen
+
+---
+
+## Unabhängigkeit
+
+Im vorherigen Urnen-Beispiel hatten wir unabhängige Ereignisse beschrieben. In diesem Fall war das Ziehen von mehreren Kugeln voneinander _unabhängig_, da der erste Zug den zweiten _nicht beeinflusst_ (ziehen mit zurücklegen).
+
+---
+
+## Konfidenzintervalle mit dem `infer` Paket
+
+&lt;img src="../figs/confidence_interval.jpeg" width="70%" style="display: block; margin: auto;" /&gt;
+
+.small[Quelle: Bild von https://moderndive.com/index.html]
+
+---
+
+## Konfidenzintervalle
+
+- **Punktschätzer**: Genauer Wert aus einer Schätzung auf Basis der Stichprobe
+- **Konfidenzintervall**: Bandbreite plausibler Werte auf Basis der Stichprobe
+
+
+**Konfidenzintervalle** werden in der empirischen Forschung sehr häufig verwendent um die **Schätzunsicherheit** anzugeben. Dies gilt nicht nur für die Wirtschaftswissenschaften, sondern alle Bereiche der empirischen Forschung.
+
+---
+
+## Konfidenzintervalle mittels Bootstrap
+
+Eine Möglichkeit besteht darin die Bootstrap Stichprobe heranzuziehen und auf deren Basis die Konfidenzintervalle zu bilden:
+
+
+```r
+conf &lt;- stichprobe %&gt;% 
+  specify(response = farbe, success = "rot") %&gt;% 
+  generate(reps = 1000, type = "bootstrap") %&gt;% 
+  calculate(stat = "prop") 
+
+visualize(conf)
+```
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-11-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Konfidenzintervalle mittels Bootstrap
+
+Was sind die einzelnen Schritte im `infer` Paket?
+
+Definition, welche Variablen im Fokus stehen für die Analyse über `specify()`:
+
+--
+
+
+```r
+conf &lt;- stichprobe %&gt;% 
+* specify(response = farbe, success = "rot") %&gt;%
+  generate(reps = 1000, type = "bootstrap") %&gt;% 
+  calculate(stat = "prop") 
+
+visualize(conf)
+```
+
+---
+
+## Konfidenzintervalle mittels Bootstrap
+
+Was sind die einzelnen Schritte im `infer` Paket?
+
+Anschließend erzeugen Sie mehrere Stichproben über `generate()` (hier mit Bootstrap):
+
+--
+
+
+```r
+conf &lt;- stichprobe %&gt;% 
+  specify(response = farbe, success = "rot") %&gt;% 
+* generate(reps = 1000, type = "bootstrap") %&gt;%
+  calculate(stat = "prop") 
+
+visualize(conf)
+```
+
+---
+
+## Konfidenzintervalle mittels Bootstrap
+
+Was sind die einzelnen Schritte im `infer` Paket?
+
+Danach sollten Sie definieren, was Sie berechnen wollen mittels `calculate()`:
+    - Beispiele: mean, median, sum, sd, prop
+--
+
+
+```r
+conf &lt;- stichprobe %&gt;% 
+  specify(response = farbe, success = "rot") %&gt;% 
+  generate(reps = 1000, type = "bootstrap") %&gt;% 
+* calculate(stat = "prop")
+
+visualize(conf)
+```
+
+
+---
+
+## Konfidenzintervalle mittels Bootstrap
+
+Was sind die einzelnen Schritte im `infer` Paket?
+
+Schlussendlich können Sie die entstandene Verteilung visualisieren mit `visualize()`:
+
+--
+
+
+```r
+conf &lt;- stichprobe %&gt;% 
+  specify(response = farbe, success = "rot") %&gt;% 
+  generate(reps = 1000, type = "bootstrap") %&gt;% 
+  calculate(stat = "prop") 
+
+*visualize(conf)
+```
+
+
+---
+
+## Konfidenzintervalle mittels Bootstrap
+
+Konfidenzintervalle in der Verteilung einzeichen:
+
+
+```r
+percentile_ci &lt;- conf %&gt;% 
+  get_confidence_interval(level = 0.95, type = "percentile")
+
+visualize(conf) + shade_confidence_interval(endpoints = percentile_ci)
+```
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-16-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Konfidenzintervalle auf Basis der Normalverteilung
+
+.alert[Eine weitere Möglichkeit Konfidenzintervalle zu berechnen ist auf Basis einer Verteilungsannahme.]
+
+In der Regel wird die Normalverteilungsannahme getroffen.
+- Die Normalverteilung ist ein sehr wichtiges Konzept in der Mathematik
+- Viele Verteilungen sind approximativ normal verteilt
+  - Hierunter zählen: Körpergröße, Gewicht, Blutdruck, IQ-Werte, ...
+
+In dieser Veranstaltung konzentrieren wir uns nicht darauf, warum dies so ist, sondern wie Sie die Normalverteilung nützen können
+
+---
+
+## Konfidenzintervalle auf Basis der Normalverteilung
+
+Die mathematische Definition der Normalverteilung besagt, dass der Anteil im Interval `\((a,b)\)` durch folgende Formel berechnet werden kann:
+
+`$$\mbox{Pr}(a &lt; x &lt; b) = \int_a^b \frac{1}{\sqrt{2\pi}\sigma} \exp\left\{-\frac{1}{2}\left( \frac{x-\mu}{\sigma} \right)^2\right\} \, dx$$`
+
+Damit ist die Normalverteilung durch zwei Parameter definiert ($\mu$ und `\(\sigma\)`)
+Hier ist `\(\mu\)` der Mittelwert und `\(\sigma\)` die Standardabweichung der Verteilung.
+
+Die Normalverteilung ist 
+
+  - symmetrisch
+  - zentriert um den Mittelwert 
+  - 95% aller Werte liegen innerhalb von 2 Standardabweichungen vom Mittelwert
+
+---
+
+## Konfidenzintervalle auf Basis der Normalverteilung
+
+Wenn unser Datensatz nun durch die Normalverteilung approximiert werden kann, so bedeutet dies, dass wir auch unseren Datensatz mit Hilfe von Mittelwert und Standardabweichung darstellen können.
+
+Wie wir bereits wissen ist der Mittelwert definiert als:
+
+`$$\mu = \frac{1}{N} \sum_{i=1}^{N} x_{i}$$`
+
+und die Standardabweichung kann definiert werden als
+`$$\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (x_{i} - \mu)²}$$`
+
+- Interpretation der Standardabweichung: Durchschnittliche Abweichung zwischen den Werten der Verteilung und deren Mittelwert
+
+---
+
+## Konfidenzintervalle auf Basis der Normalverteilung
+
+Wenn wir dieses Wissen auf unsere Stichprobe anwenden, dann können wir die Konfidenzintervalle entsprechend einzeichen:
+
+
+```r
+standard_error_ci &lt;- conf %&gt;%
+  get_confidence_interval(type = "se", point_estimate = 0.38)
+
+visualize(conf) + shade_confidence_interval(endpoints = standard_error_ci)
+```
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-17-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+## Konfidenzintervalle
+
+Bei einem 95% Konfidenzintervall:
+  - Zu 95% liegt der wahre Wert von `\(x\)` in unserem Intervall
+  - Das 95% Konfidenzintervall beinhaltet alle Werte, welche bis zu 2 Standardfehler von unserem geschätzten Mittelwert abweichen `\([(\mu - 2\sigma), (\mu + 2\sigma)]\)`
+  - Die Intervallgrenzen sind Zufallsvariablen! 
+
+**Frage:** Wird das Konfidenzintervall größer oder kleiner bei einem Konfidenzniveau von 99%?
+
+---
+
+
+## Konfidenzintervalle
+
+Um die Wahrscheinlichkeit zu bestimmen, dass `\(x\)` im Intervall liegt berechnen wir folgendes:
+$$
+\mbox{Pr}\left(\mu -2\sigma \leq x \leq \mu + 2 \sigma)\right)
+$$
+
+Dies lässt sich zu folgender Formel umschreiben:
+
+$$
+\mbox{Pr}\left(-2 \leq \frac{x - \mu}\sigma \leq  2\right)
+$$
+
+---
+
+## Konfidenzintervalle
+
+Der mittlere Term ist hierbei approximativ normalverteilt mit einem Erwartungswert von 0 und einem Standardfehler von 1.
+Nennen wir diese Zufallsvariable `\(Z\)`:
+
+$$
+\mbox{Pr}\left(-2 \leq Z \leq  2\right)
+$$
+
+Das heißt, wenn unser Konfidenzintervall 2 Standardfehler vom geschätzten Mittelwert umfasst, so beinhaltet unser Konfidenzintervall mit 95%-iger Wahrscheinlichkeit den wahren Wert `\(x\)`.
+
+
+```r
+pnorm(2) - pnorm(-2)
+```
+
+```
+[1] 0.9544997
+```
+
+---
+
+## Konfidenzintervalle
+
+Für ein Konfidenzintervall von genau 95% reicht es einen etwas kleineren Bereich als `\(2\sigma\)` anzuschauen:
+
+
+```r
+qnorm(0.975)
+```
+
+```
+[1] 1.959964
+```
+
+---
+
+## Die korrekte Beschreibung
+
+Bitte beachten Sie folgendes:
+
+- Das Intervall welches Sie sich oben anschauen unterliegt zufälligen Schwankungen, nicht `\(x\)`.
+- Es ist falsch zu sagen, dass `\(x\)` eine 95%-ige Wahrscheinlichkeit hat innerhalb des Intervalls zu liegen
+- Die 95% beziehen sich auf die Wahrscheinlichkeit, dass dieses zufällige Konfidenzintervall auf `\(x\)` fällt, d.h. `\(x\)` beinhaltet
+- Das Intervall schwankt um `\(x\)` nicht umgekehrt
+
+---
+
+## Das 95% Konfidenzintervall
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-20-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+.tiny[Grafik in Anlehnung an die Visualisierung aus Kapitel 8.5: Ismay, C., &amp; Kim, A. Y. (2019). Statistical Inference via Data Science: A ModernDive into R and the Tidyverse.]
+
+---
+
+## Wie gut ist das Konfidenzintervall
+
+
+```r
+conf %&gt;% 
+  visualize(bins = 15) + 
+  shade_confidence_interval(endpoints = percentile_ci) +
+  geom_vline(xintercept = 0.38, linetype = "dashed")
+```
+
+&lt;img src="probability-and-confidence-interval_files/figure-html/unnamed-chunk-21-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+.alert[Unser Punktschätzer liegt im 95%igen Konfidenzintervall.]
+---
+
+## Power
+
+Wenn ein Konfidenzintervall die Null beinhaltet, so können wir die Nullhypothese das kein Effekt vorhanden ist _nicht_ ablehnen.
+
+Dies kann jedoch auf verschiedenen Eigenschaften der Stichprobe zurückzuführen sein:
+
+- große Standardabweichung 
+- großes Konfidenzintervall, d.h. es wurde ein zu hohes Signifikanzniveau ausgewählt 
+- zu kleine Stichprobe. Durch eine größere Stichprobe wird der Standardfehler des Koeffizienten kleiner: `\(\sigma_{\overline{x}} = \frac{\sigma}{\sqrt{n}}\)`
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
