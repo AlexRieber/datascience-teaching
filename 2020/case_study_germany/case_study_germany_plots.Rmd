@@ -313,7 +313,6 @@ Ein weiterer Faktor, welcher die Arbeitslosenquote bestimmen kann ist die Versch
 
 Um uns die Verschuldung des öffentlichen Haushalts besser vor Augen zu führen wollen wir diese auf einer Deutschlandkarte darstellen:
 
-
 ```{r,  warning=FALSE, message=FALSE, error=FALSE}
 schulden_landkreise <- left_join(landkreise, gesamtdaten, by="Regionalschluessel") %>%
   mutate(schulden_pro_kopf = as.factor(case_when(
@@ -363,6 +362,60 @@ plot_schulden_lk
 ```
 
 Wir sehen besonders in Bayern und Baden-Württemberg sehr viele Landkreise mit einer geringen Pro-Kopf Verschuldung bis maximal 2000€, gleiches gilt für Reinland-Pfalz und zum Großteil auch Niedersachsen. In Nordrhein-Westfalen und dem Saarland hingegen haben wir eine sehr hohe Verschuldung pro Kopf.  Thüringen, Mecklenburg-Vorpommern und Hessen sind im Mittelfeld.
+In den Wirtschaftswissenschaften wird jedoch oft nicht die öffentliche Verschuldung ins Verhältnis zu der Einwohnerzahl gesetzt, sondern es wird die berechnet, wie hoch ein Land bzw. ein Landkreis im Verhältnis zum BIP dieses Landkreises ist.
+Dies wollen wir hier auch noch tun und die Deutschlandkarte entsprechend einfärben:
+
+```{r,  warning=FALSE, message=FALSE, error=FALSE}
+schulden_landkreise_anteil <- left_join(landkreise, gesamtdaten, by="Regionalschluessel") %>%
+  mutate(anteil_schulden = Schulden_gesamt / bip,
+         anteil_schulden = as.factor(case_when(
+    anteil_schulden <= 0.02~ "0 - 2%",
+    anteil_schulden > 0.02 & anteil_schulden <= 0.04 ~ "2% - 4%",
+    anteil_schulden > 0.04 & anteil_schulden <= 0.06 ~ "4% - 6%",
+    anteil_schulden > 0.06 & anteil_schulden <= 0.08 ~ "6% - 8%",
+    anteil_schulden > 0.08 & anteil_schulden <= 0.10 ~ "8% - 10%",
+    anteil_schulden > 0.10  ~ ">10%"
+  )))
+
+plot_schulden_lk <- ggplot(
+  # define main data source
+  data = schulden_landkreise_anteil
+) +
+  geom_sf(
+    mapping = aes(
+      fill = fct_relevel(anteil_schulden, ">10%", after = Inf)
+    ),
+    color = "white",
+    size = 0.1
+  ) +
+  # use the Viridis color scale
+  scale_fill_viridis_d(
+    option = "inferno",
+    name = "Anteil der Schulden\nam BIP",
+    alpha = 0.8, # make fill a bit brighter
+    begin = 0.1,
+    end = 0.9,
+    direction = -1,
+    guide = guide_legend(reverse = T)) +
+  # use thicker white stroke for cantonal borders
+  geom_sf(
+    data = bundesland,
+    fill = "transparent",
+    color = "white",
+    size = 0.5
+  ) +
+  # add titles
+  labs(x = NULL,
+       y = NULL,
+       title = "Wie verschuldet sind die deutschen Landkreise?",
+       subtitle = "Öffentliche Schulden im Vergleich zum BIP in 2017") +
+  theme_minimal()
+
+plot_schulden_lk
+```
+
+Auch hier erhalten wir ein sehr ähnliches Bild bzgl. der Verschuldung der Landkreise. Hier treten allerdings die Ostdeutschen Landkreise nochmal etwas stäker bzgl. ihrer Verschuldung hervor.
+
 Um jedoch beurteilen zu können, in wie fern diese Pro-Kopf Verschuldung der öffentlichen Haushalte mit der Arbeitslosigkeit in den jeweiligen Landkreisen zusammenfällt wollen wir uns auch noch eine Karte zur Arbeitslosigkeit in den jeweiligen Landkreisen anschauen:
 
 ```{r, warning=FALSE, message=FALSE, error=FALSE}
