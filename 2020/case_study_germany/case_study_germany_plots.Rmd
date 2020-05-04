@@ -7,7 +7,7 @@ mail: "alexander.rieber@uni-ulm.de"
 #home: "www.yourhomepage.de"
 logo: "../figs/ggplot2.png"
 output:
-#  pdf_document: default
+  pdf_document: default
   epuRate::epurate:
     toc: TRUE
     number_sections: FALSE
@@ -258,13 +258,13 @@ plot_bip
 ``` 
 
 Das Niveau des BIP pro Kopf ist in den ostdeutschen Bundesländern deutlich niedriger als in den westdeutschen. Insbesondere wenn wir uns die logarithmische Skalierung der y-Achse anschauen, so können wir doch deutliche Unterschiede erkennen. Beispielsweise ist das durchschnittliche BIP pro Kopf im ehemaligen Ostdeutschland mit 28338€ in 2017 so hoch wie in Westdeutschland im Jahr 2006 (zu diesem Zeitpunkt lag das durchschnittliche BIP pro Kopf in Westdeutschland bei 29019€)!
-In beiden Grafiken sehen wir eine Delle im Jahr 2009 als die globale Finanzkrise zuschlug. Noch besser können wir den Effekt der Finanzkrise an der folgenden Grafik sehen, bei welcher die Veränderung des BIP pro Kopf zum Vorjahr abgetragen wird:
+In beiden Grafiken sehen wir eine Delle im Jahr 2009 als die globale Finanzkrise zuschlug. Noch besser können wir den Effekt der Finanzkrise an der folgenden Grafik sehen, bei welcher die Veränderung des BIP in jedem Landkreis zum Vorjahr abgetragen wird:
 
 ```{r, message=FALSE, warning=FALSE}
 bip_wachstum <- bip_zeitreihe %>%
   group_by(Regionalschluessel) %>%
   arrange(Regionalschluessel, Jahr) %>%
-  mutate( bip_wachstum = (bip_pro_kopf / lag(bip_pro_kopf))-1) %>%
+  mutate( bip_wachstum = 100*(bip - lag(bip)) / bip) %>%
   ungroup() %>%
   group_by(ost_name, Jahr) %>%
   mutate( durchschnitt = mean(bip_wachstum, na.rm=TRUE))
@@ -276,16 +276,16 @@ bip_wachstum %>%
   geom_line(aes(x = Jahr, y = durchschnitt, group = Regionalschluessel, color = ost_name)) +
   theme_minimal() +
   labs(color = "Durchschnitt der Landkreise",
-       title = "Die Wachstumsrate des BIP pro Kopf von ost- und westdeutschen Landkreisen",
+       title = "Die Wachstumsrate des BIP von ost- und westdeutschen Landkreisen",
        caption = "Quelle: Daten der Statistischen Ämter der Länder und des Bundes.",
        x = "Jahr",
-       y = "Veränderung des BIP pro Kopf")
+       y = "Veränderung des BIP")
 
 ```
 
-Insgesamt haben ost- und westdeutsche Landkreise im Durchschnitt eine sehr ähnliche Wachstumsrate des BIP pro Kopf. In den westdeutschen Landkreisen ist sie stellenweise etwas niedriger, insbesondere vor der Finanzkrise.
+Insgesamt haben ost- und westdeutsche Landkreise im Durchschnitt eine sehr ähnliche Wachstumsrate des BIP. In den westdeutschen Landkreisen ist sie stellenweise etwas niedriger, insbesondere vor der Finanzkrise.
 
-Durch diese zwei Schaubilder sehen wir, dass die Unterschiede zwischen den ost- und westdeutschen Landkreisen schon lange bestehen (mind. seit 2000) und das es keine große Annäherung der ostdeutschen Landkreise an das westdeutsche Niveau gibt. Die Wachstumspfade sind hierfür zu ähnlich. Wenn das BIP pro Kopf ein signifikanter Faktor für die Arbeitslosenquote in einem Landkreis ist, dann verheißt dies für die ostdeutschen Landkreise, welche aktuell deutlich höhere Arbeitslosenquoten als die westdeutschen Landkreise aufweisen, nichts Gutes.
+Durch diese zwei Schaubilder sehen wir, dass die Unterschiede zwischen den ost- und westdeutschen Landkreisen schon lange bestehen (mind. seit 2000) und das es keine große Annäherung der ostdeutschen Landkreise an das westdeutsche Niveau gibt. Die Wachstumspfade sind hierfür zu ähnlich. Wenn das BIP ein signifikanter Faktor für die Arbeitslosenquote in einem Landkreis ist, dann verheißt dies für die ostdeutschen Landkreise, welche aktuell deutlich höhere Arbeitslosenquoten als die westdeutschen Landkreise aufweisen, nichts Gutes.
 
 Wenn wir uns nur auf das Jahr 2017 beschränken, so sehen wir auch hier im BIP pro Kopf deutliche Unterschiede. Im folgenden Schaubild ist die Verteilung des BIP pro Kopf über alle Landkreise für Ost- und Westdeutschland im Jahr 2017 abgetragen, für alle Landkreise mit einem BIP pro Kopf von unter 100 000€. Zusätzlich sind die jeweiligen Mittelwerte des BIP pro Kopf für Ost- und Westdeutschland eingetragen.
 
