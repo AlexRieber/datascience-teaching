@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Von der Korrelation zur Regression</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Von der Korrelation zur Regression
+
+---
+
+
+
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Gegeben Sie wollen eine Zufallsvariable `\(Y\)` erklären, wobei Sie die Werte von `\(X=x\)` auf einer Regressionslinie kennen:
+
+- Für jede Standardabweichung `\(\sigma_X\)`, für die `\(x\)` über dem Durschnittswert `\(\mu_X\)` liegt, steigt `\(Y\)` um `\(\rho\)` Standardabweichungen `\(\sigma_Y\)` über dem Durchschnittswert `\(\mu_Y\)`.
+- `\(\rho\)` ist die Korrelation von `\(X\)` und `\(Y\)`.
+
+Die Formel für die Regressionsgeraden ergibt sich dann folgendermaßen:
+
+$$ 
+\left( \frac{Y-\mu_Y}{\sigma_Y} \right) = \rho \left( \frac{x-\mu_X}{\sigma_X} \right)
+$$
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Die Formel für die Regressionsgerade können wir wie folgt umschreiben:
+
+$$ 
+Y = \mu_Y + \rho \left( \frac{x-\mu_X}{\sigma_X} \right) \sigma_Y
+$$
+
+- Bei einer Korrelation von 1 würden wir eine Steigerung um eine Standardabweichung von `\(Y\)` vorhersagen, gegeben, dass sich `\(X\)` um eine Standardabweichung verändert
+- Bei einer Korrelation von 0 würden wir den Durchschnitt `\(\mu_Y\)` vorhersagen
+- Bei einer Korrelation &lt;0 würden wir eine Reduktion anstatt einer Steigerung vorhersagen
+
+--
+
+**Auf unser Beispiel übertragen:**
+
+- .small[Korrelationskoeffizent positiv, aber &lt;1]
+- .small[Lehrevaluationsergebnisse liegen näher an den durchschnittlichen `\(\mu_X\)` und sind nicht nur abhängig von der Attraktivität des Dozenten/der Dozentin `\(x\)`]
+- .small[Regression zur Mitte: Die individuellen, möglicherweise sehr extremen Lehrevaluationsergebnisse werden im Gesamtverlauf ausgeglichen und bewegen sich zu den durchschnittlichen Lehrevaluationsergebnissen.]
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Wenn Sie die Regressionsgerade auf Grundlage der Korrelation und ihren bisherigen Erkenntnissen ihrem Streudiagramm hinzufügen möchten, so müssen Sie die Formel des linearen Modells etwas umschreiben:
+
+`$$\begin{split}y &amp;= \alpha + \beta x\\
+\mbox{ mit der Steigung } \beta &amp;= \rho \frac{\sigma_y}{\sigma_x}\\
+\mbox{ und dem Achsenabschnitt } \alpha &amp;=\mu_y - \beta \mu_x\end{split}$$`
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+
+
+In R sieht dies folgendermaßen aus:
+
+
+```r
+mu_x &lt;- mean(used_evals$bty_avg)
+mu_y &lt;- mean(used_evals$score)
+sd_x &lt;- sd(used_evals$bty_avg)
+sd_y &lt;- sd(used_evals$score)
+rho &lt;- cor(used_evals$bty_avg, used_evals$score)
+
+beta &lt;-  rho * sd_y / sd_x
+alpha &lt;- mu_y - beta*mu_x
+```
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+.small[
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-3-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Zum selben Ergebnis gelangen wir mit der Regressionsgeraden berechnet nach der Methode der kleinsten Quadrate (in rot dazu):
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-4-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+- Korrelation und Steigung der Regressionsgeraden haben immer das gleiche Vorzeichen
+- **Jedoch:** Diese müsssen nicht immer den gleichen Wert haben (siehe Berechnung 2 Folien vorher)
+- Die Regressionsgerade ist der beste lineare erwartungstreue Schätzer
+    - Was bedeutet dies genau? 
+
+---
+
+class: center, middle, inverse
+
+# Lineare Regression
+
+---
+
+## Lineares Modell
+
+- Durch die lineare Regression können wir Zusammenhänge zwischen verschiedenen Variablen aufdecken und gleichzeitig für andere Faktoren _kontrollieren_
+- "Lineare Modelle" werden so genannt, weil der bedingte Erwartungswert einer Variablen `\(Y\)` sich ergibt aus einer Linearkombination bekannter Größen
+
+Wenn wir die Lehrevaluationsergebnisse verwenden können wir die `\(N\)` verfügbaren Attraktivitätseinschätzungen als `\(x_1, \dots, x_n\)` schreiben und dann die `\(N\)` Evaluationsergebnisse durch folgendes Modell erklären:
+
+
+$$ 
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, \, i=1,\dots,N 
+$$
+
+- `\(x_i\)` ist hierbei die Einschätzung der Attraktivität der Dozenten/Dozentinnen
+- `\(Y_i\)` ist das (zufällige) Lehrevaluationsergebnis, welches wir erklären wollen
+- Annahmen: 
+  - Die `\(\varepsilon_i\)` sind unabhängig voneinander mit Erwartungswert 0
+  - `\(\varepsilon\)` ist normalverteilt
+  - Die Standardabweichung `\(\sigma\)` hängt nicht von `\(i\)` ab.
+
+---
+
+## Lineares Modell
+
+Lineare Modelle werden häufig verwendet:
+
+- Die Koeffizienten von linearen Modellen sind direkt interpretierbar
+- Beispiel Lehrevaluationsergebnisse: 
+  - Das Lehrevaluationsergebnis steigt je attraktiver ein Dozent/eine Dozentin eingeschätzt wird
+  - `\(\varepsilon\)` fängt hierbei die Varianz in den Lehrevaluationsergebnissen auf
+  - In `\(\varepsilon\)` stecken alle zusätzlichen Faktoren, welche die Lehrevaluationsergebnisse mit beeinflussen, aber in unserem Modell nicht gesondert enthalten sind
+    - Bspw: Das Geschlecht, Alter, Rethorikfähigkeiten, eingesetzte didaktische Mittel ...
+
+---
+
+## Kleinste Quadrate Schätzer 
+
+In unserem Modell wollen wir die Lehrevaluationsergebnisse vorhersagen.
+Hierfür benötigen wir eine Abschätzung der `\(\beta\)`s.
+
+Um dies zu erreichen verwenden wir die Methode der kleinsten Quadrate. Hierbei wird versucht eine Regressionsgerade zu finden, welche den Abstand zwischen den einzelnen Datenpunkten und der Regressionsgeraden minimiert. Wir können dies mathematisch wie folgt darstellen, wobei RSS für die residual sum squares (Residuenquadratsumme) steht: 
+
+`$$RSS = \sum_{i=1}^n \left\{  Y_i - \left(\beta_0 + \beta_1 x_i \right)\right\}^2$$`
+
+--
+
+- Die geschätzten Werte, welche die RSS minimieren bezeichnen wir mit `\(\hat{\beta}_0\)` und `\(\hat{\beta}_1\)`
+
+---
+
+## Kleinste Quadrate Schätzer
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-5-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Schätzung
+
+Wir können in R das lineare Modell mittels der Funktion `lm` berechnen:
+
+$$
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i
+$$
+
+wobei `\(Y_i\)` das Lehrevaluationsergebnis des Dozenten und `\(x_i\)` dessen Attraktivität ist:
+
+
+
+```r
+schätzer &lt;- lm(score ~ bty_avg, data = used_evals)
+```
+
+- Mit der Tilde `~` (Alt Gr + `+`-Taste) zeigen wir der Funktion `lm`:
+  - Links der `~`: Variable, die wir vorhersagen wollen
+  - Rechts der `~`: Variable(n), die wir für die Vorhersage verwenden
+  - R fügt automatisch einen Achsenabschnitt `\(\beta_0\)` hinzu (falls Sie ein Modell _ohne_ Achsenabschnitt berechnen möchten müssen Sie folgendes schätzen: 
+      - lm(score ~ bty_avg + 0, data = used_evals)
+  
+---
+
+## Schätzung
+
+
+Um mehr über unsere Schätzung zu erfahren können wir die Funktion `summary` verwenden:
+
+
+```r
+summary(schätzer)
+```
+
+```
+
+Call:
+lm(formula = score ~ bty_avg, data = used_evals)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.9246 -0.3690  0.1420  0.3977  0.9309 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  3.88034    0.07614   50.96  &lt; 2e-16 ***
+bty_avg      0.06664    0.01629    4.09 5.08e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5348 on 461 degrees of freedom
+Multiple R-squared:  0.03502,	Adjusted R-squared:  0.03293 
+F-statistic: 16.73 on 1 and 461 DF,  p-value: 5.083e-05
+```
+
+---
+
+## Interpretation der geschätzen Koeffizienten
+
+**Das Modell:**
+
+`$$\begin{split}\hat{y} &amp;= \beta_0 + \beta_1 x\\
+\hat{Lehrevaluation} &amp;= \beta_0 + \beta_1 * btyavg \\
+\hat{Lehrevaluation} &amp;= 3.880 + 0.067 * btyavg\end{split}$$`
+
+--
+
+**Interpretation der Koeffizienten:**
+
+- Achsenabschnitt ( `\(\beta_0\)` ) ist das durchschnittliche Lehrevaluationsergebnis, bei der die Attraktivität auf 0 eingeschätzt wurde
+    - Mathematische Interpretation _jedoch_ keine _praktische_ Interpretation, da Attraktivität nicht mit 0 bewertet werden kann (Skala von 1 bis 10)
+- Der Koeffizient für die Attraktivität ( `\(\beta_1\)` ) ist 0.067
+    - Positiver Zusammenhang zwischen Attraktivität und Lehrevaluationsergebnis
+    - Gleiches Vorzeichen wie Korrelation, jedoch unterschiedliche Werte
+    - Korrelation `\(\rightarrow\)` Stärke des linearen Zusammenhangs
+
+---
+
+## Interpretation der geschätzen Koeffizienten
+
+.instructions[Dozenten mit einer Einheit höheren Attraktivität haben im Durchschnitt eine um 0.067 Einheiten bessere Lehrevaluation]
+
+- Wir sprechen bei der Interpretation des Koeffizienten der Attraktivitätsvariablen nur von einer Assoziation zwischen Attraktivität und Lehrevaluationsergebnis, **nicht** von einer kausalen Interpretation
+- Folgende Einschätzung wäre **falsch**: Eine um eine Einheit höhere Attraktivität **führt** zu einer um 0.067 Einheiten besseren Lehrevaluation
+- Es könnte durchaus sein, dass es weitere Variablen gibt, die sowohl die Attraktivität des Dozenten, als auch die Lehrevaluation beeinflussen, z.B. das Alter.
+    - Nur weil zwei Variablen stark miteiander korrelieren bedeutet dies nicht, dass eine zur anderen führt.
+    
+`\(\rightarrow\)` .alert[Korrelation ist nicht gleich Kausalität]
+
+--
+
+- Weiterhin sprechen wir von einer Erhöhung der Lehrevaluationsergebnisse von _im Durchschnitt_ 0.067 Einheiten
+
+---
+
+## Die Funktion `lm`
+
+- Die geschätzten Koeffizienten sind Zufallsvariablen
+- Diese Zufallsvariablen haben eine Verteilung
+- Die t-Statistik (`t value`) und p-Werte (`Pr(&gt;|t|)`) basieren auf der Annahme, dass `\(\varepsilon\)` normalverteilt ist
+- Dadurch ergibt sich für die t-Statistik: 
+  - `\(\hat{\beta}_0 / \hat{\mbox{SE}}(\hat{\beta}_0 )\)` und `\(\hat{\beta}_1 / \hat{\mbox{SE}}(\hat{\beta}_1 )\)` folgen einer **t-Verteilung** mit `\(N-p\)` Freiheitsgraden
+  - `\(p\)` ist die Anzahl an Parametern in unserem Modell (in unserem Fall `\(p=2\)`)
+  - die p-Werte testen ob `\(\beta_0 = 0\)` bzw. ob `\(\beta_1 = 0\)`
+  - Für große `\(N\)` nähert sich die t-Verteilung der Normalverteilung an
+
+---
+
+## Schätzer sind Zufallsvariablen 
+
+Für jedes Lehrevaluationsergebnis können wir eine Vorhersage treffen ( `\(\hat{Y}\)` ), gegeben unserer Regressionsgeraden und dem bekannten Wert der Attraktivität des Dozenten/der Dozentin ( `\(x\)` ):
+
+`$$\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 x$$`
+
+Beachten Sie, dass `\(\hat{Y}\)` eine Zufallsvariable ist, für welche Sie den Standardfehler bestimmen können. Wenn wir nun annehmen, dass die Standardfehler normalverteilt sind, so können wir Konfidenzintervalle für `\(\hat{Y}\)` bilden.
+
+In ggplot2 können wir diese Konfidenzintervalle um `\(\hat{Y}\)` auch zeichnen (wir nutzen hier `geom_smooth(method = "lm")`)
+
+---
+
+## Schätzer sind Zufallsvariablen 
+
+
+```r
+used_evals %&gt;% ggplot(aes(bty_avg, score)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-8-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Schätzer sind Zufallsvariablen 
+
+
+Durch die R Funktion `predict` können die vorhergesagten Werte unserer Schätzung durch `lm` für jeden Punkt ausgegeben werden.
+
+
+```r
+used_evals %&gt;% 
+  mutate(Y_hat = predict(lm(score ~ bty_avg, data = .))) %&gt;%
+  ggplot(aes(bty_avg, Y_hat)) +
+  geom_line()
+```
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-9-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Das Paket broom
+
+In dieser Vorlesung nutzen wir Pakete des `tidyverse` Universums um unsere Datenanalyse durchzuführen.
+Jedoch sind sehr viele Funktionen in R nicht teil des `tidyverse`, wie z.B. die `lm` Funktion um eine lineare Regression durchzuführen.
+
+Durch das Paket `broom` und deren Funktionen `tidy`, `glance` und `augment` können wir die Ergebnisse von Funktionen wie `lm` in das uns bekannte `tidyverse` überführen.
+
+---
+
+## Das Paket broom
+
+
+Die Funktion `tidy` gibt die Ergebnisse aus `lm` als Dataframe wieder:
+
+.small[
+
+```r
+library(broom)
+library(janitor)
+schätzer &lt;- lm(score ~ bty_avg, data = used_evals)
+tidy(schätzer) %&gt;%
+  mutate_if(is.numeric, round, digits = 3) %&gt;% 
+  clean_names()
+```
+
+```
+# A tibble: 2 x 5
+  term        estimate std_error statistic p_value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 (Intercept)    3.88      0.076     51.0        0
+2 bty_avg        0.067     0.016      4.09       0
+```
+]
+
+---
+
+## Das Paket broom
+
+Hier können wir auch andere Informationen wie Konfidenzintervalle ausgeben lassen:
+
+.small[
+
+```r
+tidy(schätzer, conf.int = TRUE) %&gt;%
+  mutate_if(is.numeric, round, digits = 3) %&gt;% 
+  clean_names()
+```
+
+```
+# A tibble: 2 x 7
+  term        estimate std_error statistic p_value conf_low conf_high
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 (Intercept)    3.88      0.076     51.0        0    3.73      4.03 
+2 bty_avg        0.067     0.016      4.09       0    0.035     0.099
+```
+]
+
+---
+
+class: center, middle, inverse
+
+# Multivariate Regression
+
+---
+
+## Einführung
+
+- Statt nur eine erklärende Variable ins Modell aufzunehmen können auch mehrere erklärende Variablen hinzugenommen werden, bspw. könnten wir ein Modell schätzen mit:
+    - Alter (nummerisch)
+    - Geschlecht (kategorisch)
+
+.question[Bekommen ältere oder jüngere Dozenten/innen bessere Lehrevaluationen und unterscheidet sich dies nach Geschlecht?]
+
+---
+
+## Deskriptive Analysen
+
+- Korrelationskoeffizient für Alter und Lehrevaluation 
+
+
+```r
+used_evals %&gt;% 
+  summarize(cor(score,age)) %&gt;%
+  pull()
+```
+
+```
+[1] -0.107032
+```
+---
+
+## Explorative Grafiken
+
+
+```r
+used_evals %&gt;%
+  ggplot(aes(x = age, y = score, color = gender)) +
+  geom_point() +
+  labs(x = "Alter", y = "Lehrevaluationsergebnis", color = "Geschlecht") +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-13-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## Mulitvariate Regression
+
+
+```r
+basismodell &lt;- lm(score ~ age + gender, data = used_evals)
+tidy(basismodell) %&gt;%
+  mutate_if(is.numeric, round, digits = 3) %&gt;% 
+  clean_names()
+```
+
+```
+# A tibble: 3 x 5
+  term        estimate std_error statistic p_value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 (Intercept)    4.48      0.125     35.8    0    
+2 age           -0.009     0.003     -3.28   0.001
+3 gendermale     0.191     0.052      3.63   0    
+```
+--
+
+- Ein um ein Jahr älterer Dozent/Dozentin hat im Durchschnitt eine um 0.009 Einheiten schlechtere Lehrevaluation (`age`)
+    - Signifikant auf dem 1% Signifikanzniveau
+- Männliche Dozenten haben im Durchschnitt eine um 0.191 Einheiten bessere Lehrevaluation (`gendermale`)
+    - Signifikant auf dem 1% Signifanzniveau
+
+--
+
+.question[Gibt es unterschiedliche Effekte für Männer und Frauen über das Alter hinweg? Wie könnte das gemessen werden?]
+
+---
+
+## Interaktionsmodell
+
+Unsere explorative Grafik deutet zwei unterschiedliche Kurveverläufe an. Durch ein Interaktionsmodell können wir dem Phänomen Rechnung tragen
+
+--
+
+
+```r
+interaktionsmodell &lt;- lm(score ~ age * gender, data = used_evals)
+tidy(interaktionsmodell, conf.int = TRUE) %&gt;%
+  mutate_if(is.numeric, round, digits = 3) %&gt;% 
+  clean_names()
+```
+
+```
+# A tibble: 4 x 7
+  term           estimate std_error statistic p_value conf_low conf_high
+  &lt;chr&gt;             &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 (Intercept)       4.88      0.205     23.8    0        4.48      5.29 
+2 age              -0.018     0.004     -3.92   0       -0.026    -0.009
+3 gendermale       -0.446     0.265     -1.68   0.094   -0.968     0.076
+4 age:gendermale    0.014     0.006      2.45   0.015    0.003     0.024
+```
+
+---
+
+## Interpretation der Koeffizienten
+
+- Frauen bilden hier die Basisgruppe, da in unserer kategorischen Variable `gender` female vor male kommt und damit automatisch als Basisgruppe deklariert wird
+- Der Achsenabschnitt ist hier _nur_ für Frauen
+    - Entspricht der roten Linie im vorherigen Schaubild
+    - Steigung der roten Linie ist -0.018 im vorherigen Schaubild
+- Männer werden hier als Vergleich zu den Frauen berechnet.
+    - Achsenabschnitt für Männer `\(\rightarrow\)` 4.833 - 0.446 = 4.437
+    - Steigung im vorherigen Schaubild für Männer wäre dann entsprechend `\(\rightarrow\)` -0.018 + 0.014 = -0.004
+
+---
+
+## Interpretation der Koeffizienten
+
+In einer Tabelle zusammengefasst bedeutet dies:
+
+Geschlecht|Achsenabschnitt|Steigung
+---|---|---
+Frauen|4.833|-0.018
+Männer|4.437|-0.004
+
+--
+
+Das heißt die Lehrevaluationsergebnisse sind im Durchschnitt bei älteren Frauen pro Lebensjahr um -0.018 Einheiten schlechter, bei Männern nur um -0.004 Einheiten.
+
+`\(\rightarrow\)` .alert[Das Alter hat bei Frauen einen **höheren negativen Effekt** auf die Lehrevaluationsergebnisse]
+
+---
+
+## Aufteilen der Stichprobe
+
+Anstatt einen Interaktionsterm einzuführen können Sie die Stichprobe auch aufteilen:
+
+
+```r
+split1 &lt;- lm(score ~ age, data = filter(used_evals, gender=="female"))
+split2 &lt;- lm(score ~ age, data = filter(used_evals, gender=="male")) 
+
+#Alternativ
+used_evals %&gt;%  
+  group_by(gender) %&gt;%
+  do(tidy(lm(score ~ age, data = .), conf.int = TRUE)) %&gt;%
+  mutate_if(is.numeric, round, digits = 3) %&gt;% 
+  clean_names()
+```
+
+```
+# A tibble: 4 x 8
+# Groups:   gender [2]
+  gender term        estimate std_error statistic p_value conf_low conf_high
+  &lt;fct&gt;  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 female (Intercept)    4.88      0.21      23.2    0        4.47      5.30 
+2 female age           -0.018     0.005     -3.82   0       -0.027    -0.008
+3 male   (Intercept)    4.44      0.165     26.9    0        4.11      4.76 
+4 male   age           -0.004     0.003     -1.25   0.212   -0.01      0.002
+```
+
+--
+
+.alert[Die Koeffizienten sind die Selben wie wir sie beim Interaktionsmodell erhalten haben]
+
+---
+
+## Das Paket broom
+
+Falls Sie mit den Werten aus der Regression weiterarbeiten möchten können Sie auch für unterschiedliche Gruppen einzelne Regressionen durchführen lassen. Hier hilft ihnen der `do`-Befehl aus dem `broom` Paket:
+
+
+```r
+used_evals %&gt;%  
+  group_by(gender) %&gt;%
+  do(tidy(lm(score ~ age, data = .), conf.int = TRUE))
+```
+
+```
+# A tibble: 4 x 8
+# Groups:   gender [2]
+  gender term        estimate std.error statistic  p.value conf.low conf.high
+  &lt;fct&gt;  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 female (Intercept)  4.88      0.210       23.2  9.90e-58   4.47     5.30   
+2 female age         -0.0175    0.00459     -3.82 1.79e- 4  -0.0266  -0.00848
+3 male   (Intercept)  4.44      0.165       26.9  9.09e-78   4.11     4.76   
+4 male   age         -0.00399   0.00319     -1.25 2.12e- 1  -0.0103   0.00229
+```
+
+---
+
+## Das Paket broom
+
+Diesen Dataframe können wir anschließend nach den Regressionskoeffizienten von Interesse filtern und uns nur die Spalten ausgeben lassen, welche uns interessieren:
+
+
+```r
+used_evals %&gt;%  
+  group_by(gender) %&gt;%
+  do(tidy(lm(score ~ age, data = .), conf.int = TRUE)) %&gt;%
+  filter(term == "age") %&gt;%
+  select(gender, estimate, conf.low, conf.high)
+```
+
+```
+# A tibble: 2 x 4
+# Groups:   gender [2]
+  gender estimate conf.low conf.high
+  &lt;fct&gt;     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 female -0.0175   -0.0266  -0.00848
+2 male   -0.00399  -0.0103   0.00229
+```
+
+
+---
+
+## Multivariate Regression
+
+Es besteht auch die Möglichkeit unterschiedliche Regressionsspezifikationen mit dem Paket `stargazer` einander gegenüberzustellen.
+
+Code für die Verwendung von `stargazer`, wobei die jeweiligen Modelle auf den vorherigen Folien berechnet und unter den entsprechenden Namen abgespeichert wurden.
+
+
+```r
+library(stargazer)
+stargazer(basismodell, interaktionsmodell, split1, split2, type="html")
+```
+
+---
+
+.tiny[
+
+&lt;table style="text-align:center"&gt;&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="4"&gt;&lt;em&gt;Dependent variable:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td colspan="4" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="4"&gt;score&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;td&gt;(3)&lt;/td&gt;&lt;td&gt;(4)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;age&lt;/td&gt;&lt;td&gt;-0.009&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;-0.018&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;-0.018&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;-0.004&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.003)&lt;/td&gt;&lt;td&gt;(0.004)&lt;/td&gt;&lt;td&gt;(0.005)&lt;/td&gt;&lt;td&gt;(0.003)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;gendermale&lt;/td&gt;&lt;td&gt;0.191&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;-0.446&lt;sup&gt;*&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.052)&lt;/td&gt;&lt;td&gt;(0.265)&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;age:gendermale&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;0.014&lt;sup&gt;**&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;(0.006)&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;4.484&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;4.883&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;4.883&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;4.437&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.125)&lt;/td&gt;&lt;td&gt;(0.205)&lt;/td&gt;&lt;td&gt;(0.210)&lt;/td&gt;&lt;td&gt;(0.165)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Observations&lt;/td&gt;&lt;td&gt;463&lt;/td&gt;&lt;td&gt;463&lt;/td&gt;&lt;td&gt;195&lt;/td&gt;&lt;td&gt;268&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;R&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;0.039&lt;/td&gt;&lt;td&gt;0.051&lt;/td&gt;&lt;td&gt;0.070&lt;/td&gt;&lt;td&gt;0.006&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Adjusted R&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;0.035&lt;/td&gt;&lt;td&gt;0.045&lt;/td&gt;&lt;td&gt;0.066&lt;/td&gt;&lt;td&gt;0.002&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Residual Std. Error&lt;/td&gt;&lt;td&gt;0.534 (df = 460)&lt;/td&gt;&lt;td&gt;0.531 (df = 459)&lt;/td&gt;&lt;td&gt;0.545 (df = 193)&lt;/td&gt;&lt;td&gt;0.521 (df = 266)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;F Statistic&lt;/td&gt;&lt;td&gt;9.338&lt;sup&gt;***&lt;/sup&gt; (df = 2; 460)&lt;/td&gt;&lt;td&gt;8.288&lt;sup&gt;***&lt;/sup&gt; (df = 3; 459)&lt;/td&gt;&lt;td&gt;14.598&lt;sup&gt;***&lt;/sup&gt; (df = 1; 193)&lt;/td&gt;&lt;td&gt;1.564 (df = 1; 266)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="4" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.1; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

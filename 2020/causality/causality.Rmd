@@ -1,0 +1,641 @@
+---
+title: "Korrelation ist nicht gleich Kausalität"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(wooldridge)
+library(here)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+ggplot2::theme_set(theme_minimal())
+# update those defaults
+update_font_defaults <- function(font_choice = "Lato") {
+    ggplot2::update_geom_defaults("text", list(family = font_choice))
+    ggplot2::update_geom_defaults("label", list(family = font_choice))
+    
+}
+theme_bakeoff <- function(font_choice = "Lato"){ 
+  
+  update_font_defaults()
+  
+  ggplot2::theme_minimal(base_family = font_choice)
+  
+}
+ggplot2::theme_set(theme_bakeoff())
+
+gif_link <- function(link, file, size){
+    knitr::asis_output(
+      paste0('<center>\n<a href="',
+             link,
+             '">\n<img src="',
+             file,
+             '" style = "width: ',
+             size,
+             'px;"/>\n</a>\n</center>'
+      ))
+}
+```
+
+
+## Einführung
+
+Hier ein kleines Video zum Thema Korrelation ist nicht gleich Kausalität:
+
+https://twitter.com/AmeetRKini/status/1186491285919731713
+
+---
+
+## Einführung
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidyr)
+library(broom)
+```
+
+```{r, echo=FALSE}
+evals <- read_csv("data/evals.csv")
+used_evals <- evals %>%
+  mutate(ID = rownames(evals),
+         gender = as.factor(gender)) %>%
+  select(ID, score, bty_avg, gender, age)
+```
+
+.alert[Korrelation ist nicht gleich Kausalität]
+
+Dies ist eine der wichtigsten Erkenntnisse, welche Sie für ihre empirische Arbeit mitnehmen sollten.
+In den vorherigen Folien haben Sie gesehen, wie Sie die Verbindungen zwischen mehreren Variablen aufdecken können. Jedoch sollten Sie eine reine Korrelation nicht überinterpretieren.
+
+Es kann viele Gründe haben, warum eine Variable $X$ mit einer Variablen $Y$ korreliert ist, ohne das eine Veränderung in einer Variablen zu eine Veränderung in der Anderen _führt_. 
+
+---
+
+## Begriff der Kausalität in der Ökonomie
+
+.instructions[Auswirkung einer **ceteribus paribus** Änderung der Variablen _x_ auf die Variable _y_.]
+
+- _Ceteribus paribus_ = unter sonst gleichen Bedingungen
+- Ist bei einem sehr gut kontrollierten randomisieren Experiment gegeben, außerhalb dessen fast nie
+
+--
+
+Möglichkeiten aus Felddaten kausale Effekte zu identifizieren:
+
+- (Natürlich vorkommende) Quasi-Experimente
+- Aufnahme zusätzlicher Kontrollvariablen
+- Difference-in-Difference Schätzung
+- Instrumentalvariablenschätzung
+- Propensity-Score Matching
+- ...
+
+Der Großteil dieser Schätzmethoden geht über die Inhalte des Projektkurses hinaus.
+
+---
+
+## Scheinkorrelation
+
+Das folgende Beispiel ist der Seite von [Spurious Correlations](http://www.tylervigen.com/spurious-correlations) entnommen. Es zeigt sehr schön, warum Korrelation nicht gleich Kausalität impliziert.
+Zwischen 1999 und 2009 gab es eine sehr starke Korrelation zwischen den amerikanischen Ölimporten aus Norwegen und tödlichen Autounfällen bei Zusammenstößen mit einem Zug.
+
+---
+
+## Scheinkorrelation
+
+```{r, echo=FALSE, fig.width=10, fig.height=5}
+norwegen_zugunfall <- tribble(
+  ~Jahr, ~US_Ölimporte_aus_Norwegen,  ~Tödliche_Autounfälle_Zugcrash,
+  1999, 96, 76,
+  2000, 110, 74,
+  2001, 103, 76,
+  2002, 127, 87,
+  2003, 60, 66,
+  2004, 54, 59,
+  2005, 43, 63,
+  2006, 36, 60,
+  2007, 20,55,
+  2008, 11, 52,
+  2009, 22, 46,
+)
+
+Überschrift <- paste("Korrelation =", 
+                round(with(norwegen_zugunfall, 
+                           cor(US_Ölimporte_aus_Norwegen, Tödliche_Autounfälle_Zugcrash)),2))
+
+norwegen_zugunfall %>% 
+  ggplot(aes(US_Ölimporte_aus_Norwegen, Tödliche_Autounfälle_Zugcrash)) + 
+  geom_point(cex=3) + 
+  geom_smooth(method = "lm") + 
+  ggtitle(Überschrift) +
+  xlab("US Ölimporte aus Norwegen (in Mio. Barrel)") + 
+  ylab("Tödliche Autounfalle durch einen Zusammenprall mit einem Zug")
+```
+
+---
+
+## Scheinkorrelation
+
+- Kann dies bedeuten, dass Ölimporte aus Norwegen zu tödliche Autounfälle mit Zügen führen? 
+- Oder das tödliche Autounfälle mit Zügen zu mehr Ölimporten aus Norwegen führen? 
+- Für beide Szenarien ist die Antwort: **Nein**
+- Typisches Beispiel für Scheinkorrelation
+- Auf dieser Internetseite wurde gezielt nach hohen Korrelationen in den Daten geschaut
+  - Wird oft als _data dredging_ oder _data snooping_ bezeichnet
+  - Es werden viele Resultate begutachtet und nur das herausgepickt, welches die eigene Theorie unterstützt
+
+---
+
+## Scheinkorrelation
+
+In einer Monte Carlo Simulation wollen wir zeigen, wie bei unkorrelierten Variablen eine hohe Korrelation gefunden werden kann:
+
+```{r, cache=TRUE}
+set.seed = 2020
+
+N <- 25
+G <- 1000000
+simulation <- tibble(group = rep(1:G, each = N), 
+                     X = rnorm(N*G), Y = rnorm(N*G))
+```
+
+- wir erzeugen `r cat(prettyNum(G, big.mark=",",scientific=FALSE))` Gruppen mit `r N` Beobachtungen in jeder Gruppe
+- die Beobachtungen sind normalverteilte Zufallsvariablen, welche unabhängig voneinander sind
+- durch die Art wie wir die Variablen $X$ und $Y$ erzeugt haben wissen wir, dass sie unkorreliert sind
+
+---
+
+## Scheinkorrelation
+
+Nun wollen wir die Korrelation zwischen $X$ und $Y$ berechnen.
+Dabei interessieren wir uns besonders für die maximale Korrelation innerhalb jeder Gruppe (absteigende Sortierung):
+
+
+```{r, cache=TRUE}
+max_res <- simulation %>% 
+  group_by(group) %>% 
+  summarize(r = cor(X, Y)) %>% 
+  arrange(desc(r))
+max_res
+```
+
+---
+
+## Scheinkorrelation
+
+
+Wenn wir uns nun nur die Gruppe mit der maximale Korrelation anzeigen lassen, dann sehen wir, dass $X$ und $Y$ stark miteinander korreliert sind (aus der vorherigen Folie wissen wir das es $\rho$ = `r round(pull(max_res[1,2]),2)`:
+
+```{r, fig.width=10, fig.height=5}
+simulation %>% filter(group == max_res$group[which.max(max_res$r)]) %>%
+  ggplot(aes(X, Y)) +
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+---
+
+## Scheinkorrelation
+
+Wir können uns jedoch einmal die Verteilung der Korrelation unserer Monte Carlo Simulation anschauen:
+
+```{r, fig.width=10, fig.height=5}
+max_res %>% ggplot(aes(x=r)) + 
+  geom_histogram(binwidth = 0.01)
+```
+
+---
+
+## Scheinkorrelation
+
+- Mathematisch ist es klar, dass wir bei `r G` zufälligen Korrelationen, welche im Erwartungswert 0 sind und einen Standardfehler von `r signif(sd(max_res$r),3)` aufweisen auch eine dabei haben, welche nahe bei 1 liegt
+- Wenn wir uns hier nur auf das für unsere Theorie beste Ergebnis konzentrieren, können wir schnell einen Zusammenhang zwischen zwei Variablen postulieren, wo gar keiner ist.
+
+Würden wir z.B. nur die Maxima in der jeweiligen Gruppe in einer Regression verwenden, so bekommen wir fälschlicherweise einen signifikanten Zusammenhang zwischen $X$ und $Y$ heraus:
+
+
+```{r}
+simulation %>% 
+  filter(group == max_res$group[which.max(max_res$r)]) %>%
+  do(tidy(lm(Y ~ X, data = .)))
+```
+
+---
+
+## Scheinkorrelation
+
+- In der Wissenschaft werden signifikante Ergebnisse eher publiziert als Negativergebnisse
+  - Dies wird auch als "Publikation bias" bezeichnet
+- Wissenschaftler könnten hier viele verschiedene Erklärungen für ein Phänomen durchtesten und nur das Ergebnis postulieren, welches signifikant ist
+- In experimentellen Studien könnte eine Studie mehrmals wiederholt werden und nur das Experiment mit dem niedrigsten p-Wert angegeben werden.
+
+---
+
+```{r, echo=FALSE, out.width='30%'}
+include_graphics("../figs/Beans.png")
+```
+
+---
+
+## Ausreißer
+
+Ein weiterer Grund warum ein signifikanter Zusammenhang zwischen zwei Variablen gefunden werden könnte sind Ausreißer in den Daten.
+
+Wir wollen einen Datensatz aus unkorrelierten Zufallsvariablen simulieren, welcher einen Ausreißer hat. Dieser Datensatz gleicht einer Version von Anscombe's Quartett:
+
+```{r, fig.width=10, fig.height=5, echo=FALSE}
+set.seed(1)
+x <- rnorm(100,90,1)
+y <- rnorm(100,80,1)
+x[-35] <- scale(x[-35])
+y[-35] <- scale(y[-35])
+
+tibble(x,y) %>% 
+  ggplot(aes(x,y)) + geom_point(alpha = 0.5)
+
+```
+
+---
+
+## Ausreißer
+
+```{r, fig.width=10, fig.height=5, eval=FALSE}
+set.seed(1)
+x <- rnorm(100,90,1)
+y <- rnorm(100,80,1)
+x[-35] <- scale(x[-35])
+y[-35] <- scale(y[-35])
+
+tibble(x,y) %>% 
+  ggplot(aes(x,y)) + geom_point(alpha = 0.5)
+```
+
+---
+
+## Ausreißer
+
+Hier ist die Korrelation von $x$ und $y$ sehr hoch:
+
+```{r}
+cor(x,y)
+```
+
+--
+
+Jedoch wird diese hohe Korrelation durch den Ausreißer in den Daten getrieben.
+Wenn wir uns nur die Korrelation ohne diesen Ausreißer anschauen, dann ist sie nahe 0, was wir erwarten würden bei unkorrelierten Zufallsvariablen:
+
+```{r}
+cor(x[-35], y[-35])
+```
+
+---
+
+## Ausreißer
+
+Neben der Stichprobenkorrelation gibt es noch eine andere Möglichkeit die Korrelation in der Gesamtpopulation zu berechnen, unabhängig von Ausreißern in den Daten.
+
+Diese Korrelation nennt sich _Rangkorrelation nach Spearman_ und berechnet die Korrelation zwischen den Rängen der Werte.
+Auf der nächsten Folie werden die Ränge der einzelnen Datenpunkte aus unserem vorherigen Beispiel grafisch dargestellt.
+
+---
+
+## Ausreißer
+
+```{r, fig.width=10, fig.height=5}
+tibble(x,y) %>% 
+  ggplot(aes(rank(x),rank(y))) + 
+  geom_point(alpha = 0.5)
+```
+
+---
+
+## Ausreißer
+
+Hier wird der Ausreißer nicht mehr durch einen überproportional großen Wert dargestellt, sondern nimmt den Rank (1,1) ein. Dadurch erhalten wir eine deutlich niedrigere Korrelation:
+
+```{r}
+cor(rank(x), rank(y))
+cor(x, y, method = "spearman")
+```
+
+---
+
+## Verdrehen von Ursache und Wirkung
+
+Ein weiteres Beispiel bei dem die Verbindung zweier Variablen mit deren kausalen Zusammenhang verwechselt wird ist das Verdrehen von Ursache und Wirkung.
+
+Beispielhafte Argumentation:
+
+- Durch Nachhilfe werden Schüler in der Schule schlechter
+- Schüler die zur Nachhilfe gehen haben durchgehend schlechtere Noten als ihre Klassenkameraden, welche nicht zur Nachhilfe gehen
+
+--
+
+**Jedoch:** Es ist sehr wahrscheinlich, dass Schüler mit schlechteren Noten eher zur Nachhilfe gehen als Schüler mit guten Noten. Der kausale Zusammenhang besteht eher in die entgegengesetzt Richtung.
+
+---
+
+## Verdrehen von Ursache und Wirkung
+
+Gegeben der Lehrevaluationsergebnisse und dem Alter des Dozenten/der Dozentin können wir uns auch den umgekehrten Effekt anschauen, d.h. beeinflussen die Lehrevaluationsergebnisse ($y_i$) das Alter des Dozenten/ der Dozentin ($X_i$)?
+Hierzu schätzen wir das folgende Modell:
+
+$$X_i = \beta_0 + \beta_1 y_i + \varepsilon_i, i=1, \dots, N$$
+
+```{r}
+used_evals %>%  
+  do(tidy(lm(age ~ score, data = .), conf.int = TRUE))
+
+```
+
+---
+
+## Verdrehen von Ursache und Wirkung
+
+- Gegeben der Regressionsergebnisse könnten wir schließen: Die Lehrevaluationsergebnisse bedingen die Attraktivität des Dozenten/der Dozentin
+- **Jedoch:** Es ist unwahrscheinlich das das Alter des Dozenten/der Dozentin von den Lehrevaluationsergebnissen abhängen.
+- Das Modell ist technisch gesehen korrekt und auch die entsprechenden p-Werte
+- **Aber** die Interpretation ist falsch
+
+---
+
+## Schätzung kausaler Effekte im Experiment
+
+```{r, echo=FALSE}
+library(DiagrammeR)
+grViz('digraph rmarkdown {
+x [label="x"]
+y [label="y"]
+z [label="z"]
+
+x -> y [label="+"];
+z -> y [label="+"];
+}', height = 400)
+```
+
+---
+
+## Schätzung kausaler Effekte im Experiment
+
+```{r, echo=FALSE, results='asis'}
+set.seed(2019)
+n <- 10000
+beta1 <- 2 # wahrer kausaler effekt
+z <- rnorm(n,0,1)
+x <- rnorm(n,0,1)
+y <- beta1*x + z + rnorm(n,0,1)
+
+# Regression mit z als Kontrollvariable
+reg1 <- lm(y~x+z)
+# Regression ohne z als Kontrollvariable
+reg2 <- lm(y~x)
+# Zeige Ergbenisse nebeneinander
+library(stargazer)
+stargazer(reg1, reg2, type="html", digits=3, keep.stat=c("n"))
+```
+
+--
+
+.alert[Im randomisierten Experiment können Sie den Effekt von _x_ auf _y_ unverzerrt schätzen!]
+
+---
+
+## In der Realität gibt es oft unbeobachtete Einflüsse
+
+Wenn Sie nun eine dritte Variable haben, welche sowohl $x$ als auch $y$ beeinflusst, dann ergibt sich eine neue Situation:
+
+```{r, echo=FALSE}
+grViz('digraph rmarkdown {
+x [label="x"]
+y [label="y"]
+z [label="z"]
+
+x -> y [label="+"];
+z -> x [label="+"];
+z -> y [label="+"];
+}', height = 400)
+```
+
+---
+
+## Störfaktor - Drittvariable
+
+Störfaktoren sind oft die Hauptursache für eine falsche Interpretation von Ergebnissen.
+
+Gegeben $x$ und $y$ sind miteinander korreliert, doch Veränderungen in einer dritten Variable $z$ führen zu Veränderungen in $x$ und $y$, dann sprechen wir von einem _Störfaktor_.
+
+Manchmal können wir lineare Modelle verwenden um auf solche _Störfaktoren_ zu kontrollieren, doch dies ist nicht immer der Fall.
+
+--
+
+.instructions[Lassen Sie uns einen Fall simulieren, bei dem $z$ als Störvariable auftritt.]
+
+---
+
+## Störfaktor - Drittvariable
+
+```{r, echo=FALSE, results='asis'}
+set.seed(2019)
+n <- 10000
+beta1 <- 2 # wahrer kausaler effekt
+z <- rnorm(n,0,1)
+x <- rnorm(n,0,1) + z
+y <- beta1*x + z + rnorm(n,0,1)
+
+# Regression mit z als Kontrollvariable
+reg1 <- lm(y~x+z)
+# Regression ohne z als Kontrollvariable
+reg2 <- lm(y~x)
+# Zeige Ergbenisse nebeneinander
+stargazer(reg1, reg2, type="html", digits=3, keep.stat=c("n"))
+```
+
+
+---
+
+## Störfaktor - Drittvariable
+
+- Wenn Sie $z$ als Kontrollvariable einbauen, ist der Koeffizient von $x$ weiterhin sehr nahe am wahren kausalen Effekt `beta1=2` von $x$ auf $y$.
+- Wenn Sie $z$ jedoch _nicht_ in ihre Regression aufnehmen, so ist ihr Schätzer mit 2.5 deutlich größer als $\beta_1$
+    - Hier sprechen wir davon, dass der Schätzer systematisch nach oben verzerrt ist
+
+**Problematisch:** Der wahre Wert von $x$ ( $\beta_1$ = 2 ) liegt auch nicht im 95% Konfidenzintervall um den Schätzer!
+
+--
+
+.alert[Konfidenzintervalle helfen **nicht** zu erkennen, ob ein kausaler Effekt verzerrt geschätzt wird!]
+
+---
+
+## Beispiel für eine Störvariable: Zulassungen zu der Universität Berkeley 
+
+Dieses Beispiel ist einem im Jahr 1975 veröffentlichten Artikel in der Zeitschrift _Science_ entnommen:
+[PJ Bickel, EA Hammel, and JW O'Connell (1975): Sex Bias in Graduate Admissions: Data from Berkeley. _Science_](http://science.sciencemag.org/content/187/4175/398/tab-pdf)
+
+Wir haben die Daten aus [diesem Wikipedia-Artikel](https://en.wikipedia.org/wiki/Simpson%27s_paradox#cite_note-Bickel-11)
+
+```{r}
+fakultät <- c("A","B","C","D","E","F","A","B","C","D","E","F")
+bewerber <- c(825,560,325,417,191,373,108,25,593,375,393,341)
+zulassung <- c(62,63,37,33,28,6,82,68,34,35,24,7)
+geschlecht <- c("Mann","Mann","Mann","Mann","Mann","Mann",
+                "Frau","Frau","Frau","Frau","Frau","Frau")
+admissions <- tibble(fakultät,geschlecht,zulassung,bewerber)
+```
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+.pull-left[
+Zulassungen und Bewerbungen pro Fakultät und Geschlecht
+
+```{r}
+admissions
+```
+]
+
+.pull-right[
+Gesamtprozentsatz angenommener Frauen und Männer:
+
+```{r}
+admissions %>% group_by(geschlecht) %>% 
+  summarize(percentage = 
+              round(sum(zulassung*bewerber)/sum(bewerber),1))
+```
+]
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+- **Jedoch:** Bei genauerer Betrachtung werden Frauen in 4 von 6 Fakultäten häufiger zugelassen als Männer
+- Weiterhin sind alle einzelnen Unterschiede innerhalb der Fakultäten deutlich kleiner als die 14.2 Prozentpunkte Unterschied im Gesamtprozentsatz der zugelassenen Männder und Frauen
+
+
+```{r}
+admissions %>% 
+  select(fakultät, geschlecht, zulassung) %>%
+  spread(geschlecht, zulassung) %>%
+  mutate(frau_minus_mann = Frau - Mann)
+```
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+- Ein solches Ergebnis kann durch einen unerkannten Störfaktor getrieben sein
+- Im folgenden definieren wir drei Variablen:
+  - $X$ ist 1 für Männer, 0 für Frauen
+  - $Y$ ist 1 für eine Zulassung, 0 für eine Ablehnung
+  - $Z$ spiegelt die Selektivität der Fakultät wieder
+- Hierbei kann $Z$ ein Störfaktor sein, welcher nicht in der Analyse über alle Fakultäten berücksichtig wurde
+  - $Z$ beeinflusst hierbei $Y$, denn je Selektiver eine Fakultät, desto niedriger die Zulassungsquote
+  - _Frage:_ Beeinflusst $Z$ auch $X$?
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Um dies zu sehen stellen wir die prozentuale Zulassung zu einer Fakultät der anteiligen weiblichen Bewerberzahl gegenüber:
+
+
+```{r, fig.width=10, fig.height=5, echo=FALSE }
+admissions %>% 
+  group_by(fakultät) %>% 
+  summarize(Selektivität = sum(zulassung*bewerber)/sum(bewerber),
+            prozent_weibliche_bewerber = 
+              sum(bewerber*(geschlecht=="Frau")/sum(bewerber))*100) %>%
+  ggplot(aes(Selektivität, prozent_weibliche_bewerber, label = fakultät)) +
+  geom_text()
+```
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Die Grafik zeigt, dass Frauen sich eher bei Fakultäten bewerben, welche sehr selektiv sind.
+
+Beispiel:
+
+- Fakultät F und E sind sehr selektiv mit einer Zulassungsquote von 5% bzw. 25%, doch der Anteil an weiblichen Bewerbern beträgt rund 45% bzw. 65%.
+- Fakultät A und B haben jedoch eine hohe Zulassungsquote, aber hier bewerben sich kaum Frauen
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Die folgende Grafik zeigt den Anteil an zugelassenen Bewerbern nach Geschlecht:
+
+
+```{r, echo=FALSE, out.width='60%'}
+admissions %>% 
+  mutate(prozent_zulassung = zulassung*bewerber/sum(bewerber)) %>%
+  ggplot(aes(geschlecht, y = prozent_zulassung, fill = fakultät)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Durch diese Aufsplittung können wir sehen, in welcher Fakultät die zugelassenen Männer und Frauen nachher landen. 
+
+- Der Hauptanteil der Zulassungen für männliche Bewerber kommt aus Fakultät A und B
+- Speziell in die Fakultät A und B gehen sehr wenige Frauen
+
+**Jedoch:** Wir sehen nicht, wie viele Frauen und Männer sich für die jeweiligen Fakultäten beworben haben
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+
+Wenn wir nun die Zulassungsquote pro Fakultät und Bewerberzahl anschauen, dann sehen wir, dass die Zulassungsquote von Frauen und Männern recht ähnlich sind:
+
+```{r, echo=FALSE, out.width='50%'}
+admissions %>% 
+  ggplot(aes(fakultät, zulassung, col = geschlecht, size = bewerber)) +
+  geom_point() +
+  labs(title = "Anteil der Zulassung je Fakultät - Unterteilt nach Geschlecht")
+```
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+- Für die Fakultäten mit der höchsten Zulassungsquote sehen wir viel mehr männliche als weibliche Bewerber
+- Wenn wir die durchschnittliche Zulassungsquote nach Geschlecht und Fakultät bilden, dann sehen wir, dass Frauen sogar etwas bevorzugt werden:
+
+```{r}
+admissions %>%  group_by(geschlecht) %>% 
+  summarize(average = mean(zulassung))
+```
+
+
+
+
+
+
+
+

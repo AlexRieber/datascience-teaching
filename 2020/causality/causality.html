@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Korrelation ist nicht gleich Kausalität</title>
+    <meta charset="utf-8" />
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs/elevate-section-attrs.js"></script>
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <script src="libs/viz/viz.js"></script>
+    <link href="libs/DiagrammeR-styles/styles.css" rel="stylesheet" />
+    <script src="libs/grViz-binding/grViz.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="../uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="../uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Korrelation ist nicht gleich Kausalität
+
+---
+
+
+
+
+
+## Einführung
+
+Hier ein kleines Video zum Thema Korrelation ist nicht gleich Kausalität:
+
+https://twitter.com/AmeetRKini/status/1186491285919731713
+
+---
+
+## Einführung
+
+
+
+
+
+.alert[Korrelation ist nicht gleich Kausalität]
+
+Dies ist eine der wichtigsten Erkenntnisse, welche Sie für ihre empirische Arbeit mitnehmen sollten.
+In den vorherigen Folien haben Sie gesehen, wie Sie die Verbindungen zwischen mehreren Variablen aufdecken können. Jedoch sollten Sie eine reine Korrelation nicht überinterpretieren.
+
+Es kann viele Gründe haben, warum eine Variable `\(X\)` mit einer Variablen `\(Y\)` korreliert ist, ohne das eine Veränderung in einer Variablen zu eine Veränderung in der Anderen _führt_. 
+
+---
+
+## Begriff der Kausalität in der Ökonomie
+
+.instructions[Auswirkung einer **ceteribus paribus** Änderung der Variablen _x_ auf die Variable _y_.]
+
+- _Ceteribus paribus_ = unter sonst gleichen Bedingungen
+- Ist bei einem sehr gut kontrollierten randomisieren Experiment gegeben, außerhalb dessen fast nie
+
+--
+
+Möglichkeiten aus Felddaten kausale Effekte zu identifizieren:
+
+- (Natürlich vorkommende) Quasi-Experimente
+- Aufnahme zusätzlicher Kontrollvariablen
+- Difference-in-Difference Schätzung
+- Instrumentalvariablenschätzung
+- Propensity-Score Matching
+- ...
+
+Der Großteil dieser Schätzmethoden geht über die Inhalte des Projektkurses hinaus.
+
+---
+
+## Scheinkorrelation
+
+Das folgende Beispiel ist der Seite von [Spurious Correlations](http://www.tylervigen.com/spurious-correlations) entnommen. Es zeigt sehr schön, warum Korrelation nicht gleich Kausalität impliziert.
+Zwischen 1999 und 2009 gab es eine sehr starke Korrelation zwischen den amerikanischen Ölimporten aus Norwegen und tödlichen Autounfällen bei Zusammenstößen mit einem Zug.
+
+---
+
+## Scheinkorrelation
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-3-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Scheinkorrelation
+
+- Kann dies bedeuten, dass Ölimporte aus Norwegen zu tödliche Autounfälle mit Zügen führen? 
+- Oder das tödliche Autounfälle mit Zügen zu mehr Ölimporten aus Norwegen führen? 
+- Für beide Szenarien ist die Antwort: **Nein**
+- Typisches Beispiel für Scheinkorrelation
+- Auf dieser Internetseite wurde gezielt nach hohen Korrelationen in den Daten geschaut
+  - Wird oft als _data dredging_ oder _data snooping_ bezeichnet
+  - Es werden viele Resultate begutachtet und nur das herausgepickt, welches die eigene Theorie unterstützt
+
+---
+
+## Scheinkorrelation
+
+In einer Monte Carlo Simulation wollen wir zeigen, wie bei unkorrelierten Variablen eine hohe Korrelation gefunden werden kann:
+
+
+```r
+set.seed = 2020
+
+N &lt;- 25
+G &lt;- 1000000
+simulation &lt;- tibble(group = rep(1:G, each = N), 
+                     X = rnorm(N*G), Y = rnorm(N*G))
+```
+
+- wir erzeugen  Gruppen mit 25 Beobachtungen in jeder Gruppe
+- die Beobachtungen sind normalverteilte Zufallsvariablen, welche unabhängig voneinander sind
+- durch die Art wie wir die Variablen `\(X\)` und `\(Y\)` erzeugt haben wissen wir, dass sie unkorreliert sind
+
+---
+
+## Scheinkorrelation
+
+Nun wollen wir die Korrelation zwischen `\(X\)` und `\(Y\)` berechnen.
+Dabei interessieren wir uns besonders für die maximale Korrelation innerhalb jeder Gruppe (absteigende Sortierung):
+
+
+
+```r
+max_res &lt;- simulation %&gt;% 
+  group_by(group) %&gt;% 
+  summarize(r = cor(X, Y)) %&gt;% 
+  arrange(desc(r))
+max_res
+```
+
+```
+# A tibble: 1,000,000 x 2
+    group     r
+    &lt;int&gt; &lt;dbl&gt;
+ 1 175640 0.786
+ 2 160152 0.771
+ 3 575661 0.771
+ 4 293521 0.764
+ 5   5709 0.763
+ 6 928163 0.754
+ 7 276257 0.753
+ 8  55150 0.751
+ 9 793723 0.743
+10 296991 0.740
+# … with 999,990 more rows
+```
+
+---
+
+## Scheinkorrelation
+
+
+Wenn wir uns nun nur die Gruppe mit der maximale Korrelation anzeigen lassen, dann sehen wir, dass `\(X\)` und `\(Y\)` stark miteinander korreliert sind (aus der vorherigen Folie wissen wir das es `\(\rho\)` = 0.79:
+
+
+```r
+simulation %&gt;% filter(group == max_res$group[which.max(max_res$r)]) %&gt;%
+  ggplot(aes(X, Y)) +
+  geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-6-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Scheinkorrelation
+
+Wir können uns jedoch einmal die Verteilung der Korrelation unserer Monte Carlo Simulation anschauen:
+
+
+```r
+max_res %&gt;% ggplot(aes(x=r)) + 
+  geom_histogram(binwidth = 0.01)
+```
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-7-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Scheinkorrelation
+
+- Mathematisch ist es klar, dass wir bei 10^{6} zufälligen Korrelationen, welche im Erwartungswert 0 sind und einen Standardfehler von 0.204 aufweisen auch eine dabei haben, welche nahe bei 1 liegt
+- Wenn wir uns hier nur auf das für unsere Theorie beste Ergebnis konzentrieren, können wir schnell einen Zusammenhang zwischen zwei Variablen postulieren, wo gar keiner ist.
+
+Würden wir z.B. nur die Maxima in der jeweiligen Gruppe in einer Regression verwenden, so bekommen wir fälschlicherweise einen signifikanten Zusammenhang zwischen `\(X\)` und `\(Y\)` heraus:
+
+
+
+```r
+simulation %&gt;% 
+  filter(group == max_res$group[which.max(max_res$r)]) %&gt;%
+  do(tidy(lm(Y ~ X, data = .)))
+```
+
+```
+# A tibble: 2 x 5
+  term        estimate std.error statistic    p.value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 (Intercept)   -0.169     0.133     -1.27 0.217     
+2 X              0.621     0.102      6.09 0.00000327
+```
+
+---
+
+## Scheinkorrelation
+
+- In der Wissenschaft werden signifikante Ergebnisse eher publiziert als Negativergebnisse
+  - Dies wird auch als "Publikation bias" bezeichnet
+- Wissenschaftler könnten hier viele verschiedene Erklärungen für ein Phänomen durchtesten und nur das Ergebnis postulieren, welches signifikant ist
+- In experimentellen Studien könnte eine Studie mehrmals wiederholt werden und nur das Experiment mit dem niedrigsten p-Wert angegeben werden.
+
+---
+
+&lt;img src="../figs/Beans.png" width="30%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Ausreißer
+
+Ein weiterer Grund warum ein signifikanter Zusammenhang zwischen zwei Variablen gefunden werden könnte sind Ausreißer in den Daten.
+
+Wir wollen einen Datensatz aus unkorrelierten Zufallsvariablen simulieren, welcher einen Ausreißer hat. Dieser Datensatz gleicht einer Version von Anscombe's Quartett:
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-10-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Ausreißer
+
+
+```r
+set.seed(1)
+x &lt;- rnorm(100,90,1)
+y &lt;- rnorm(100,80,1)
+x[-35] &lt;- scale(x[-35])
+y[-35] &lt;- scale(y[-35])
+
+tibble(x,y) %&gt;% 
+  ggplot(aes(x,y)) + geom_point(alpha = 0.5)
+```
+
+---
+
+## Ausreißer
+
+Hier ist die Korrelation von `\(x\)` und `\(y\)` sehr hoch:
+
+
+```r
+cor(x,y)
+```
+
+```
+[1] 0.9862877
+```
+
+--
+
+Jedoch wird diese hohe Korrelation durch den Ausreißer in den Daten getrieben.
+Wenn wir uns nur die Korrelation ohne diesen Ausreißer anschauen, dann ist sie nahe 0, was wir erwarten würden bei unkorrelierten Zufallsvariablen:
+
+
+```r
+cor(x[-35], y[-35])
+```
+
+```
+[1] 0.005149778
+```
+
+---
+
+## Ausreißer
+
+Neben der Stichprobenkorrelation gibt es noch eine andere Möglichkeit die Korrelation in der Gesamtpopulation zu berechnen, unabhängig von Ausreißern in den Daten.
+
+Diese Korrelation nennt sich _Rangkorrelation nach Spearman_ und berechnet die Korrelation zwischen den Rängen der Werte.
+Auf der nächsten Folie werden die Ränge der einzelnen Datenpunkte aus unserem vorherigen Beispiel grafisch dargestellt.
+
+---
+
+## Ausreißer
+
+
+```r
+tibble(x,y) %&gt;% 
+  ggplot(aes(rank(x),rank(y))) + 
+  geom_point(alpha = 0.5)
+```
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-14-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Ausreißer
+
+Hier wird der Ausreißer nicht mehr durch einen überproportional großen Wert dargestellt, sondern nimmt den Rank (1,1) ein. Dadurch erhalten wir eine deutlich niedrigere Korrelation:
+
+
+```r
+cor(rank(x), rank(y))
+```
+
+```
+[1] 0.07612361
+```
+
+```r
+cor(x, y, method = "spearman")
+```
+
+```
+[1] 0.07612361
+```
+
+---
+
+## Verdrehen von Ursache und Wirkung
+
+Ein weiteres Beispiel bei dem die Verbindung zweier Variablen mit deren kausalen Zusammenhang verwechselt wird ist das Verdrehen von Ursache und Wirkung.
+
+Beispielhafte Argumentation:
+
+- Durch Nachhilfe werden Schüler in der Schule schlechter
+- Schüler die zur Nachhilfe gehen haben durchgehend schlechtere Noten als ihre Klassenkameraden, welche nicht zur Nachhilfe gehen
+
+--
+
+**Jedoch:** Es ist sehr wahrscheinlich, dass Schüler mit schlechteren Noten eher zur Nachhilfe gehen als Schüler mit guten Noten. Der kausale Zusammenhang besteht eher in die entgegengesetzt Richtung.
+
+---
+
+## Verdrehen von Ursache und Wirkung
+
+Gegeben der Lehrevaluationsergebnisse und dem Alter des Dozenten/der Dozentin können wir uns auch den umgekehrten Effekt anschauen, d.h. beeinflussen die Lehrevaluationsergebnisse ($y_i$) das Alter des Dozenten/ der Dozentin ($X_i$)?
+Hierzu schätzen wir das folgende Modell:
+
+`$$X_i = \beta_0 + \beta_1 y_i + \varepsilon_i, i=1, \dots, N$$`
+
+
+```r
+used_evals %&gt;%  
+  do(tidy(lm(age ~ score, data = .), conf.int = TRUE))
+```
+
+```
+# A tibble: 2 x 7
+  term        estimate std.error statistic  p.value conf.low conf.high
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 (Intercept)    56.4      3.51      16.1  2.11e-46    49.5     63.3  
+2 score          -1.93     0.835     -2.31 2.13e- 2    -3.57    -0.289
+```
+
+---
+
+## Verdrehen von Ursache und Wirkung
+
+- Gegeben der Regressionsergebnisse könnten wir schließen: Die Lehrevaluationsergebnisse bedingen die Attraktivität des Dozenten/der Dozentin
+- **Jedoch:** Es ist unwahrscheinlich das das Alter des Dozenten/der Dozentin von den Lehrevaluationsergebnissen abhängen.
+- Das Modell ist technisch gesehen korrekt und auch die entsprechenden p-Werte
+- **Aber** die Interpretation ist falsch
+
+---
+
+## Schätzung kausaler Effekte im Experiment
+
+<div id="htmlwidget-ac6052d99643cff0dab8" style="width:70%;height:400px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ac6052d99643cff0dab8">{"x":{"diagram":"digraph rmarkdown {\nx [label=\"x\"]\ny [label=\"y\"]\nz [label=\"z\"]\n\nx -> y [label=\"+\"];\nz -> y [label=\"+\"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## Schätzung kausaler Effekte im Experiment
+
+
+&lt;table style="text-align:center"&gt;&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="2"&gt;&lt;em&gt;Dependent variable:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td colspan="2" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="2"&gt;y&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;x&lt;/td&gt;&lt;td&gt;1.989&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;1.991&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.010)&lt;/td&gt;&lt;td&gt;(0.014)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;z&lt;/td&gt;&lt;td&gt;0.994&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.010)&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;-0.007&lt;/td&gt;&lt;td&gt;-0.039&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.010)&lt;/td&gt;&lt;td&gt;(0.014)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Observations&lt;/td&gt;&lt;td&gt;10,000&lt;/td&gt;&lt;td&gt;10,000&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="2" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.1; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+--
+
+.alert[Im randomisierten Experiment können Sie den Effekt von _x_ auf _y_ unverzerrt schätzen!]
+
+---
+
+## In der Realität gibt es oft unbeobachtete Einflüsse
+
+Wenn Sie nun eine dritte Variable haben, welche sowohl `\(x\)` als auch `\(y\)` beeinflusst, dann ergibt sich eine neue Situation:
+
+<div id="htmlwidget-667e65fcb3cfa1dceca2" style="width:70%;height:400px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-667e65fcb3cfa1dceca2">{"x":{"diagram":"digraph rmarkdown {\nx [label=\"x\"]\ny [label=\"y\"]\nz [label=\"z\"]\n\nx -> y [label=\"+\"];\nz -> x [label=\"+\"];\nz -> y [label=\"+\"];\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## Störfaktor - Drittvariable
+
+Störfaktoren sind oft die Hauptursache für eine falsche Interpretation von Ergebnissen.
+
+Gegeben `\(x\)` und `\(y\)` sind miteinander korreliert, doch Veränderungen in einer dritten Variable `\(z\)` führen zu Veränderungen in `\(x\)` und `\(y\)`, dann sprechen wir von einem _Störfaktor_.
+
+Manchmal können wir lineare Modelle verwenden um auf solche _Störfaktoren_ zu kontrollieren, doch dies ist nicht immer der Fall.
+
+--
+
+.instructions[Lassen Sie uns einen Fall simulieren, bei dem `\(z\)` als Störvariable auftritt.]
+
+---
+
+## Störfaktor - Drittvariable
+
+
+&lt;table style="text-align:center"&gt;&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="2"&gt;&lt;em&gt;Dependent variable:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td colspan="2" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="2"&gt;y&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;x&lt;/td&gt;&lt;td&gt;1.989&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;2.489&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.010)&lt;/td&gt;&lt;td&gt;(0.009)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;z&lt;/td&gt;&lt;td&gt;1.005&lt;sup&gt;***&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.014)&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Constant&lt;/td&gt;&lt;td&gt;-0.007&lt;/td&gt;&lt;td&gt;-0.016&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(0.010)&lt;/td&gt;&lt;td&gt;(0.012)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;Observations&lt;/td&gt;&lt;td&gt;10,000&lt;/td&gt;&lt;td&gt;10,000&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="3" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="2" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.1; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+
+---
+
+## Störfaktor - Drittvariable
+
+- Wenn Sie `\(z\)` als Kontrollvariable einbauen, ist der Koeffizient von `\(x\)` weiterhin sehr nahe am wahren kausalen Effekt `beta1=2` von `\(x\)` auf `\(y\)`.
+- Wenn Sie `\(z\)` jedoch _nicht_ in ihre Regression aufnehmen, so ist ihr Schätzer mit 2.5 deutlich größer als `\(\beta_1\)`
+    - Hier sprechen wir davon, dass der Schätzer systematisch nach oben verzerrt ist
+
+**Problematisch:** Der wahre Wert von `\(x\)` ( `\(\beta_1\)` = 2 ) liegt auch nicht im 95% Konfidenzintervall um den Schätzer!
+
+--
+
+.alert[Konfidenzintervalle helfen **nicht** zu erkennen, ob ein kausaler Effekt verzerrt geschätzt wird!]
+
+---
+
+## Beispiel für eine Störvariable: Zulassungen zu der Universität Berkeley 
+
+Dieses Beispiel ist einem im Jahr 1975 veröffentlichten Artikel in der Zeitschrift _Science_ entnommen:
+[PJ Bickel, EA Hammel, and JW O'Connell (1975): Sex Bias in Graduate Admissions: Data from Berkeley. _Science_](http://science.sciencemag.org/content/187/4175/398/tab-pdf)
+
+Wir haben die Daten aus [diesem Wikipedia-Artikel](https://en.wikipedia.org/wiki/Simpson%27s_paradox#cite_note-Bickel-11)
+
+
+```r
+fakultät &lt;- c("A","B","C","D","E","F","A","B","C","D","E","F")
+bewerber &lt;- c(825,560,325,417,191,373,108,25,593,375,393,341)
+zulassung &lt;- c(62,63,37,33,28,6,82,68,34,35,24,7)
+geschlecht &lt;- c("Mann","Mann","Mann","Mann","Mann","Mann",
+                "Frau","Frau","Frau","Frau","Frau","Frau")
+admissions &lt;- tibble(fakultät,geschlecht,zulassung,bewerber)
+```
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+.pull-left[
+Zulassungen und Bewerbungen pro Fakultät und Geschlecht
+
+
+```r
+admissions
+```
+
+```
+# A tibble: 12 x 4
+   fakultät geschlecht zulassung bewerber
+   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;
+ 1 A        Mann              62      825
+ 2 B        Mann              63      560
+ 3 C        Mann              37      325
+ 4 D        Mann              33      417
+ 5 E        Mann              28      191
+ 6 F        Mann               6      373
+ 7 A        Frau              82      108
+ 8 B        Frau              68       25
+ 9 C        Frau              34      593
+10 D        Frau              35      375
+11 E        Frau              24      393
+12 F        Frau               7      341
+```
+]
+
+.pull-right[
+Gesamtprozentsatz angenommener Frauen und Männer:
+
+
+```r
+admissions %&gt;% group_by(geschlecht) %&gt;% 
+  summarize(percentage = 
+              round(sum(zulassung*bewerber)/sum(bewerber),1))
+```
+
+```
+# A tibble: 2 x 2
+  geschlecht percentage
+  &lt;chr&gt;           &lt;dbl&gt;
+1 Frau             30.3
+2 Mann             44.5
+```
+]
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+- **Jedoch:** Bei genauerer Betrachtung werden Frauen in 4 von 6 Fakultäten häufiger zugelassen als Männer
+- Weiterhin sind alle einzelnen Unterschiede innerhalb der Fakultäten deutlich kleiner als die 14.2 Prozentpunkte Unterschied im Gesamtprozentsatz der zugelassenen Männder und Frauen
+
+
+
+```r
+admissions %&gt;% 
+  select(fakultät, geschlecht, zulassung) %&gt;%
+  spread(geschlecht, zulassung) %&gt;%
+  mutate(frau_minus_mann = Frau - Mann)
+```
+
+```
+# A tibble: 6 x 4
+  fakultät  Frau  Mann frau_minus_mann
+  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;           &lt;dbl&gt;
+1 A           82    62              20
+2 B           68    63               5
+3 C           34    37              -3
+4 D           35    33               2
+5 E           24    28              -4
+6 F            7     6               1
+```
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+- Ein solches Ergebnis kann durch einen unerkannten Störfaktor getrieben sein
+- Im folgenden definieren wir drei Variablen:
+  - `\(X\)` ist 1 für Männer, 0 für Frauen
+  - `\(Y\)` ist 1 für eine Zulassung, 0 für eine Ablehnung
+  - `\(Z\)` spiegelt die Selektivität der Fakultät wieder
+- Hierbei kann `\(Z\)` ein Störfaktor sein, welcher nicht in der Analyse über alle Fakultäten berücksichtig wurde
+  - `\(Z\)` beeinflusst hierbei `\(Y\)`, denn je Selektiver eine Fakultät, desto niedriger die Zulassungsquote
+  - _Frage:_ Beeinflusst `\(Z\)` auch `\(X\)`?
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Um dies zu sehen stellen wir die prozentuale Zulassung zu einer Fakultät der anteiligen weiblichen Bewerberzahl gegenüber:
+
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-25-1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Die Grafik zeigt, dass Frauen sich eher bei Fakultäten bewerben, welche sehr selektiv sind.
+
+Beispiel:
+
+- Fakultät F und E sind sehr selektiv mit einer Zulassungsquote von 5% bzw. 25%, doch der Anteil an weiblichen Bewerbern beträgt rund 45% bzw. 65%.
+- Fakultät A und B haben jedoch eine hohe Zulassungsquote, aber hier bewerben sich kaum Frauen
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Die folgende Grafik zeigt den Anteil an zugelassenen Bewerbern nach Geschlecht:
+
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-26-1.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+Durch diese Aufsplittung können wir sehen, in welcher Fakultät die zugelassenen Männer und Frauen nachher landen. 
+
+- Der Hauptanteil der Zulassungen für männliche Bewerber kommt aus Fakultät A und B
+- Speziell in die Fakultät A und B gehen sehr wenige Frauen
+
+**Jedoch:** Wir sehen nicht, wie viele Frauen und Männer sich für die jeweiligen Fakultäten beworben haben
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+
+Wenn wir nun die Zulassungsquote pro Fakultät und Bewerberzahl anschauen, dann sehen wir, dass die Zulassungsquote von Frauen und Männern recht ähnlich sind:
+
+&lt;img src="causality_files/figure-html/unnamed-chunk-27-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Beispiel: Zulassungen zu der Universität Berkeley
+
+- Für die Fakultäten mit der höchsten Zulassungsquote sehen wir viel mehr männliche als weibliche Bewerber
+- Wenn wir die durchschnittliche Zulassungsquote nach Geschlecht und Fakultät bilden, dann sehen wir, dass Frauen sogar etwas bevorzugt werden:
+
+
+```r
+admissions %&gt;%  group_by(geschlecht) %&gt;% 
+  summarize(average = mean(zulassung))
+```
+
+```
+# A tibble: 2 x 2
+  geschlecht average
+  &lt;chr&gt;        &lt;dbl&gt;
+1 Frau          41.7
+2 Mann          38.2
+```
+
+
+
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

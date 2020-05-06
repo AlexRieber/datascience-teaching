@@ -1,0 +1,562 @@
+---
+title: "Von der Korrelation zur Regression"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["../uni-ulm.css", "../uni-ulm-fonts.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+    includes:
+      in_header: ../header.html 
+#xaringan::inf_mr() #[Start Preview -> Type into console]
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+  comment = NA, dpi = 300,
+  fig.align = "center", out.width = "70%", cache = FALSE)
+library(tidyverse)
+library(knitr)
+library(emo)
+library(extrafont)
+library(png) 
+library(xaringan)
+
+ggplot2::theme_set(theme_minimal())
+
+```
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Gegeben Sie wollen eine Zufallsvariable $Y$ erklären, wobei Sie die Werte von $X=x$ auf einer Regressionslinie kennen:
+
+- Für jede Standardabweichung $\sigma_X$, für die $x$ über dem Durschnittswert $\mu_X$ liegt, steigt $Y$ um $\rho$ Standardabweichungen $\sigma_Y$ über dem Durchschnittswert $\mu_Y$.
+- $\rho$ ist die Korrelation von $X$ und $Y$.
+
+Die Formel für die Regressionsgeraden ergibt sich dann folgendermaßen:
+
+$$ 
+\left( \frac{Y-\mu_Y}{\sigma_Y} \right) = \rho \left( \frac{x-\mu_X}{\sigma_X} \right)
+$$
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Die Formel für die Regressionsgerade können wir wie folgt umschreiben:
+
+$$ 
+Y = \mu_Y + \rho \left( \frac{x-\mu_X}{\sigma_X} \right) \sigma_Y
+$$
+
+- Bei einer Korrelation von 1 würden wir eine Steigerung um eine Standardabweichung von $Y$ vorhersagen, gegeben, dass sich $X$ um eine Standardabweichung verändert
+- Bei einer Korrelation von 0 würden wir den Durchschnitt $\mu_Y$ vorhersagen
+- Bei einer Korrelation <0 würden wir eine Reduktion anstatt einer Steigerung vorhersagen
+
+--
+
+**Auf unser Beispiel übertragen:**
+
+- .small[Korrelationskoeffizent positiv, aber <1]
+- .small[Lehrevaluationsergebnisse liegen näher an den durchschnittlichen $\mu_X$ und sind nicht nur abhängig von der Attraktivität des Dozenten/der Dozentin $x$]
+- .small[Regression zur Mitte: Die individuellen, möglicherweise sehr extremen Lehrevaluationsergebnisse werden im Gesamtverlauf ausgeglichen und bewegen sich zu den durchschnittlichen Lehrevaluationsergebnissen.]
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Wenn Sie die Regressionsgerade auf Grundlage der Korrelation und ihren bisherigen Erkenntnissen ihrem Streudiagramm hinzufügen möchten, so müssen Sie die Formel des linearen Modells etwas umschreiben:
+
+$$\begin{split}y &= \alpha + \beta x\\
+\mbox{ mit der Steigung } \beta &= \rho \frac{\sigma_y}{\sigma_x}\\
+\mbox{ und dem Achsenabschnitt } \alpha &=\mu_y - \beta \mu_x\end{split}$$
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+```{r, echo=FALSE}
+evals <- read_csv("data/evals.csv")
+used_evals <- evals %>%
+  mutate(ID = rownames(evals),
+         gender = as.factor(gender)) %>%
+  select(ID, score, bty_avg, gender, age)
+```
+
+In R sieht dies folgendermaßen aus:
+
+```{r}
+mu_x <- mean(used_evals$bty_avg)
+mu_y <- mean(used_evals$score)
+sd_x <- sd(used_evals$bty_avg)
+sd_y <- sd(used_evals$score)
+rho <- cor(used_evals$bty_avg, used_evals$score)
+
+beta <-  rho * sd_y / sd_x
+alpha <- mu_y - beta*mu_x
+
+```
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+.small[
+```{r, echo=FALSE}
+used_evals %>% 
+  ggplot(aes(bty_avg, score)) + 
+  geom_point(alpha = 0.5) +
+  geom_abline(intercept = alpha, slope = beta, color="blue" ) +
+  labs(x = "Attraktivität", y = "Lehrevaluations",
+       title = "Zusammenhang zwischen Lehrevaluation und Attraktivität des Dozenten")
+```
+]
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+Zum selben Ergebnis gelangen wir mit der Regressionsgeraden berechnet nach der Methode der kleinsten Quadrate (in rot dazu):
+
+```{r, echo=FALSE, out.width='60%'}
+used_evals %>% 
+  ggplot(aes(bty_avg, score)) + 
+  geom_point(alpha = 0.5) +
+  geom_abline(intercept = alpha, slope = beta, color="blue" ) +
+  geom_smooth(method = "lm", se=FALSE, color = "red") +
+  labs(x = "Attraktivität", y = "Lehrevaluations",
+       title = "Zusammenhang zwischen Lehrevaluation und Attraktivität des Dozenten")
+```
+
+---
+
+## Zusammenhang zwischen Korrelation und Regression
+
+- Korrelation und Steigung der Regressionsgeraden haben immer das gleiche Vorzeichen
+- **Jedoch:** Diese müsssen nicht immer den gleichen Wert haben (siehe Berechnung 2 Folien vorher)
+- Die Regressionsgerade ist der beste lineare erwartungstreue Schätzer
+    - Was bedeutet dies genau? 
+
+---
+
+class: center, middle, inverse
+
+# Lineare Regression
+
+---
+
+## Lineares Modell
+
+- Durch die lineare Regression können wir Zusammenhänge zwischen verschiedenen Variablen aufdecken und gleichzeitig für andere Faktoren _kontrollieren_
+- "Lineare Modelle" werden so genannt, weil der bedingte Erwartungswert einer Variablen $Y$ sich ergibt aus einer Linearkombination bekannter Größen
+
+Wenn wir die Lehrevaluationsergebnisse verwenden können wir die $N$ verfügbaren Attraktivitätseinschätzungen als $x_1, \dots, x_n$ schreiben und dann die $N$ Evaluationsergebnisse durch folgendes Modell erklären:
+
+
+$$ 
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, \, i=1,\dots,N 
+$$
+
+- $x_i$ ist hierbei die Einschätzung der Attraktivität der Dozenten/Dozentinnen
+- $Y_i$ ist das (zufällige) Lehrevaluationsergebnis, welches wir erklären wollen
+- Annahmen: 
+  - Die $\varepsilon_i$ sind unabhängig voneinander mit Erwartungswert 0
+  - $\varepsilon$ ist normalverteilt
+  - Die Standardabweichung $\sigma$ hängt nicht von $i$ ab.
+
+---
+
+## Lineares Modell
+
+Lineare Modelle werden häufig verwendet:
+
+- Die Koeffizienten von linearen Modellen sind direkt interpretierbar
+- Beispiel Lehrevaluationsergebnisse: 
+  - Das Lehrevaluationsergebnis steigt je attraktiver ein Dozent/eine Dozentin eingeschätzt wird
+  - $\varepsilon$ fängt hierbei die Varianz in den Lehrevaluationsergebnissen auf
+  - In $\varepsilon$ stecken alle zusätzlichen Faktoren, welche die Lehrevaluationsergebnisse mit beeinflussen, aber in unserem Modell nicht gesondert enthalten sind
+    - Bspw: Das Geschlecht, Alter, Rethorikfähigkeiten, eingesetzte didaktische Mittel ...
+
+---
+
+## Kleinste Quadrate Schätzer 
+
+In unserem Modell wollen wir die Lehrevaluationsergebnisse vorhersagen.
+Hierfür benötigen wir eine Abschätzung der $\beta$s.
+
+Um dies zu erreichen verwenden wir die Methode der kleinsten Quadrate. Hierbei wird versucht eine Regressionsgerade zu finden, welche den Abstand zwischen den einzelnen Datenpunkten und der Regressionsgeraden minimiert. Wir können dies mathematisch wie folgt darstellen, wobei RSS für die residual sum squares (Residuenquadratsumme) steht: 
+
+$$RSS = \sum_{i=1}^n \left\{  Y_i - \left(\beta_0 + \beta_1 x_i \right)\right\}^2$$
+
+--
+
+- Die geschätzten Werte, welche die RSS minimieren bezeichnen wir mit $\hat{\beta}_0$ und $\hat{\beta}_1$
+
+---
+
+## Kleinste Quadrate Schätzer
+
+```{r, echo=FALSE}
+fit <- lm(score ~ bty_avg, data = used_evals)
+used_evals$predicted <- predict(fit)   
+used_evals$residuals <- residuals(fit)
+
+used_evals %>% 
+  ggplot(aes(bty_avg, score)) +
+  geom_smooth(method = "lm", se = FALSE, color = "lightgrey") +
+  geom_segment(aes(xend = bty_avg, yend = predicted), alpha = .2) +
+
+  # Farbanpassungen
+  geom_point(aes(color = residuals)) +  
+  scale_color_gradient2(low = "blue", mid = "white", high = "red") +  
+  guides(color = FALSE) +
+
+  geom_point(aes(y = predicted), shape = 1) +
+  theme_bw() +
+  ylab("Lehrevaluationsergebnis") + 
+  xlab("Attraktivität des/der Dozenten/in")
+
+```
+
+---
+
+## Schätzung
+
+Wir können in R das lineare Modell mittels der Funktion `lm` berechnen:
+
+$$
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i
+$$
+
+wobei $Y_i$ das Lehrevaluationsergebnis des Dozenten und $x_i$ dessen Attraktivität ist:
+
+
+```{r}
+schätzer <- lm(score ~ bty_avg, data = used_evals)
+```
+
+- Mit der Tilde `~` (Alt Gr + `+`-Taste) zeigen wir der Funktion `lm`:
+  - Links der `~`: Variable, die wir vorhersagen wollen
+  - Rechts der `~`: Variable(n), die wir für die Vorhersage verwenden
+  - R fügt automatisch einen Achsenabschnitt $\beta_0$ hinzu (falls Sie ein Modell _ohne_ Achsenabschnitt berechnen möchten müssen Sie folgendes schätzen: 
+      - lm(score ~ bty_avg + 0, data = used_evals)
+  
+---
+
+## Schätzung
+
+
+Um mehr über unsere Schätzung zu erfahren können wir die Funktion `summary` verwenden:
+
+```{r}
+summary(schätzer)
+```
+
+---
+
+## Interpretation der geschätzen Koeffizienten
+
+**Das Modell:**
+
+$$\begin{split}\hat{y} &= \beta_0 + \beta_1 x\\
+\hat{Lehrevaluation} &= \beta_0 + \beta_1 * btyavg \\
+\hat{Lehrevaluation} &= 3.880 + 0.067 * btyavg\end{split}$$
+
+--
+
+**Interpretation der Koeffizienten:**
+
+- Achsenabschnitt ( $\beta_0$ ) ist das durchschnittliche Lehrevaluationsergebnis, bei der die Attraktivität auf 0 eingeschätzt wurde
+    - Mathematische Interpretation _jedoch_ keine _praktische_ Interpretation, da Attraktivität nicht mit 0 bewertet werden kann (Skala von 1 bis 10)
+- Der Koeffizient für die Attraktivität ( $\beta_1$ ) ist 0.067
+    - Positiver Zusammenhang zwischen Attraktivität und Lehrevaluationsergebnis
+    - Gleiches Vorzeichen wie Korrelation, jedoch unterschiedliche Werte
+    - Korrelation $\rightarrow$ Stärke des linearen Zusammenhangs
+
+---
+
+## Interpretation der geschätzen Koeffizienten
+
+.instructions[Dozenten mit einer Einheit höheren Attraktivität haben im Durchschnitt eine um 0.067 Einheiten bessere Lehrevaluation]
+
+- Wir sprechen bei der Interpretation des Koeffizienten der Attraktivitätsvariablen nur von einer Assoziation zwischen Attraktivität und Lehrevaluationsergebnis, **nicht** von einer kausalen Interpretation
+- Folgende Einschätzung wäre **falsch**: Eine um eine Einheit höhere Attraktivität **führt** zu einer um 0.067 Einheiten besseren Lehrevaluation
+- Es könnte durchaus sein, dass es weitere Variablen gibt, die sowohl die Attraktivität des Dozenten, als auch die Lehrevaluation beeinflussen, z.B. das Alter.
+    - Nur weil zwei Variablen stark miteiander korrelieren bedeutet dies nicht, dass eine zur anderen führt.
+    
+$\rightarrow$ .alert[Korrelation ist nicht gleich Kausalität]
+
+--
+
+- Weiterhin sprechen wir von einer Erhöhung der Lehrevaluationsergebnisse von _im Durchschnitt_ 0.067 Einheiten
+
+---
+
+## Die Funktion `lm`
+
+- Die geschätzten Koeffizienten sind Zufallsvariablen
+- Diese Zufallsvariablen haben eine Verteilung
+- Die t-Statistik (`t value`) und p-Werte (`Pr(>|t|)`) basieren auf der Annahme, dass $\varepsilon$ normalverteilt ist
+- Dadurch ergibt sich für die t-Statistik: 
+  - $\hat{\beta}_0 / \hat{\mbox{SE}}(\hat{\beta}_0 )$ und $\hat{\beta}_1 / \hat{\mbox{SE}}(\hat{\beta}_1 )$ folgen einer **t-Verteilung** mit $N-p$ Freiheitsgraden
+  - $p$ ist die Anzahl an Parametern in unserem Modell (in unserem Fall $p=2$)
+  - die p-Werte testen ob $\beta_0 = 0$ bzw. ob $\beta_1 = 0$
+  - Für große $N$ nähert sich die t-Verteilung der Normalverteilung an
+
+---
+
+## Schätzer sind Zufallsvariablen 
+
+Für jedes Lehrevaluationsergebnis können wir eine Vorhersage treffen ( $\hat{Y}$ ), gegeben unserer Regressionsgeraden und dem bekannten Wert der Attraktivität des Dozenten/der Dozentin ( $x$ ):
+
+$$\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 x$$
+
+Beachten Sie, dass $\hat{Y}$ eine Zufallsvariable ist, für welche Sie den Standardfehler bestimmen können. Wenn wir nun annehmen, dass die Standardfehler normalverteilt sind, so können wir Konfidenzintervalle für $\hat{Y}$ bilden.
+
+In ggplot2 können wir diese Konfidenzintervalle um $\hat{Y}$ auch zeichnen (wir nutzen hier `geom_smooth(method = "lm")`)
+
+---
+
+## Schätzer sind Zufallsvariablen 
+
+```{r, fig.width=10, fig.height=5}
+used_evals %>% ggplot(aes(bty_avg, score)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+---
+
+## Schätzer sind Zufallsvariablen 
+
+
+Durch die R Funktion `predict` können die vorhergesagten Werte unserer Schätzung durch `lm` für jeden Punkt ausgegeben werden.
+
+```{r, fig.width=10, fig.height=5}
+used_evals %>% 
+  mutate(Y_hat = predict(lm(score ~ bty_avg, data = .))) %>%
+  ggplot(aes(bty_avg, Y_hat)) +
+  geom_line()
+```
+
+---
+
+## Das Paket broom
+
+In dieser Vorlesung nutzen wir Pakete des `tidyverse` Universums um unsere Datenanalyse durchzuführen.
+Jedoch sind sehr viele Funktionen in R nicht teil des `tidyverse`, wie z.B. die `lm` Funktion um eine lineare Regression durchzuführen.
+
+Durch das Paket `broom` und deren Funktionen `tidy`, `glance` und `augment` können wir die Ergebnisse von Funktionen wie `lm` in das uns bekannte `tidyverse` überführen.
+
+---
+
+## Das Paket broom
+
+
+Die Funktion `tidy` gibt die Ergebnisse aus `lm` als Dataframe wieder:
+
+.small[
+```{r}
+library(broom)
+library(janitor)
+schätzer <- lm(score ~ bty_avg, data = used_evals)
+tidy(schätzer) %>%
+  mutate_if(is.numeric, round, digits = 3) %>% 
+  clean_names()
+```
+]
+
+---
+
+## Das Paket broom
+
+Hier können wir auch andere Informationen wie Konfidenzintervalle ausgeben lassen:
+
+.small[
+```{r}
+tidy(schätzer, conf.int = TRUE) %>%
+  mutate_if(is.numeric, round, digits = 3) %>% 
+  clean_names()
+```
+]
+
+---
+
+class: center, middle, inverse
+
+# Multivariate Regression
+
+---
+
+## Einführung
+
+- Statt nur eine erklärende Variable ins Modell aufzunehmen können auch mehrere erklärende Variablen hinzugenommen werden, bspw. könnten wir ein Modell schätzen mit:
+    - Alter (nummerisch)
+    - Geschlecht (kategorisch)
+
+.question[Bekommen ältere oder jüngere Dozenten/innen bessere Lehrevaluationen und unterscheidet sich dies nach Geschlecht?]
+
+---
+
+## Deskriptive Analysen
+
+- Korrelationskoeffizient für Alter und Lehrevaluation 
+
+```{r}
+used_evals %>% 
+  summarize(cor(score,age)) %>%
+  pull()
+```
+---
+
+## Explorative Grafiken
+
+```{r, out.width='50%'}
+used_evals %>%
+  ggplot(aes(x = age, y = score, color = gender)) +
+  geom_point() +
+  labs(x = "Alter", y = "Lehrevaluationsergebnis", color = "Geschlecht") +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+
+---
+
+## Mulitvariate Regression
+
+```{r}
+basismodell <- lm(score ~ age + gender, data = used_evals)
+tidy(basismodell) %>%
+  mutate_if(is.numeric, round, digits = 3) %>% 
+  clean_names()
+```
+--
+
+- Ein um ein Jahr älterer Dozent/Dozentin hat im Durchschnitt eine um 0.009 Einheiten schlechtere Lehrevaluation (`age`)
+    - Signifikant auf dem 1% Signifikanzniveau
+- Männliche Dozenten haben im Durchschnitt eine um 0.191 Einheiten bessere Lehrevaluation (`gendermale`)
+    - Signifikant auf dem 1% Signifanzniveau
+
+--
+
+.question[Gibt es unterschiedliche Effekte für Männer und Frauen über das Alter hinweg? Wie könnte das gemessen werden?]
+
+---
+
+## Interaktionsmodell
+
+Unsere explorative Grafik deutet zwei unterschiedliche Kurveverläufe an. Durch ein Interaktionsmodell können wir dem Phänomen Rechnung tragen
+
+--
+
+```{r}
+interaktionsmodell <- lm(score ~ age * gender, data = used_evals)
+tidy(interaktionsmodell, conf.int = TRUE) %>%
+  mutate_if(is.numeric, round, digits = 3) %>% 
+  clean_names()
+```
+
+---
+
+## Interpretation der Koeffizienten
+
+- Frauen bilden hier die Basisgruppe, da in unserer kategorischen Variable `gender` female vor male kommt und damit automatisch als Basisgruppe deklariert wird
+- Der Achsenabschnitt ist hier _nur_ für Frauen
+    - Entspricht der roten Linie im vorherigen Schaubild
+    - Steigung der roten Linie ist -0.018 im vorherigen Schaubild
+- Männer werden hier als Vergleich zu den Frauen berechnet.
+    - Achsenabschnitt für Männer $\rightarrow$ 4.833 - 0.446 = 4.437
+    - Steigung im vorherigen Schaubild für Männer wäre dann entsprechend $\rightarrow$ -0.018 + 0.014 = -0.004
+
+---
+
+## Interpretation der Koeffizienten
+
+In einer Tabelle zusammengefasst bedeutet dies:
+
+Geschlecht|Achsenabschnitt|Steigung
+---|---|---
+Frauen|4.833|-0.018
+Männer|4.437|-0.004
+
+--
+
+Das heißt die Lehrevaluationsergebnisse sind im Durchschnitt bei älteren Frauen pro Lebensjahr um -0.018 Einheiten schlechter, bei Männern nur um -0.004 Einheiten.
+
+$\rightarrow$ .alert[Das Alter hat bei Frauen einen **höheren negativen Effekt** auf die Lehrevaluationsergebnisse]
+
+---
+
+## Aufteilen der Stichprobe
+
+Anstatt einen Interaktionsterm einzuführen können Sie die Stichprobe auch aufteilen:
+
+```{r}
+split1 <- lm(score ~ age, data = filter(used_evals, gender=="female"))
+split2 <- lm(score ~ age, data = filter(used_evals, gender=="male")) 
+
+#Alternativ
+used_evals %>%  
+  group_by(gender) %>%
+  do(tidy(lm(score ~ age, data = .), conf.int = TRUE)) %>%
+  mutate_if(is.numeric, round, digits = 3) %>% 
+  clean_names()
+
+```
+
+--
+
+.alert[Die Koeffizienten sind die Selben wie wir sie beim Interaktionsmodell erhalten haben]
+
+---
+
+## Das Paket broom
+
+Falls Sie mit den Werten aus der Regression weiterarbeiten möchten können Sie auch für unterschiedliche Gruppen einzelne Regressionen durchführen lassen. Hier hilft ihnen der `do`-Befehl aus dem `broom` Paket:
+
+```{r}
+used_evals %>%  
+  group_by(gender) %>%
+  do(tidy(lm(score ~ age, data = .), conf.int = TRUE))
+```
+
+---
+
+## Das Paket broom
+
+Diesen Dataframe können wir anschließend nach den Regressionskoeffizienten von Interesse filtern und uns nur die Spalten ausgeben lassen, welche uns interessieren:
+
+```{r}
+used_evals %>%  
+  group_by(gender) %>%
+  do(tidy(lm(score ~ age, data = .), conf.int = TRUE)) %>%
+  filter(term == "age") %>%
+  select(gender, estimate, conf.low, conf.high)
+```
+
+
+---
+
+## Multivariate Regression
+
+Es besteht auch die Möglichkeit unterschiedliche Regressionsspezifikationen mit dem Paket `stargazer` einander gegenüberzustellen.
+
+Code für die Verwendung von `stargazer`, wobei die jeweiligen Modelle auf den vorherigen Folien berechnet und unter den entsprechenden Namen abgespeichert wurden.
+
+```{r, results='asis', eval=FALSE}
+library(stargazer)
+stargazer(basismodell, interaktionsmodell, split1, split2, type="html")
+```
+
+---
+
+.tiny[
+```{r, results='asis', echo=FALSE}
+library(stargazer)
+stargazer(basismodell, interaktionsmodell, split1, split2, type="html")
+```
+]
