@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Die Opioidkrise in den USA</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Alexander Rieber" />
+    <script src="libs/jquery-1.11.3/jquery.min.js"></script>
+    <script src="libs/elevate-section-attrs-2.0/elevate-section-attrs.js"></script>
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="uni-ulm.css" type="text/css" />
+    <link rel="stylesheet" href="uni-ulm-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Die Opioidkrise in den USA
+### Alexander Rieber
+
+---
+
+
+
+
+
+
+# Fakten
+
+.alert[Jeden Tag sterben 128 Personen an einer Opioid Überdosis (Stand 2018)]
+
+--
+
+.pull-left[
+&lt;img src="./figs/Pills.jpg" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+--
+.pull-right[
+&lt;img src="https://resize.hswstatic.com/w_907/gif/10-causes-of-car-fires-4.jpg" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+&lt;img src="https://www.cdc.gov/drugoverdose/images/epidemic/2018-3-Wave-Lines-Mortality.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Verfügbare Daten
+
+.instructions[Das _Institute for Health Metrics and Evaluation_ stellt Daten zu den Drogentoten von 1980 bis 2014 bereit]
+
+.pull-left[
+
+&lt;img src="./figs/drugs.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+--
+
+.pull-right[
+
+
+&lt;img src="./figs/alkohol.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+
+---
+
+&lt;img src="./figs/map_death.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="./figs/top10_death.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="./figs/dumbell_chart.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="./figs/nyt_opioid_abuse.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Verschreibung von Opiaten
+
+
+
+
+
+&lt;img src="./figs/map_prescribing.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# Erkenntnisse aus unserer Analyse
+
+- Signifikanter Zusammenhang zwischen der Verschreibungsrate von Opioiden und der Todesrate in den jeweiligen Counties
+- Eine um 1 Einheit höhere Verschreibungsrate von Opioiden pro 100 Einwohner korrespondiert mit einer um 0,028 Personen höheren Todesrate pro 100 000 Einwohnern
+
+.instructions[Counties mit einer um eine Standardabweichung höheren Verschreibungsrate von Opioiden korrespondieren im Durchschnitt mit 1,38 mehr Drogentoten pro 100 000 Einwohner!]
+
+--
+
+.alert[**Dennoch:** Verschreibung von Opioiden nicht grundsätzlich verbieten, sondern vernünftiger damit umgehen!]
+
+---
+
+&lt;img src="./figs/bottom10_death.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

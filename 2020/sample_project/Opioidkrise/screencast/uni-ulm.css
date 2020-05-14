@@ -1,0 +1,113 @@
+h1, h2, h3 {
+  font-weight: normal;
+  color: #56aa1c;
+}
+a, a > code {
+  color: #56aa1c;
+}
+.remark-code-line-highlighted { background-color: rgba(86, 170, 28, 0.3); }
+
+.inverse {
+  background-color: #56aa1c;
+}
+.inverse, .inverse h1, .inverse h2, .inverse h3, .inverse a, inverse a > code {
+  color: #fff;
+}
+
+/* Font sizes */
+.large .remark-code { font-size: 130% }
+.midi .remark-code { font-size: 85% }
+.small .remark-code { font-size: 70% }
+.tiny .remark-code { font-size: 60% }
+.supersmall .remark-code { font-size: 50% }
+
+/* Two-column layout */
+.left-column {
+  color: #777;
+  width: 20%;
+  height: 92%;
+  float: left;
+}
+.left-column h2:last-of-type, .left-column h3:last-child {
+  color: #000;
+}
+.right-column {
+  width: 75%;
+  float: right;
+  padding-top: 1em;
+}
+.center {
+  text-align:center;
+}
+.pull-left {
+  float: left;
+  width: 47%;
+}
+.pull-right {
+  float: right;
+  width: 47%;
+}
+.pull-right ~ * {
+  clear: both;
+}
+
+
+/* Custom boxes */
+.question {
+  border-left: solid 5px #1E5C65;
+  background-color: #1E5C6530;
+  padding: 1px 16px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.alert {
+  border-right: solid 5px #56aa1c;
+  background-color: #56aa1c30;
+  padding: 1px 16px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.instructions {
+  border-left: solid 5px #FFD748;
+  background-color: #FFD74850;
+  font-size: 90%;
+  padding: 1px 16px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.instructions li::before {
+  content: ">"; 
+  color: #FFD748;
+  display: inline-block; 
+  margin-left: -1.5em
+}
+
+/* Quotes */
+blockquote {
+  border-left: solid 5px lightgray;
+  padding-left: 1em;
+}
+
+
+/* Lists */
+ul {
+  list-style: none;
+}
+li::before {
+  content: "✚"; 
+  color: #56aa1c; 
+  display: inline-block; 
+  width: 1.5em;
+  margin-left: -1.5em
+}
+li{
+  margin: 10px 0;
+}
+
+
+/* Change title slide */
+.title-slide {
+  background-image: url("figs/Pills.jpg");
+  background-size: cover;
+  opacity: 0.5;
+}

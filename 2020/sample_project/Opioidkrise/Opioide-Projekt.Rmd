@@ -1,0 +1,87 @@
+---
+title: "Opioidsucht in Amerika"
+params:
+  viridis_palette: viridis
+output:
+  html_document:
+    highlighter: null
+    theme: "flatly"
+    code_download: TRUE
+    toc: true
+    toc_float: true
+    code_folding: "hide"
+---
+# Motivation
+
+President Trump verhängte am 17. Oktober 2017 den nationalen Gesundheitsnotstand. Der Grund: Die Opioidkrise in den USA.
+Die Pharma Industrie, insbesondere Purdue Pharma und die Inhaberfamilie Sackler, stehen seit Jahren im Fokus der amerikanischen Öffentlichkeit. Interne Dokumente belegen, dass Purdue Pharma, Produzent des Schwerzmittels Oxycontin (ein sehr starkes, legales Schmerzmittel auf Opiodbasis) gewusst hat, wie stark abhängig ihre Medikamente machen. Schlimmer noch, es wurde daran geforscht ein Medikament auf den Markt zu bringen, mit dem die Sucht bekämpft werden kann. D.h. Purdue Pharma wollte an dem Leid der Menschen doppelt verdienen. Problematisch ist neben der zunehmenden Medikamentenabhängigkeit eines immer größeren Teils der amerikanischen Bevölkerung auch das Abdriften in die Drogensucht, insbesondere da amerikanische Ärzte in den letzten Jahren Medikamente nicht mehr so leicht verschrieben haben. Drogensucht, insbesondere Heroin tritt hier oft an die Stelle der Medikamentensucht. Zusammengenommen zieht die Opioidkrise damit immense ökonomische Kosten nach sich, die [eine Studie der Society of Actuaries aus dem Jahr 2019](https://www.soa.org/globalassets/assets/files/resources/research-report/2019/econ-impact-non-medical-opioid-use.pdf) auf $631 Milliarden für die Jahre 2015 - 2018 beziffert. 
+
+In diesem Projekt werden Sie untersuchen, ob es einen Zusammenhang zwischen der Verschreibung von Opioiden in einzelnen Counties der USA und den Drogentoten in diesen Counties gibt. Hierzu werten Sie öffentlich zugänglich Informationen der amerikanischen Gesundheitsbehörde aus.
+
+# Daten
+
+## Datengrundlage
+
+Zunächst müssen Sie die für ihre Fragen relevanten Daten beschaffen. Hierbei werden Sie auf der Seite des [Institute for Health Metrics and Evaluation](http://ghdx.healthdata.org/us-data) fündig. Diese Seite liefert ihnen Informationen über die Sterblichkeit von US-Amerikanern auf der Basis ganz unterschiedlicher Krankheiten.
+
+1. Sie interessieren sich insbesondere für Daten zu den "Substance use disorders". Laden Sie sich alle Informationen zu den "Substance use disorder", unterteilt für die US-Counties von 1980 - 2014 herunter und lesen Sie diese in R ein. Die _Anzahl der Drogentoten wird hier pro 100 000 Personen_ angegeben. Sie sollten alle Einzeldateien am Ende zu **einem Datensatz** verbinden, welcher die Anzahl der Toten für Alkoholsucht als auch Drogensucht (cause_id == 560 und cause_id == 561) für alle Counties seit 1980 - 2014 beinhaltet. Nennen Sie diesen Datensatz `Drogen_Tote`. Behalten Sie im Enddatensatz `Drogen_Tote` _nur die Variablen_ `Location_name`, `FIPS`, `cause_name`, `sex`, `year_id`, `mx`, `lower` und `upper`.
+
+Weiterhin sollten Sie sich Informationen zu den Verschreibungen von opioiden Schmerzmitteln herunterladen. Diese stellt das _Center for Disease Control and Prevention_ auf [ihrer Internetseite](https://www.cdc.gov/drugoverdose/maps/rxrate-maps.html) zwischen 2006 - 2017 für 87.6% - 94.0% aller U.S. counties zur Verfügung (laut eigenen Angaben). Die angegebene "Prescribing rate" wurde als _Verschreibungen pro 100 U.S. Bürger_ berechnet. 
+
+2. Laden Sie die Daten zur _Prescribing rate_ (`prescribing`) für alle verfügbaren Counties zwischen den Jahren 2006 und 2014 herunter und lesen Sie diese in R ein. Erstellen Sie hierzu einen eigenen Datensatz `Opiod_Verschreibungen`. Achten Sie darauf das Jahr der Tabelle immer als neue Variable `year_id` abzuspeichern. Weiterhin sollten Sie die Spalte `FIPS County Code` mit `FIPS` benennen. Stellen Sie sicher, dass `FIPS` nummerisch gespeichert wurde. Der Datensatz `Opiod_Verschreibungen` sollte nur die `FIPS`, die `prescribing_rate` und die `year_id` enthalten.
+
+_Hinweis:_ Arbeiten Sie sich zunächst in das Paket [`rvest`](https://github.com/hadley/rvest) ein. Hierzu finden Sie eine Einführung auf unserem [Github Repositorium.](https://github.com/AlexRieber/datascience-teaching/tree/master/2020/tutorials/rvest)
+
+Damit Sie die vorhandenen Daten auswerten können müssen Sie diese zuerst zu einem Datensatz verbinden, auf welchem Sie ihre Analyse tätigen können.
+
+3. Verbinden Sie den Datensatz `Drogen_Tote` mit dem Datensatz `Opiod_Verschreibungen` mittels der Variablen `FIPS` und `year_id`. Nennen Sie ihren neuen Datensatz `Drogen_Analyse`.
+
+
+# Deskriptive Analyse
+
+Sie sollten sich im ersten Schritt einen Überblick über ihre Daten verschaffen. Betrachten Sie für ihre Analysen nur die Jahre 2006 bis 2014, da Sie hier über Daten zur Verschreibungsrate pro County und der Anzahl an Drogentoten verfügen.
+
+4. Erstellen Sie eine Tabelle mit ersten deskriptiven Informationen über ihren Datensatz. Diese Tabelle sollte die Anzahl der Beobachtungen, den Mittelwert, die Standardabweichung, den Median, sowie Minimum und Maximum für die Variablen `mx` und `prescribing` enthalten.
+
+Im nächsten Schritt geht es darum sich visuell mit den Daten vertraut zu machen. Hierfür sollten Sie sich zunächst nur auf das Jahr 2014 konzentrieren, das aktuellste Jahr in den vorliegenden Daten.
+
+5. Visualisieren Sie die zehn Counties mit den meisten Drogentoten (Gesamtzahl in dem County) in 2014. Ihre Grafik sollte den Namen des Counties und die Anzahl der Drogentoten beinhalten. Konzentrieren Sie sich auf die Drogentoten und lassen Sie die anderen Gründe im Datensatz vorerst außen vor. Erstellen Sie eine Grafik mit allen Personen ( _nicht_ unterteilt nach Geschlecht) und beachten Sie auch die Konfidenzintervalle (`lower` und `upper`).
+
+6. In ihrem Datensatz haben Sie Informationen zu den Drogentoten, unterschieden nach Frauen und Männern. Um zu veranschaulichen, welches Geschlecht eher von der Opioid-Krise betroffen ist sollten Sie eine Grafik erstellen, in der Sie die Anzahl Drogentoten für Frauen und Männer einander gegenüberstellen. Hierzu eignet sich insbesondere das [Dumbbell Chart](https://www.rdocumentation.org/packages/SciencesPo/versions/1.4.1/topics/geom_dumbbell). 
+
+Gehen Sie auf die Unterschiede zwischen Frauen und Männern kurz ein. Was könnten ihrer Meinung nach Gründe für die hohe Anzahl an Drogentoten, insbesondere in den ersten 5 Counties sein? Recherchieren Sie die Bevölkerungszusammensetzung und mittleren Einkommen der 5 Counties, welche in ihrer Grafik oben stehen und interpretieren Sie ihre Grafik.
+
+7. Visualisieren Sie demgegenüber die zehn Counties mit den geringsten Drogentoten in 2014 für beide Geschlechter zusammengefasst. Ihre Grafik sollte den Namen des Counties, den Bundesstaat und die Anzahl der Drogentoten beinhalten. Fügen Sie bitte weiterhin das Konfidenzintervall hinzu (`upper` und `lower`). Lassen Sie die Alkoholtoten vorerst außen vor. Recherchieren Sie die Bevölkerungszusammensetzung und mittleren Einkommen der 5 Counties, welche in ihrer Grafik oben stehen und interpretieren Sie ihre Grafik.
+
+Nun haben Sie sich das aktuellste Jahr in ihren Daten angeschaut. Jedoch wollen Sie etwas über die Entwicklung der Opioid-Krise in den USA lernen.
+
+8. Berechnen Sie sich die durchschnittliche Sterblichkeit zwischen 1980 - 2014 über alle Counties. Erstellen Sie anschließend eine Grafik, in der Sie die durchschnittliche Sterblichkeit visualisieren. Unterscheiden Sie in ihrer Grafik nach den Geschlechtern. Weiterhin sollten Sie _je eine_ Grafik für
+    a) Drogentote durch Alkohol
+    b) Drogentote durch Drogen
+
+erstellen und diese nebeneinander plotten. Seit 2014 hat sich die Lage weiterhin verschlimmert, wie Sie [hier](https://www.cdc.gov/nchs/data/databriefs/db329-h.pdf) sehen können. Interpretieren Sie ihre Grafik und erläutern Sie, was zu dem starken Anstieg an Drogentoten geführt haben könnte.
+
+9. Nun sollten Sie mittels der FIPS Codes und dem "US_County_Boundaries.shp", welche Sie auf [dieser Webseite](https://www.sciencebase.gov/catalog/item/4f4e4a2ee4b07f02db615738) finden können eine Karte der USA zeichnen und diese mit den Drogentoten pro 100 000 Einwohnern einfärben. Nutzen Sie hierfür die Daten aus 2014.
+
+10. Im nächsten Schritt sollten Sie sich die Korrelation der durchschnittlichen Drogentoten in einem County und der Verschreibungsrate von Opioiden Schmerzmitteln in diesem County für das Jahr 2014 anschauen. Erstellen Sie hierzu ein Streudiagramm, welches diesen Zusammenhang visualisiert und berechnen Sie den Korrelationskoeffizienten.
+    - Erläutern Sie ihre Ergebnisse kurz.
+
+# Regressionsanalyse
+
+Bisher haben wir uns visuell einen Überblick über die Opioidkrise in Amerika verschafft. Hier haben wir einen ersten Hinweise darauf erhalten, dass Counties mit einer höheren Verschreibung von Medikamenten auf Opioid-Basis auch die Counties sind, in denen die Opioid-Krise besonders stark ist. Jedoch wollen wir die grafische Analyse noch durch eine Regressionsanalyse untermauern.
+
+11. Führen Sie eine univariate Regression durch in der Sie die Anzahl der Drogentoten auf die Verschreibungsrate von Opiaten regressieren. Stellen Sie ihre Ergebnisse in einer Tabelle anschaulich dar.
+
+12. Erweiteren Sie ihre Regression aus Aufgabe 11 und kontrollieren Sie nach dem Geschlecht. Stellen Sie ihre Ergebnisse in einer Tabelle anschaulich dar.
+
+Interpretieren Sie ihre Ergebnisse:
+
+- Kommentieren Sie die Koeffizienten der Regression. Was sind ihre Erwartungen bzgl. Vorzeichen und Sigifikanz der Koeffizienten gegeben ihrer vorherigen Analysen?
+- Kommentieren Sie die t-Statistik und den Standardfehler des Koeffizienten
+
+
+
+
+
+
+
