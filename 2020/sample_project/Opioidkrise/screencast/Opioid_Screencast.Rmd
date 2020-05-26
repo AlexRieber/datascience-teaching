@@ -30,7 +30,6 @@ Drogen_Analyse <- Drogen_Analyse_gesamt %>%
 
 .alert[Jeden Tag sterben 128 Personen an einer Opioid Überdosis (Stand 2018)]
 
---
 
 .pull-left[
 ```{r, out.width='100%', fig.align='center', echo=FALSE}
@@ -38,7 +37,6 @@ knitr::include_graphics('./figs/Pills.jpg')
 ```
 ]
 
---
 .pull-right[
 ```{r, out.width='100%', fig.align='center', echo=FALSE}
 knitr::include_graphics('https://resize.hswstatic.com/w_907/gif/10-causes-of-car-fires-4.jpg')
@@ -129,24 +127,6 @@ knitr::include_graphics('./figs/map_death.png')
 
 ---
 
-```{r, out.width='100%', fig.align='center', echo=FALSE}
-knitr::include_graphics('./figs/top10_death.png')
-```
-
----
-
-```{r, out.width='100%', fig.align='center', echo=FALSE}
-knitr::include_graphics('./figs/dumbell_chart.png')
-```
-
----
-
-```{r, out.width='100%', fig.align='center', echo=FALSE}
-knitr::include_graphics('./figs/nyt_opioid_abuse.png')
-```
-
----
-
 # Verschreibung von Opiaten
 
 ```{r, echo=FALSE, include=FALSE, eval=FALSE}
@@ -228,11 +208,4 @@ knitr::include_graphics('./figs/map_prescribing.png')
 --
 
 .alert[**Dennoch:** Verschreibung von Opioiden nicht grundsätzlich verbieten, sondern vernünftiger damit umgehen!]
-
----
-
-```{r, out.width='100%', fig.align='center', echo=FALSE}
-knitr::include_graphics('./figs/bottom10_death.png')
-```
-
 

@@ -1,0 +1,39 @@
+---
+title: "Screencast Opioidkrise"
+output: html_document
+---
+
+Zur Bekämpfung der Opioidkrise in den USA hat President Trump im Jahr 2017 den nationalen Gesundheitsnotstand ausgerufen. Nicht erst seit diesem nationalen Gesundheitsnotstand ist die Krise in der amerikanischen Öffentlichkeit präsent. Die ökonomischen Kosten der Krise werden von der Society of Actuaries für die Zeit zwischen 2015 bis 2018 auf 631 Milliarden Dollar geschätzt.
+In diesem Projekt untersuchen wir die Gründe für die aktuelle Opioidkrise. Wir konzentrieren uns insbesondere auf die Verschreibungsrate von opioiden Schmerzmitteln auf County Ebene.
+
+---
+
+Zu den Fakten:
+- Im Jahr 2018 starben in den USA jeden Tag durchschnittlich 128 Personen an einer Überdosis Drogen. Diese Zahlen steigen ständig, übertreffen jedoch jetzt schon die Toten z.B. durch Verkehrsunfälle.
+
+---
+
+- Laut Center for Desease Control and Prevention gab es bisher drei Wellen welche die Drogentoten weiterhin steigen lassen. Die erste Welle Ende der 1990er Jahre führen sie auf die verschreibung von Opiaten zurück, in der zweiten und dritten Welle sind dann Drogen an sich verantwortlich. Oft wird argumentiert, dass viele Personen über eine Medikamentensucht in die Drogensucht abrutschen.
+
+---
+
+- Wir nutzen für unsere Analyse die Daten des Institut for Health Metrics and Evaluation und untersuchen die Entwicklung der Drogentoten pro 100 000 Einwohner seit 1980 bis 2014. Hier erkennen wir einen deutlichen Anstieg der Drogentoten ab Mitte der 1990 Jahre. 
+
+--
+
+Demgegenüber gibt es keinen derartigen Trend für andere Drogen, wie etwa die Anzahl der Toten durch Alkoholmissbrauch. Die Entwicklung der Drogentoten ist daher sehr besorgniserregend.
+
+---
+
+Neben dem Trend über die Zeit können wir auch die Verteilung in einem Jahr näher anschauen. Hier sehen wir, dass die gesamten USA im Jahr 2014 von der Epidemie betroffen waren, es aber auch ganz klar Hot-Spots gab, wie bspw. in den Appalachen oder bei New-Mexico. Bei näherer Betrachtung der Counties, welche am stärksten von der Krise betroffen sind, haben wir festgestellt, das dies hauptsächlich Counties in Kenntuky und West Virginia sind, d.h. der Appalachen Region. Diese Counties sind dünn besiedelt und ärmer als der Durchschnitt in den USA. Doch was ist der Grund für diese starke Zunahme an Drogentoten über die Zeit und in diesen strukturschwachen Counties? 
+
+---
+
+In vielen Medien wird hier die hohe Verschreibungsrate von opioiden Schmerzmitteln aangeführt. In der Tat sehen wir auch bei der Verschreibungsrate in den Counties der Appalachen eine Clusterbildung. Leider haben wir jedoch nicht für jedes County Informationen zur Verschreibungsrate in unseren Daten vorliegen.
+
+---
+
+Nichtsdestotrotz haben wir uns in einer Regressionsanalyse mit dem Zusammenhang zwischen Verschreibungsrate von opioiden Schmerzmitteln und den Drogentoten näher beschäftigt.
+In dieser Regression kommen wir zu dem Schluss, dass es einen signifikanten Zusammenhang zwischen der Verschreibungsrate von opioiden Schmerzmitteln und der Anzahl an Drogentoten in dem jeweiligen County gibt. Dieser Zusammenhang ist nicht unerheblich. Counties, welches um eine Standardabweichung mehr Verschreibungen von opioiden Schmerzmitteln vorweisen korrespondieren mit im Durchschnitt 1,35 Drogentoten mehr pro 100 000 Einwohner.
+
+Dies sind erschreckende Zahlen und deuten auf einen nicht unerheblichen Zusammenhang zwischen Medikamentensucht und den Drogentoten hin. Jedoch würden wir nicht dafür plädieren opioide Schmerzmittel zu verbieten, denn diese können vielen leidenden Menschen Linderung verschaffen, wo die Standardmedikation an ihre Grenzen kommt. Dennoch plädieren wir für einen Verantwortungsvollen Umgang mit diesen Medikamenten und eine behutsame Verschreibung. Ein Umdenken, welches in Amerika in den letzten Jahren unter Ärzten schon eingesetzt hat.
