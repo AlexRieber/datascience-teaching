@@ -29,11 +29,11 @@ Neben dem Trend über die Zeit können wir auch die Verteilung in einem Jahr nä
 
 ---
 
-In vielen Medien wird hier die hohe Verschreibungsrate von opioiden Schmerzmitteln aangeführt. In der Tat sehen wir auch bei der Verschreibungsrate in den Counties der Appalachen eine Clusterbildung. Leider haben wir jedoch nicht für jedes County Informationen zur Verschreibungsrate in unseren Daten vorliegen.
+In vielen Medien wird hier die hohe Verschreibungsrate von opioiden Schmerzmitteln angeführt. In der Tat sehen wir auch bei der Verschreibungsrate in den Counties der Appalachen eine Clusterbildung. Leider haben wir jedoch nicht für jedes County Informationen zur Verschreibungsrate in unseren Daten vorliegen.
 
 ---
 
-Nichtsdestotrotz haben wir uns in einer Regressionsanalyse mit dem Zusammenhang zwischen Verschreibungsrate von opioiden Schmerzmitteln und den Drogentoten näher beschäftigt.
-In dieser Regression kommen wir zu dem Schluss, dass es einen signifikanten Zusammenhang zwischen der Verschreibungsrate von opioiden Schmerzmitteln und der Anzahl an Drogentoten in dem jeweiligen County gibt. Dieser Zusammenhang ist nicht unerheblich. Counties, welches um eine Standardabweichung mehr Verschreibungen von opioiden Schmerzmitteln vorweisen korrespondieren mit im Durchschnitt 1,35 Drogentoten mehr pro 100 000 Einwohner.
+Um unseren visuellen Eindrücke zu untermauern haben wir uns in einer Regressionsanalyse mit dem Zusammenhang zwischen Verschreibungsrate von opioiden Schmerzmitteln und den Drogentoten näher beschäftigt.
+In dieser Regression kommen wir zu dem Schluss, dass es einen signifikanten Zusammenhang zwischen der Verschreibungsrate von opioiden Schmerzmitteln und der Anzahl an Drogentoten in dem jeweiligen County gibt. Dieser Zusammenhang ist nicht unerheblich. Counties, welches um eine Standardabweichung mehr Verschreibungen von opioiden Schmerzmitteln vorweisen haben im Durchschnitt 1,35 Drogentote mehr pro 100 000 Einwohner. Andere Faktoren, welche die Opioidsucht auch beeinflussen können wurden in unserem Projekt jedoch ausgeklammert.
 
-Dies sind erschreckende Zahlen und deuten auf einen nicht unerheblichen Zusammenhang zwischen Medikamentensucht und den Drogentoten hin. Jedoch würden wir nicht dafür plädieren opioide Schmerzmittel zu verbieten, denn diese können vielen leidenden Menschen Linderung verschaffen, wo die Standardmedikation an ihre Grenzen kommt. Dennoch plädieren wir für einen Verantwortungsvollen Umgang mit diesen Medikamenten und eine behutsame Verschreibung. Ein Umdenken, welches in Amerika in den letzten Jahren unter Ärzten schon eingesetzt hat.
+Dies sind erschreckende Zahlen und deuten auf einen nicht unerheblichen Zusammenhang zwischen Medikamentensucht und Drogentoten hin. Jedoch würden wir nicht dafür plädieren opioide Schmerzmittel zu verbieten, denn diese können vielen leidenden Menschen Linderung verschaffen, wo die Standardmedikation an ihre Grenzen kommt. Dennoch plädieren wir für einen Verantwortungsvollen Umgang mit diesen Medikamenten und eine behutsame Verschreibung. Ein Umdenken, welches in Amerika in den letzten Jahren unter Ärzten schon eingesetzt hat.
